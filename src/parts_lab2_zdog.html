@@ -1,0 +1,172 @@
+<!-- lab2:zdog | lib: zdog@1.1.3 | poids: 11 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="zdog"] .stage-area{background:linear-gradient(170deg,#EEF4FF 0%,#F4EFFF 45%,#FFF0F6 100%)}
+.lab2[data-tool="zdog"] canvas{cursor:grab}
+.lab2[data-tool="zdog"] .ovl{position:absolute;inset:0;pointer-events:none;font-family:var(--body),sans-serif}
+.lab2[data-tool="zdog"] .ttl{position:absolute;left:20px;top:16px;font-family:var(--display),serif;font-size:22px;color:var(--ink);line-height:1.1}
+.lab2[data-tool="zdog"] .ttl span{position:absolute;left:0;top:0;white-space:nowrap;opacity:0;transition:opacity .45s var(--ease)}
+.lab2[data-tool="zdog"] .ttl span.on{opacity:1}
+.lab2[data-tool="zdog"] .tag{position:absolute;bottom:14px;font-size:13px;color:var(--ink-2)}
+.lab2[data-tool="zdog"] .tag b{display:block;font-size:17px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.lab2[data-tool="zdog"] .tag.shop{left:20px}
+.lab2[data-tool="zdog"] .tag.rep{right:20px;text-align:right}
+.lab2[data-tool="zdog"] .tag.rep b.bad{color:var(--warn)}
+.lab2[data-tool="zdog"] .tag.rep b.good{color:var(--good)}
+</style>
+<figure class="lab2" data-tool="zdog">
+  <div class="lab-h"><h3>7 · Zdog</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <canvas aria-label="Une petite boutique et sa caisse envoient des tickets vers un écran rapport ; un ticket sur trois disparaît en route, puis au second passage ils arrivent tous."></canvas>
+    <div class="ovl">
+      <div class="ttl"><span class="s1 on">Un ticket sur trois se perd.</span><span class="s2">Tous vos tickets arrivent.</span></div>
+      <div class="tag shop">la boutique<b>6 ventes</b></div>
+      <div class="tag rep">le rapport<b class="n">0 ventes</b></div>
+    </div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>11 Ko gzip</b></span><span>Lignes<b>≈ 150</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> la caisse de la boutique émet six tickets vers l'écran « rapport » ; au premier passage, un sur trois s'évapore en chemin (4 ventes au rapport pour 6 en caisse), au second, ils arrivent tous. <b>Ce que l'outil fait de spécial :</b> de la vraie 3D en 11 Ko, sans WebGL, avec des aplats de couleur par face et un trait rond, c'est le style illustration douce qui va avec le site ; la scène se tourne à la souris et chaque objet est une forme déclarée en quelques lignes. <b>Limite :</b> pas d'éclairage ni de texte dans la scène (les étiquettes sont en HTML par dessus), et l'ordre de profondeur se trompe parfois quand des formes se croisent.</p>
+  <div class="verdict">Verdict : l'outil des petites illustrations 3D du site (prestations, étapes), là où Three.js serait vingt fois trop lourd.</div>
+</figure>
+<script src="https://unpkg.com/zdog@1.1.3/dist/zdog.dist.js"></script>
+<script>
+(function(){
+  var root = document.querySelector('.lab2[data-tool="zdog"]');
+  if (!root || !window.Zdog) return;
+  var canvas = root.querySelector('canvas');
+  var stage = root.querySelector('.stage-area');
+  var s1 = root.querySelector('.ttl .s1'), s2 = root.querySelector('.ttl .s2'), repN = root.querySelector('.tag.rep .n');
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var TAU = Zdog.TAU, raf = 0, illo = null, scene = null;
+  var INK = '#0B0B0C', INK2 = '#55555C', INK3 = '#8A8A93', ACC = '#2E5BFF', P1 = '#CDB9FF', P2 = '#FFB9E3', P3 = '#FFD7C4', P4 = '#BFDBFF';
+  var FROM = { x: -118, y: -22, z: 36 }, TO = { x: 176, y: -34, z: 8 };
+  var LOST = [1, 4];
+  var ease = function(t){ t = Math.max(0, Math.min(1, t)); return 1 - Math.pow(1 - t, 3); };
+  var inout = function(t){ t = Math.max(0, Math.min(1, t)); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+
+  function build(){
+    var w = Math.max(360, stage.clientWidth), h = stage.clientHeight || 260;
+    if (!illo) {
+      illo = new Zdog.Illustration({ element: canvas, dragRotate: true, rotate: { x: -0.32, y: 0.62 }, onDragStart: function(){ dragging = true; dragLoop(); }, onDragEnd: function(){ dragging = false; } });
+    } else {
+      illo.children.slice().forEach(function(c){ illo.removeChild(c); });
+      illo.rotate.set({ x: -0.32, y: 0.62, z: 0 });
+    }
+    illo.zoom = Math.min(1.05, w / 640) * 0.92;
+    illo.setSize(w, h);
+    var sc = { tickets: [], bars: [] };
+    // Sol
+    new Zdog.RoundedRect({ addTo: illo, width: 560, height: 230, cornerRadius: 40, rotate: { x: TAU / 4 }, translate: { y: 62 }, fill: true, stroke: false, color: 'rgba(255,255,255,.75)' });
+
+    // Boutique
+    var shop = new Zdog.Anchor({ addTo: illo, translate: { x: -176, y: 10 } });
+    new Zdog.Box({ addTo: shop, width: 120, height: 96, depth: 96, translate: { y: 4 }, stroke: false, color: P3, frontFace: '#FFE4D6', rightFace: '#F4C3AB', leftFace: '#FFD7C4', topFace: '#FFF0E8', rearFace: P3 });
+    // Toit : deux pans + pignons
+    new Zdog.Rect({ addTo: shop, width: 72, height: 110, translate: { x: -33, y: -70 }, rotate: { z: -TAU / 8 }, fill: true, stroke: 6, color: P2 });
+    new Zdog.Rect({ addTo: shop, width: 72, height: 110, translate: { x: 33, y: -70 }, rotate: { z: TAU / 8 }, fill: true, stroke: 6, color: '#F7A4D3' });
+    new Zdog.Shape({ addTo: shop, path: [{ x: -62, y: -44 }, { x: 62, y: -44 }, { x: 0, y: -98 }], translate: { z: 48 }, closed: true, fill: true, stroke: 2, color: '#FFE4D6' });
+    new Zdog.Shape({ addTo: shop, path: [{ x: -62, y: -44 }, { x: 62, y: -44 }, { x: 0, y: -98 }], translate: { z: -48 }, closed: true, fill: true, stroke: 2, color: '#F4C3AB' });
+    // Porte, vitrine, store
+    new Zdog.RoundedRect({ addTo: shop, width: 26, height: 44, cornerRadius: 6, translate: { x: 32, y: 30, z: 49 }, fill: true, stroke: false, color: ACC });
+    new Zdog.RoundedRect({ addTo: shop, width: 50, height: 34, cornerRadius: 5, translate: { x: -18, y: 14, z: 49 }, fill: true, stroke: false, color: '#FFFFFF' });
+    new Zdog.Rect({ addTo: shop, width: 110, height: 16, translate: { y: -14, z: 56 }, rotate: { x: TAU / 10 }, fill: true, stroke: 3, color: P1 });
+
+    // Caisse
+    var reg = new Zdog.Anchor({ addTo: illo, translate: { x: -118, y: 28, z: 40 } });
+    new Zdog.Box({ addTo: reg, width: 48, height: 30, depth: 36, stroke: false, color: INK2, frontFace: '#6E6E76', topFace: '#8A8A93', rightFace: '#4B4B52', leftFace: INK2 });
+    new Zdog.Rect({ addTo: reg, width: 30, height: 12, translate: { y: -22, z: -4 }, rotate: { x: -TAU / 12 }, fill: true, stroke: 3, color: P4 });
+    new Zdog.RoundedRect({ addTo: reg, width: 20, height: 4, cornerRadius: 2, translate: { y: -15, z: 6 }, rotate: { x: TAU / 4 }, fill: true, stroke: false, color: INK });
+
+    // Écran « rapport »
+    var scr = new Zdog.Anchor({ addTo: illo, translate: { x: 176, y: 0 }, rotate: { y: -0.35 } });
+    new Zdog.Box({ addTo: scr, width: 150, height: 104, depth: 8, translate: { y: -34 }, stroke: false, color: P4, frontFace: '#FFFFFF', topFace: '#D9E8FF', leftFace: '#A9C9FF', rightFace: '#A9C9FF', bottomFace: '#A9C9FF' });
+    new Zdog.Box({ addTo: scr, width: 44, height: 14, depth: 30, translate: { y: 32 }, stroke: false, color: P4, topFace: '#D9E8FF' });
+    new Zdog.Rect({ addTo: scr, width: 8, height: 20, translate: { y: 20, z: 1 }, stroke: 6, color: '#A9C9FF' });
+    for (var i = 0; i < 6; i++) {
+      sc.bars.push(new Zdog.RoundedRect({ addTo: scr, width: 12, height: 40, cornerRadius: 4, translate: { x: -47 + i * 19, y: -22, z: 5 }, fill: true, stroke: false, color: 'rgba(46,91,255,0)' }));
+    }
+    new Zdog.Rect({ addTo: scr, width: 120, height: 1, translate: { y: -2, z: 5 }, stroke: 2, color: '#D9E8FF' });
+
+    // Tickets
+    for (var k = 0; k < 6; k++) {
+      var a = new Zdog.Anchor({ addTo: illo, translate: { x: FROM.x, y: FROM.y, z: FROM.z }, scale: 0 });
+      new Zdog.RoundedRect({ addTo: a, width: 22, height: 30, cornerRadius: 3, fill: true, stroke: 1, color: '#FFFFFF' });
+      var lines = [];
+      for (var l = 0; l < 3; l++) lines.push(new Zdog.Rect({ addTo: a, width: l === 2 ? 8 : 14, height: 0.5, translate: { x: l === 2 ? -3 : 0, y: -8 + l * 7, z: 1 }, stroke: 2, color: INK3 }));
+      sc.tickets.push({ a: a, lines: lines });
+    }
+    scene = sc;
+  }
+
+  // Un ticket : vol en arc, p de 0 à 1 ; lost = s'évapore en route
+  function ticket(t, p, lost){
+    if (p <= 0 || p >= 1) { t.a.scale = 0; return; }
+    var e = ease(p);
+    t.a.translate.x = FROM.x + (TO.x - FROM.x) * e;
+    t.a.translate.z = FROM.z + (TO.z - FROM.z) * e;
+    t.a.translate.y = FROM.y + (TO.y - FROM.y) * e - 70 * Math.sin(Math.PI * p);
+    t.a.rotate.z = -0.25 + 0.5 * p;
+    t.a.rotate.y = 0.3 * Math.sin(p * Math.PI);
+    var s = p < 0.12 ? p / 0.12 : 1;
+    if (lost) {
+      var f = 1 - Math.max(0, Math.min(1, (p - 0.42) / 0.24));
+      s *= f;
+      var al = f.toFixed(2);
+      t.a.children[0].color = 'rgba(255,255,255,' + al + ')';
+      t.lines.forEach(function(ln){ ln.color = 'rgba(138,138,147,' + al + ')'; });
+    } else {
+      t.a.children[0].color = '#FFFFFF';
+      t.lines.forEach(function(ln){ ln.color = INK3; });
+    }
+    t.a.scale = s;
+  }
+
+  var P1_T0 = 0.25, P1_GAP = 0.19, FLY = 0.95, P2_T0 = 2.3, P2_GAP = 0.15;
+  function frame(tm){
+    var sc = scene, n = 0;
+    // Passage 1 : un sur trois se perd
+    for (var i = 0; i < 6; i++) {
+      var p = (tm - (P1_T0 + i * P1_GAP)) / FLY, lost = LOST.indexOf(i) >= 0;
+      var inPass2 = tm >= P2_T0 + i * P2_GAP;
+      if (!inPass2) ticket(sc.tickets[i], p, lost);
+      var arrived1 = p >= 1 && !lost;
+      // Passage 2 : tous arrivent
+      var p2 = (tm - (P2_T0 + i * P2_GAP)) / (FLY * 0.9);
+      if (inPass2) ticket(sc.tickets[i], p2, false);
+      var arrived2 = p2 >= 1;
+      var on = arrived1 || arrived2, lostMark = lost && p >= 0.7 && !arrived2;
+      sc.bars[i].color = on ? ACC : (lostMark ? 'rgba(229,72,77,.22)' : 'rgba(46,91,255,0)');
+      if (on) n++;
+    }
+    // Rotation douce entre les deux passages (changement de point de vue)
+    var r = inout((tm - 1.95) / 0.5);
+    illo.rotate.y = 0.62 - 0.22 * r;
+    illo.rotate.x = -0.32 + 0.05 * r;
+    // Étiquettes
+    repN.textContent = n + ' ventes';
+    repN.className = 'n' + (n === 0 ? '' : (n === 6 ? ' good' : (tm > 1.6 ? ' bad' : '')));
+    var benefit = tm >= 2.15;
+    s1.classList.toggle('on', !benefit); s2.classList.toggle('on', benefit);
+    illo.updateRenderGraph();
+  }
+
+  var t0 = 0, dragging = false, playing = false;
+  function loop(now){
+    var tm = (now - t0) / 1000;
+    frame(Math.min(tm, 4.2));
+    if (tm < 4.2) raf = requestAnimationFrame(loop); else playing = false;
+  }
+  // Au repos, la scène reste manipulable à la souris : on ne redessine que pendant le glisser
+  function dragLoop(){ if (!dragging || playing) return; illo.updateRenderGraph(); requestAnimationFrame(dragLoop); }
+
+  function play(){
+    cancelAnimationFrame(raf); dragging = false;
+    build();
+    if (RM) { frame(4.2); return; }
+    t0 = performance.now(); playing = true;
+    raf = requestAnimationFrame(loop);
+  }
+
+  window.LAB2 = window.LAB2 || {};
+  window.LAB2.zdog = { play: play };
+})();
+</script>

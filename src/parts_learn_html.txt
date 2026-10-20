@@ -1,0 +1,68 @@
+<!-- 3b · comprendre en trente secondes -->
+<section id="comprendre" style="padding-top:0">
+  <div class="wrap">
+    <div class="center reveal">
+      <span class="eyebrow">Comprendre en trente secondes</span>
+      <h2>Les trois mécaniques que votre consultant analytics <em>ne vous a jamais montrées</em></h2>
+      <p class="lede">Chaque animation se pilote à la main. Vous comprenez une seule chose, mais pour de bon, et vous pouvez l'expliquer à votre direction.</p>
+    </div>
+
+    <!-- A · attribution -->
+    <article class="card learn reveal" id="learnAttr">
+      <div class="learn-txt">
+        <span class="tag">GA4 contre Google Ads</span>
+        <h3>Fenêtres d'attribution : pourquoi GA4 et Google Ads ne donnent pas les mêmes chiffres</h3>
+        <p>Un clic sur votre annonce au jour 0. Douze achats dans les trois mois qui suivent. Chaque outil ne compte un achat que s'il tombe dans sa fenêtre. Changez les fenêtres et regardez les totaux diverger.</p>
+        <div class="ctl"><span class="ctl-l">Fenêtre GA4</span><div class="seg" data-seg="ga4"><button data-v="30">30 j</button><button data-v="60">60 j</button><button data-v="90" aria-pressed="true">90 j</button></div></div>
+        <div class="ctl"><span class="ctl-l">Fenêtre Google Ads</span><div class="seg" data-seg="ads"><button data-v="7">7 j</button><button data-v="30" aria-pressed="true">30 j</button><button data-v="60">60 j</button><button data-v="90">90 j</button></div></div>
+        <p class="learn-out" id="attrOut"></p>
+        <a class="go" href="/consultant-google-analytics">Je vous aligne les deux, c'est dans l'audit de tracking →</a>
+      </div>
+      <div class="learn-stage">
+        <svg viewBox="0 0 640 230" id="attrSvg" aria-label="Frise des conversions comptées par GA4 et par Google Ads">
+          <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8A8A93"/></marker></defs>
+          <g id="attrAxis"></g>
+          <g id="attrRows"></g>
+        </svg>
+      </div>
+    </article>
+
+    <!-- B · consent -->
+    <article class="card learn reveal" id="learnConsent">
+      <div class="learn-txt">
+        <span class="tag">Consent Mode v2</span>
+        <h3>Consent Mode v2 : ce que vous mesurez quand les visiteurs refusent les cookies</h3>
+        <p>Cent visiteurs convertissent. Une partie refuse les cookies. Sans Consent Mode, ces conversions disparaissent de vos rapports. Avec, Google en modélise une part et vous gardez une lecture utilisable.</p>
+        <div class="ctl"><label class="ctl-l" for="refuse">Part des visiteurs qui refusent : <b class="num" id="refuseVal">40 %</b></label><input type="range" id="refuse" min="0" max="70" value="40" step="5"></div>
+        <p class="learn-out" id="consOut"></p>
+        <a class="go" href="/consultant-google-tag-manager">Mise en place du Consent Mode v2, à partir de 290 € →</a>
+      </div>
+      <div class="learn-stage">
+        <svg viewBox="0 0 640 240" id="consSvg" aria-label="Cent visiteurs et les conversions mesurées avec ou sans Consent Mode">
+          <defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#2E5BFF" stroke-width="3" opacity=".55"/></pattern></defs>
+          <g id="consDots"></g>
+          <g id="consBars"></g>
+        </svg>
+      </div>
+    </article>
+
+    <!-- C · GTM -->
+    <article class="card learn reveal" id="learnGtm">
+      <div class="learn-txt">
+        <span class="tag">Google Tag Manager</span>
+        <h3>Google Tag Manager : comment une balise se déclenche, et comment elle compte deux fois</h3>
+        <p>Un événement arrive, un déclencheur l'évalue, une balise envoie la donnée à GA4. Déclenchez des événements, puis cassez le conteneur comme je le trouve chez la moitié de mes clients.</p>
+        <div class="ctl ctl-row"><button class="btn" type="button" id="gtmPage">Page vue</button><button class="btn btn-primary" type="button" id="gtmBuy">Achat</button></div>
+        <div class="ctl"><label class="chk"><input type="checkbox" id="gtmDup"> Balise GA4 en double</label><label class="chk"><input type="checkbox" id="gtmWide"> Déclencheur sur « toutes les pages » au lieu de « achat »</label></div>
+        <div class="counts"><div><span class="l">Achats réels</span><span class="v num" id="gtmReal">0</span></div><div><span class="l">Achats reçus par GA4</span><span class="v num" id="gtmSeen">0</span></div><div><span class="l">Écart</span><span class="v num" id="gtmGap">0</span></div></div>
+        <p class="learn-out" id="gtmOut">Conteneur propre. Un achat, un envoi.</p>
+        <a class="go" href="/consultant-google-tag-manager">Audit et nettoyage du conteneur GTM →</a>
+      </div>
+      <div class="learn-stage">
+        <svg viewBox="0 0 640 260" id="gtmSvg" aria-label="Flux d'un événement à travers Google Tag Manager">
+          <g id="gtmLinks"></g><g id="gtmNodes"></g><g id="gtmPulses"></g>
+        </svg>
+      </div>
+    </article>
+  </div>
+</section>

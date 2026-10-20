@@ -1,0 +1,83 @@
+<!-- lab2:glsl | lib: three@r128 (ShaderMaterial, partagé avec la carte 1) | poids: 149 Ko gzip, 0 Ko si déjà chargé | autonome: oui -->
+<style>
+.lab2[data-tool="glsl"] canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.lab2[data-tool="glsl"] .nolib{display:none;position:absolute;inset:0;place-items:center;margin:0;color:var(--ink-3);font:500 .85rem var(--body),sans-serif}
+.lab2[data-tool="glsl"].nolib .nolib{display:grid}
+.lab2[data-tool="glsl"].nolib canvas{display:none}
+</style>
+<figure class="lab2" data-tool="glsl">
+  <div class="lab-h"><h3>2 · GLSL, shader pur</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <canvas aria-label="Du bruit au signal : une courbe de ventes nette et un chiffre fiable sortent du brouillard"></canvas>
+    <p class="nolib">Three.js non chargé</p>
+  </div>
+  <div class="lab-meta"><span>Poids<b>149 Ko gzip (0 si Three.js déjà présent)</b></span><span>Lignes<b>≈ 110</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> des chiffres qui se contredisent, c'est du brouillard ; une fois les mesures réparées, une seule courbe de ventes nette et un chiffre fiable apparaissent. <b>Ce que l'outil fait de spécial :</b> tout est calculé par le GPU dans un seul fragment shader, pixel par pixel : bruit fractal, quatre courbes fantômes, courbe nette, point final et même le chiffre (texture dessinée une fois, révélée par smoothstep). Pendant l'animation, seuls deux nombres changent (uTime, uProgress), le DOM n'est jamais touché. <b>Limite :</b> le texte est une image, donc ni sélectionnable ni lu par les lecteurs d'écran (prévoir une légende HTML à côté).</p>
+  <div class="verdict">Verdict : idéal pour un fond de bloc « avant / après » plein écran, à condition que le chiffre important soit aussi écrit en HTML.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const fig=document.querySelector('.lab2[data-tool="glsl"]'); if(!fig) return;
+  window.LAB2=window.LAB2||{};
+  const c=fig.querySelector('canvas');
+  if(!window.THREE){ fig.classList.add('nolib'); window.LAB2.glsl={play(){}}; return; }
+  const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bez=(x1,y1,x2,y2)=>{ const f=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t; return x=>{ if(x<=0) return 0; if(x>=1) return 1; let lo=0,hi=1,t=x; for(let i=0;i<14;i++){ t=(lo+hi)/2; if(f(x1,x2,t)<x) lo=t; else hi=t; } return f(y1,y2,t); }; };
+  const ease=bez(.22,1,.36,1), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), seg=(e,a,b)=>clamp((e-a)/(b-a),0,1);
+  const r=new THREE.WebGLRenderer({canvas:c,antialias:false,alpha:false}); r.setPixelRatio(Math.min(2,devicePixelRatio||1)); r.outputEncoding=THREE.LinearEncoding; r.toneMapping=THREE.NoToneMapping;
+  const scene=new THREE.Scene(), cam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  /* texture du chiffre, dessinée une seule fois (hors animation) */
+  const tc=document.createElement('canvas'), tctx=tc.getContext('2d'); const tex=new THREE.CanvasTexture(tc); tex.premultiplyAlpha=true; tex.minFilter=THREE.LinearFilter; tex.generateMipmaps=false;
+  const fmt=n=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  function drawText(){ const W=c.width||2, H=c.height||2, k=r.getPixelRatio(); tc.width=W; tc.height=H; tctx.clearRect(0,0,W,H); tctx.textBaseline='alphabetic';
+    tctx.fillStyle='#0B0B0C'; tctx.font='600 '+Math.round(46*k)+'px Cabin, sans-serif'; tctx.fillText(fmt(12847)+' €',18*k,60*k);
+    tctx.fillStyle='#55555C'; tctx.font='500 '+Math.round(15*k)+'px Cabin, sans-serif'; tctx.fillText('de ventes, chiffre fiable',19*k,84*k);
+    tex.needsUpdate=true; }
+  const mat=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uProgress:{value:0},uRes:{value:new THREE.Vector2(1,1)},uAspect:{value:2.6},uText:{value:tex}},
+    vertexShader:'void main(){gl_Position=vec4(position,1.0);}',
+    fragmentShader:`precision highp float;uniform float uTime,uProgress,uAspect;uniform vec2 uRes;uniform sampler2D uText;
+      vec2 h2(vec2 p){p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));return -1.0+2.0*fract(sin(p)*43758.5453);}
+      float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.0-2.0*f);return mix(mix(dot(h2(i),f),dot(h2(i+vec2(1,0)),f-vec2(1,0)),u.x),mix(dot(h2(i+vec2(0,1)),f-vec2(0,1)),dot(h2(i+vec2(1,1)),f-vec2(1,1)),u.x),u.y);}
+      float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+vec2(1.7,9.2);a*=0.5;}return v;}
+      float pt(int i){if(i<=0)return .30;if(i==1)return .38;if(i==2)return .33;if(i==3)return .45;if(i==4)return .50;if(i==5)return .46;if(i==6)return .61;return .72;}
+      float curveY(float x){float f=clamp(x,0.0,1.0)*7.0;float i=floor(f);float t=f-i;t=t*t*(3.0-2.0*t);return mix(pt(int(i)),pt(int(i)+1),t);}
+      void main(){
+        vec2 uv=gl_FragCoord.xy/uRes;vec2 p=uv*vec2(uAspect,1.0);float t=uTime*0.05;
+        float chaos=1.0-smoothstep(0.0,0.85,uProgress);
+        float n1=fbm(p*1.6+vec2(t,-t*0.7));float n2=fbm(p*2.4-vec2(t*0.5,t));float n3=fbm(p*1.1+n1*0.9+vec2(-t*0.3,t*0.4));
+        vec3 sky=vec3(0.78,0.86,1.0),lav=vec3(0.84,0.78,1.0),pink=vec3(1.0,0.78,0.90),peach=vec3(1.0,0.86,0.78),white=vec3(0.995);
+        vec3 calm=mix(mix(sky,lav,uv.x),white,smoothstep(0.05,0.95,1.0-uv.y)*0.8);
+        calm=mix(calm,pink,smoothstep(0.55,1.0,uv.x)*0.22*(1.0-uv.y));
+        vec3 wild=mix(sky,lav,smoothstep(0.2,0.8,n1+0.5));wild=mix(wild,pink,smoothstep(0.35,0.9,n2+0.5));wild=mix(wild,peach,smoothstep(0.55,1.0,n3+0.55));
+        vec3 col=mix(calm,wild,max(chaos,0.10));
+        /* courbes : 4 fantômes contradictoires pendant le bruit, une seule nette à la fin */
+        float xs=(uv.x-0.07)/0.86;float inX=step(0.0,xs)*step(xs,1.0);float yc=curveY(xs);
+        float lineA=0.0;float ghost=0.0;
+        for(int k=0;k<4;k++){float fk=float(k);float dy=fbm(vec2(xs*3.0+fk*7.3,t*2.0+fk*2.1))*chaos*(0.22+fk*0.12);float y=yc+dy;float d=abs(uv.y-y)*uRes.y;
+          if(k==0){lineA=1.0-smoothstep(1.2,3.0,d);}else{ghost=max(ghost,(1.0-smoothstep(0.8,2.4,d))*chaos*0.5);}}
+        float under=step(uv.y,yc)*(1.0-smoothstep(0.0,0.45,yc-uv.y))*0.16*(1.0-chaos)*inX;
+        vec3 ink=vec3(0.04,0.04,0.05),accent=vec3(0.18,0.36,1.0);
+        col=mix(col,accent,under);
+        col=mix(col,mix(ink,accent,0.35),ghost*inX);
+        col=mix(col,ink,lineA*inX*(0.35+0.55*(1.0-chaos)));
+        /* point final */
+        vec2 pe=vec2(0.07+0.86,curveY(1.0));float dd=length((uv-pe)*uRes);float dot=(1.0-smoothstep(4.0,6.0,dd))*smoothstep(0.75,1.0,uProgress);float halo=(1.0-smoothstep(6.0,14.0,dd))*smoothstep(0.75,1.0,uProgress)*0.35;
+        col=mix(col,accent,halo);col=mix(col,accent,dot);
+        /* chiffre : texture révélée, légèrement secouée par le bruit tant que le signal n'est pas propre */
+        float tA=smoothstep(0.55,0.95,uProgress);
+        vec2 tuv=uv+vec2(n1,n2)*0.035*(1.0-tA);
+        vec4 tx=texture2D(uText,tuv);
+        col=col*(1.0-tx.a*tA)+tx.rgb*tA;
+        gl_FragColor=vec4(col,1.0);}`});
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),mat));
+  function fit(){ const b=c.getBoundingClientRect(); if(!b.width) return false; const k=r.getPixelRatio(); const W=Math.round(b.width*k), H=Math.round(b.height*k); if(W!==c.width||H!==c.height){ r.setSize(b.width,b.height,false); mat.uniforms.uRes.value.set(W,H); mat.uniforms.uAspect.value=W/H; drawText(); } return true; }
+  const T={p0:.1,p1:3.3,end:7.0};
+  let raf=null,last=0,e=0;
+  function render(){ mat.uniforms.uTime.value=e; mat.uniforms.uProgress.value=ease(seg(e,T.p0,T.p1)); r.render(scene,cam); }
+  function loop(now){ e+=Math.min(.05,(now-last)/1000); last=now; fit(); render(); if(e<T.end) raf=requestAnimationFrame(loop); else raf=null; }
+  const ready=(document.fonts&&document.fonts.load)?Promise.all([document.fonts.load('600 46px Cabin'),document.fonts.load('500 15px Cabin')]).catch(()=>{}):Promise.resolve();
+  fit(); render(); ready.then(()=>{ drawText(); render(); });
+  window.LAB2.glsl={ play(){ if(raf) cancelAnimationFrame(raf); raf=null; fit(); drawText(); if(REDUCED){ e=T.end; render(); return; } e=0; last=performance.now(); raf=requestAnimationFrame(loop); } };
+})();
+</script>

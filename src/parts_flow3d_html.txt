@@ -1,0 +1,8 @@
+    <div class="card funnel reveal" id="funnel3d" style="margin-top:16px">
+      <div class="funnel-head">
+        <div class="total"><small>La même chose, en verre et en 3D</small><span class="num" id="f3Total">0</span><span class="of">sur <b class="num">72</b> achats réels</span></div>
+        <span class="tag" id="f3State">3 fuites ouvertes</span>
+      </div>
+      <div class="flow3d" id="flow3d"><canvas id="flow3dCanvas" aria-label="Tunnel de verre en 3D avec les fuites de mesure"></canvas><div class="flow-labels" id="flow3dLabels"></div></div>
+      <p class="note">Version de test : le même tunnel, construit en Three.js avec un tube de verre et des visiteurs en relief. Même logique, mêmes fuites, cliquez pour colmater.</p>
+    </div>

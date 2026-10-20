@@ -1,0 +1,101 @@
+<!-- lab2:pixi | lib: pixi.js@7.4.2 | poids: 136 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="pixi"] .sky{position:absolute;inset:0;background:linear-gradient(118deg,#EEF4FF 0%,#F3EEFF 40%,#FFEFF6 72%,#FFF4EC 100%)}
+.lab2[data-tool="pixi"] canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.lab2[data-tool="pixi"] .hud{position:absolute;display:grid;gap:2px;font-family:var(--body),sans-serif;color:var(--ink);pointer-events:none}
+.lab2[data-tool="pixi"] .hud small{font-size:.82rem;font-weight:500;color:var(--ink-2)}
+.lab2[data-tool="pixi"] .hud output{display:block;font-size:2.3rem;line-height:1;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;transition:color .4s var(--ease)}
+.lab2[data-tool="pixi"] .hud.ok{left:18px;bottom:18px}
+.lab2[data-tool="pixi"] .hud.ok output{color:var(--accent)}
+.lab2[data-tool="pixi"] .hud.ko{right:18px;top:16px;text-align:right}
+.lab2[data-tool="pixi"] .hud.ko output{color:var(--warn)}
+.lab2[data-tool="pixi"] .hud.ko.zero output{color:var(--good)}
+.lab2[data-tool="pixi"] .nolib{display:none;position:absolute;inset:0;place-items:center;margin:0;color:var(--ink-3);font:500 .85rem var(--body),sans-serif}
+.lab2[data-tool="pixi"].nolib .nolib{display:grid}
+.lab2[data-tool="pixi"].nolib canvas,.lab2[data-tool="pixi"].nolib .hud{display:none}
+</style>
+<figure class="lab2" data-tool="pixi">
+  <div class="lab-h"><h3>3 · PixiJS, ParticleContainer</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="sky"></div>
+    <canvas aria-label="2 000 ventes coulent dans un entonnoir ; une fuite en aspire 40 % puis se referme"></canvas>
+    <div class="hud ok"><small>ventes comptées</small><output>0</output></div>
+    <div class="hud ko"><small>perdues</small><output>0</output></div>
+    <p class="nolib">PixiJS non chargé</p>
+  </div>
+  <div class="lab-meta"><span>Poids<b>136 Ko gzip</b></span><span>Lignes<b>≈ 130</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> vos ventes coulent vers le compteur, une fuite en aspire 40 % vers « perdues », puis la fuite se referme et tout est compté. <b>Ce que l'outil fait de spécial :</b> ParticleContainer envoie 2 000 sprites (plus 2 000 halos) au GPU en un seul lot, avec position, taille, transparence et teinte propres à chacun ; les fusions de couleur (screen) et le flou sont des filtres GPU prêts à l'emploi. <b>Limite :</b> 136 Ko gzip, et PixiJS reste un moteur 2D : pas de lumière ni de relief.</p>
+  <div class="verdict">Verdict : le bon choix pour une scène « flux » dense (milliers de ventes, visiteurs, euros) dans un bloc qui explique une fuite de mesure.</div>
+</figure>
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@7.4.2/dist/pixi.min.js"></script>
+<script>
+(function(){
+  const fig=document.querySelector('.lab2[data-tool="pixi"]'); if(!fig) return;
+  window.LAB2=window.LAB2||{};
+  const stage=fig.querySelector('.stage-area'), c=fig.querySelector('canvas'), outOk=fig.querySelector('.hud.ok output'), hudKo=fig.querySelector('.hud.ko'), outKo=hudKo.querySelector('output');
+  if(!window.PIXI){ fig.classList.add('nolib'); window.LAB2.pixi={play(){}}; return; }
+  const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bez=(x1,y1,x2,y2)=>{ const f=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t; return x=>{ if(x<=0) return 0; if(x>=1) return 1; let lo=0,hi=1,t=x; for(let i=0;i<14;i++){ t=(lo+hi)/2; if(f(x1,x2,t)<x) lo=t; else hi=t; } return f(y1,y2,t); }; };
+  const ease=bez(.22,1,.36,1), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), seg=(e,a,b)=>clamp((e-a)/(b-a),0,1);
+  const fmt=n=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  let seed=7; const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+  const N=2000, BLUE=0x2E5BFF, RED=0xE5484D, SKY=0xBFDBFF;
+  const dpr=Math.min(2,devicePixelRatio||1);
+  const app=new PIXI.Application({view:c,width:2,height:2,resolution:dpr,autoDensity:true,backgroundAlpha:0,antialias:true,autoStart:false,sharedTicker:false});
+  /* texture : disque doux, générée une fois */
+  const g0=new PIXI.Graphics(); g0.beginFill(0xffffff,.35).drawCircle(0,0,9).endFill(); g0.beginFill(0xffffff,1).drawCircle(0,0,5).endFill();
+  const tex=app.renderer.generateTexture(g0,{resolution:2});
+  const decor=new PIXI.Graphics(); app.stage.addChild(decor);
+  const halos=new PIXI.ParticleContainer(N,{position:true,scale:true,alpha:true,tint:true}); halos.blendMode=PIXI.BLEND_MODES.SCREEN; halos.filters=[new PIXI.BlurFilter(3,2)];
+  const dots=new PIXI.ParticleContainer(N,{position:true,scale:true,alpha:true,tint:true});
+  app.stage.addChild(halos); app.stage.addChild(dots);
+  const P=[]; for(let i=0;i<N;i++){ const s=new PIXI.Sprite(tex), h=new PIXI.Sprite(tex); s.anchor.set(.5); h.anchor.set(.5); dots.addChild(s); halos.addChild(h); P.push({s,h,x:0,y:0,vx:0,vy:0,st:0,leak:rnd()<.4,t:0,x0:0,y0:0,tx:0,ty:0,r:rnd()}); }
+  /* mise en page (px) */
+  let L={}; function layout(){ const b=stage.getBoundingClientRect(); const W=Math.max(2,b.width), H=Math.max(2,b.height); if(W!==app.screen.width||H!==app.screen.height) app.renderer.resize(W,H);
+    L={W,H,cx:W*.42,topHW:Math.min(W*.17,120),neckHW:11,neckY:H*.5,neckB:H*.6,bTop:H*.7,bHW:Math.min(W*.14,96),bBot:H-10,gap0:H*.2,gap1:H*.38,lx:W*.8,ly:H*.62,lr:Math.min(W*.09,60)}; }
+  const T={leakOpen:1.0,leakClose:2.4,back0:2.7,back1:3.5,end:4.4};
+  let gap=0; /* ouverture de la fuite 0..1 */
+  function drawDecor(){ const {cx,topHW,neckHW,neckY,neckB,bTop,bHW,bBot,gap0,gap1,lx,ly,lr}=L; decor.clear();
+    decor.beginFill(0xffffff,.42); decor.moveTo(cx-topHW,2).lineTo(cx+topHW,2).lineTo(cx+neckHW,neckY).lineTo(cx+neckHW,neckB).lineTo(cx-neckHW,neckB).lineTo(cx-neckHW,neckY).closePath().endFill();
+    decor.lineStyle({width:2,color:0xffffff,alpha:.95}); decor.moveTo(cx-topHW,2).lineTo(cx-neckHW,neckY).lineTo(cx-neckHW,neckB);
+    /* paroi droite : coupée par la fuite */
+    const yA=2+(gap0-2), yB=gap1; const xAt=y=>cx+topHW+(neckHW-topHW)*((y-2)/(neckY-2));
+    const gTop=yA+(yB-yA)*(.5-gap*.5), gBot=yA+(yB-yA)*(.5+gap*.5);
+    decor.moveTo(cx+topHW,2).lineTo(xAt(gTop),gTop); decor.moveTo(xAt(gBot),gBot).lineTo(cx+neckHW,neckY).lineTo(cx+neckHW,neckB);
+    decor.lineStyle({width:0});
+    /* flaque « perdues » */
+    if(gap>0||lostCount>0){ decor.beginFill(0xFFB9E3,.28+gap*.18); decor.drawEllipse(lx,ly,lr*1.5,lr*.9); decor.endFill(); }
+    /* bac « comptées » */
+    decor.beginFill(0xffffff,.5); decor.lineStyle({width:2,color:0xffffff,alpha:.95}); decor.drawRoundedRect(cx-bHW,bTop,bHW*2,bBot-bTop,12); decor.endFill(); decor.lineStyle({width:0}); }
+  let lostCount=0, okCount=0, e=0;
+  function reset(){ layout(); gap=0; lostCount=0; okCount=0; e=0; const {cx,topHW}=L;
+    for(let i=0;i<N;i++){ const p=P[i]; p.st=0; p.t=i/N*2.9; p.x=cx+(rnd()-.5)*2*topHW*.88; p.y=-8-rnd()*34; p.vx=0; p.vy=40+rnd()*80; p.s.alpha=0; p.h.alpha=0; p.s.position.set(-50,-50); p.h.position.set(-50,-50); p.s.tint=BLUE; p.h.tint=SKY; } /* ParticleContainer ignore visible : on cache par alpha */
+    drawDecor(); }
+  function hw(y){ const {topHW,neckHW,neckY}=L; const k=clamp(y/neckY,0,1); return topHW+(neckHW-topHW)*Math.pow(k,.85); }
+  function step(dt){ const {cx,neckY,neckB,bTop,bHW,bBot,gap0,gap1,lx,ly,lr}=L; const leakOpen=e>=T.leakOpen&&e<T.leakClose;
+    gap+=((leakOpen?1:0)-gap)*Math.min(1,dt*9); if(Math.abs(gap-(leakOpen?1:0))<.002) gap=leakOpen?1:0;
+    okCount=0; lostCount=0;
+    for(let i=0;i<N;i++){ const p=P[i];
+      if(p.st===0){ if(e>=p.t){ p.st=1; } else continue; }
+      if(p.st===1){ p.vy+=420*dt; p.vx+=-(p.x-cx)*1.6*dt; p.x+=p.vx*dt; p.y+=p.vy*dt;
+        if(p.y<neckY){ const h=hw(p.y)-5; if(p.x>cx+h){ p.x=cx+h; p.vx=-Math.abs(p.vx)*.3; } if(p.x<cx-h){ p.x=cx-h; p.vx=Math.abs(p.vx)*.3; } }
+        else if(p.y<neckB){ const h=L.neckHW-4; p.x=clamp(p.x,cx-h,cx+h); }
+        if(leakOpen&&p.leak&&p.y>gap0&&p.y<gap1&&gap>.6){ p.st=2; p.t=e; p.x0=p.x; p.y0=p.y; p.tx=lx+(p.r-.5)*2*lr*1.2; p.ty=ly+(rnd()-.5)*lr*1.1; p.s.tint=RED; p.h.tint=0xFFC4CF; }
+        if(p.y>=bTop+8){ p.st=4; p.t=e; p.x0=p.x; p.y0=p.y; p.tx=cx+(p.r-.5)*2*(bHW-8); p.ty=bBot-6-rnd()*(bBot-bTop-14)*(1-Math.pow(Math.abs(p.r-.5)*2,2)*.5); }
+      }
+      if(p.st===2){ const k=ease(seg(e,p.t,p.t+.55)); p.x=p.x0+(p.tx-p.x0)*k; p.y=p.y0+(p.ty-p.y0)*k-Math.sin(k*Math.PI)*18; if(k>=1) p.st=3; }
+      if(p.st===3){ lostCount++; if(e>=T.back0){ const d=T.back0+(p.r)*(T.back1-T.back0-.5); if(e>=d){ p.st=5; p.t=e; p.x0=p.x; p.y0=p.y; p.tx=cx+(p.r-.5)*2*(bHW-8); p.ty=bBot-6-rnd()*(bBot-bTop-14)*.9; } } }
+      if(p.st===5){ lostCount++; const k=ease(seg(e,p.t,p.t+.5)); p.x=p.x0+(p.tx-p.x0)*k; p.y=p.y0+(p.ty-p.y0)*k-Math.sin(k*Math.PI)*40; if(k>=.55&&p.s.tint!==BLUE){ p.s.tint=BLUE; p.h.tint=SKY; } if(k>=1){ p.st=4; p.t=e-.4; p.x0=p.x; p.y0=p.y; } }
+      if(p.st===4){ const k=ease(seg(e,p.t,p.t+.4)); p.x=p.x0+(p.tx-p.x0)*k; p.y=p.y0+(p.ty-p.y0)*k; if(k>=.5) okCount++; }
+      p.s.position.set(p.x,p.y); p.h.position.set(p.x,p.y); const sc=p.st===3?.9:1; p.s.scale.set(sc*.42); p.h.scale.set(sc*1.5); p.s.alpha=.95; p.h.alpha=p.st===4?.35:.6; }
+    drawDecor();
+    outOk.textContent=fmt(okCount); outKo.textContent=fmt(lostCount); hudKo.classList.toggle('zero',lostCount===0&&e>T.back1);
+  }
+  let raf=null,last=0;
+  function loop(now){ const dt=Math.min(.05,(now-last)/1000); last=now; e+=dt; step(dt); app.render(); if(e<T.end) raf=requestAnimationFrame(loop); else raf=null; }
+  reset(); app.render();
+  window.LAB2.pixi={ play(){ if(raf) cancelAnimationFrame(raf); raf=null; reset();
+    if(REDUCED){ /* état final sans mouvement : tout compté */ for(let k=0;k<400;k++){ e+=.016; step(.016); } e=T.end; step(.016); app.render(); return; }
+    last=performance.now(); raf=requestAnimationFrame(loop); } };
+})();
+</script>

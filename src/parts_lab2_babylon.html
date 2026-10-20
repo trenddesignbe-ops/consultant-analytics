@@ -1,0 +1,78 @@
+<!-- lab2:babylon | lib: babylonjs@7.31.0 (cdn.jsdelivr.net, 5,98 Mo brut) | poids: 1 265 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="babylon"] .sky{position:absolute;inset:0;background:linear-gradient(118deg,#EEF4FF 0%,#F3EEFF 40%,#FFEFF6 72%,#FFF4EC 100%)}
+.lab2[data-tool="babylon"] canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none}
+.lab2[data-tool="babylon"] .hud{position:absolute;bottom:14px;width:46%;text-align:center;font-family:var(--body),sans-serif;color:var(--ink);pointer-events:none}
+.lab2[data-tool="babylon"] .hud.l{left:2%}
+.lab2[data-tool="babylon"] .hud.r{right:2%}
+.lab2[data-tool="babylon"] .hud small{display:block;font-size:.84rem;font-weight:500;color:var(--ink-2)}
+.lab2[data-tool="babylon"] .hud output{display:block;font-size:2rem;line-height:1.1;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;transition:color .5s var(--ease)}
+.lab2[data-tool="babylon"] .hud.l output{color:var(--warn)}
+.lab2[data-tool="babylon"] .hud.l.ok output{color:var(--good)}
+.lab2[data-tool="babylon"] .nolib{display:none;position:absolute;inset:0;place-items:center;margin:0;color:var(--ink-3);font:500 .85rem var(--body),sans-serif}
+.lab2[data-tool="babylon"].nolib .nolib{display:grid}
+.lab2[data-tool="babylon"].nolib canvas,.lab2[data-tool="babylon"].nolib .hud{display:none}
+</style>
+<figure class="lab2" data-tool="babylon">
+  <div class="lab-h"><h3>5 · Babylon.js, PBR et ombres</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="sky"></div>
+    <canvas aria-label="Deux piles de pièces : ce que vous voyez (6) rattrape ce que vous vendez (10)"></canvas>
+    <div class="hud l"><small>vous voyez</small><output>6</output></div>
+    <div class="hud r"><small>vous vendez</small><output>10</output></div>
+    <p class="nolib">Babylon.js non chargé</p>
+  </div>
+  <div class="lab-meta"><span>Poids<b>1 265 Ko gzip</b></span><span>Lignes<b>≈ 95</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> vos rapports montrent 6 ventes alors que vous en faites 10 ; une fois la mesure réparée, la pile de gauche rattrape celle de droite. <b>Ce que l'outil fait de spécial :</b> matériaux PBR métal, ombres douces floutées, couche de halo (GlowLayer), reflets d'environnement et caméra orbitale sont des objets prêts à l'emploi, en une ligne chacun. Babylon est un vrai moteur de jeu : physique, collisions et interface intégrées sont à portée de main. <b>Limite :</b> 1 265 Ko gzip (6 Mo bruts) pour ce fichier unique, soit huit fois Three.js : inacceptable sur une page d'accueil sans découpage ES modules.</p>
+  <div class="verdict">Verdict : à éviter sur le site vitrine ; à garder pour un outil interactif dédié (simulateur) où le poids se justifie.</div>
+</figure>
+<script src="https://cdn.jsdelivr.net/npm/babylonjs@7.31.0/babylon.js"></script>
+<script>
+(function(){
+  const fig=document.querySelector('.lab2[data-tool="babylon"]'); if(!fig) return;
+  window.LAB2=window.LAB2||{};
+  const stage=fig.querySelector('.stage-area'), c=fig.querySelector('canvas'), hudL=fig.querySelector('.hud.l'), outL=hudL.querySelector('output');
+  if(!window.BABYLON){ fig.classList.add('nolib'); window.LAB2.babylon={play(){}}; return; }
+  const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bez=(x1,y1,x2,y2)=>{ const f=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t; return x=>{ if(x<=0) return 0; if(x>=1) return 1; let lo=0,hi=1,t=x; for(let i=0;i<14;i++){ t=(lo+hi)/2; if(f(x1,x2,t)<x) lo=t; else hi=t; } return f(y1,y2,t); }; };
+  const ease=bez(.22,1,.36,1), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), seg=(e,a,b)=>clamp((e-a)/(b-a),0,1);
+  const B=BABYLON;
+  const engine=new B.Engine(c,true,{alpha:true,premultipliedAlpha:true,adaptToDeviceRatio:true,stencil:false});
+  const scene=new B.Scene(engine); scene.clearColor=new B.Color4(0,0,0,0); scene.autoClear=true;
+  const cam=new B.ArcRotateCamera('cam',-Math.PI/2,1.12,10.5,new B.Vector3(0,.95,0),scene); cam.fov=.5;
+  /* environnement pastel procédural : cube map de 6 faces dessinées en canvas (data:) */
+  function face(fn){ const cv=document.createElement('canvas'); cv.width=cv.height=64; const x=cv.getContext('2d'); fn(x); return cv.toDataURL(); }
+  const side=spot=>face(x=>{ const g=x.createLinearGradient(0,0,0,64); g.addColorStop(0,'#CDB9FF'); g.addColorStop(.5,'#FFF1F6'); g.addColorStop(1,'#FFD7C4'); x.fillStyle=g; x.fillRect(0,0,64,64); if(spot){ const r=x.createRadialGradient(22,18,0,22,18,26); r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=r; x.fillRect(0,0,64,64); } });
+  const top=face(x=>{ x.fillStyle='#CDB9FF'; x.fillRect(0,0,64,64); const r=x.createRadialGradient(40,30,0,40,30,30); r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=r; x.fillRect(0,0,64,64); });
+  const bottom=face(x=>{ x.fillStyle='#FFD7C4'; x.fillRect(0,0,64,64); });
+  const env=B.CubeTexture.CreateFromImages([side(true),top,side(false),side(false),bottom,side(true)],scene,false); env.gammaSpace=true;
+  scene.environmentTexture=env; scene.environmentIntensity=.7;
+  /* lumières et ombres douces */
+  const hemi=new B.HemisphericLight('h',new B.Vector3(0,1,0),scene); hemi.intensity=.55; hemi.diffuse=new B.Color3(.95,.93,1); hemi.groundColor=new B.Color3(1,.84,.77);
+  const sun=new B.DirectionalLight('sun',new B.Vector3(-.6,-1.4,-.8),scene); sun.position=new B.Vector3(5,10,6); sun.intensity=1.6; sun.diffuse=new B.Color3(1,.97,.95);
+  const sg=new B.ShadowGenerator(1024,sun); sg.useBlurExponentialShadowMap=true; sg.blurKernel=24; sg.setDarkness(.35);
+  const glow=new B.GlowLayer('glow',scene,{blurKernelSize:48}); glow.intensity=.4;
+  /* sol : disque blanc dégradé, reçoit les ombres */
+  const floorTex=new B.DynamicTexture('fT',{width:256,height:256},scene,false); const fctx=floorTex.getContext(); const rg=fctx.createRadialGradient(128,128,10,128,128,128); rg.addColorStop(0,'rgba(255,255,255,1)'); rg.addColorStop(.6,'rgba(255,255,255,.85)'); rg.addColorStop(1,'rgba(255,255,255,0)'); fctx.clearRect(0,0,256,256); fctx.fillStyle=rg; fctx.fillRect(0,0,256,256); floorTex.update(); floorTex.hasAlpha=true;
+  const floorMat=new B.StandardMaterial('fM',scene); floorMat.diffuseTexture=floorTex; floorMat.useAlphaFromDiffuseTexture=true; floorMat.specularColor=B.Color3.Black(); floorMat.emissiveColor=new B.Color3(.08,.08,.08);
+  const floor=B.MeshBuilder.CreateGround('floor',{width:14,height:14},scene); floor.material=floorMat; floor.receiveShadows=true;
+  /* pièces */
+  const coinMat=new B.PBRMetallicRoughnessMaterial('coin',scene); coinMat.baseColor=new B.Color3(.93,.72,.42); coinMat.metallic=.85; coinMat.roughness=.34; coinMat.emissiveColor=new B.Color3(0,0,0);
+  const H=.19, D=1.55; let seed=11; const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+  function stack(x,n){ const arr=[]; for(let i=0;i<n;i++){ const m=B.MeshBuilder.CreateCylinder('c',{diameter:D,height:H*.8,tessellation:48},scene); m.material=coinMat; m.position.set(x+(rnd()-.5)*.08,H/2+i*H,(rnd()-.5)*.08); m.rotation.y=rnd()*Math.PI; sg.addShadowCaster(m); m.receiveShadows=true; arr.push(m); } return arr; }
+  const left=stack(-1.9,10), right=stack(1.9,10);
+  const T={drop0:.8,gap:.38,fall:.5,glow0:2.75,end:4.2};
+  function frame(e){
+    cam.alpha=-Math.PI/2+Math.sin(e*.7)*.14; cam.beta=1.12-Math.sin(e*.5)*.03;
+    let n=6;
+    for(let i=6;i<10;i++){ const m=left[i], t0=T.drop0+(i-6)*T.gap, k=ease(seg(e,t0,t0+T.fall)); const base=H/2+i*H; m.position.y=base+(1-k)*3.2; m.scaling.y=1+(k>0&&k<1?Math.sin(k*Math.PI)*.08:0); m.isVisible=e>=t0; if(k>=1) n=i+1; }
+    outL.textContent=String(n); hudL.classList.toggle('ok',n>=10);
+    const g=seg(e,T.glow0,T.glow0+.9); const gi=Math.sin(g*Math.PI)*.22+g*.05; coinMat.emissiveColor.set(gi,gi*.72,gi*.45);
+  }
+  let W=0,Hh=0; function fit(){ const b=stage.getBoundingClientRect(); if(b.width!==W||b.height!==Hh){ W=b.width; Hh=b.height; engine.resize(); } }
+  let raf=null,last=0,e=0;
+  function loop(now){ e+=Math.min(.05,(now-last)/1000); last=now; fit(); frame(Math.min(e,T.end)); scene.render(); if(e<T.end) raf=requestAnimationFrame(loop); else raf=null; }
+  fit(); frame(0); scene.render(); scene.render();
+  window.LAB2.babylon={ play(){ if(raf) cancelAnimationFrame(raf); raf=null; if(REDUCED){ fit(); frame(T.end); scene.render(); return; } e=0; last=performance.now(); fit(); frame(0); scene.render(); raf=requestAnimationFrame(loop); } };
+})();
+</script>

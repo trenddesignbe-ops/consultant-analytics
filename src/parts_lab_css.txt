@@ -1,0 +1,43 @@
+/* ============ LAB ============ */
+.lab-intro{display:grid;gap:18px;margin-bottom:28px}
+.prompt{background:var(--bg-2);border:1px solid var(--accent-line);border-radius:12px;padding:18px 20px;font:400 .84rem/1.6 var(--mono);color:var(--fg-2);white-space:pre-wrap;overflow-x:auto}
+.prompt b{color:var(--fg);font-weight:600}
+.labs{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:860px){.labs{grid-template-columns:1fr}}
+.lab{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px;margin:0;min-width:0}
+.lab-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lab-h h3{font-size:1.05rem}
+.lab-h .replay{border:1px solid var(--line-2);background:transparent;color:var(--fg);border-radius:7px;padding:6px 10px;font:500 .76rem var(--mono);cursor:pointer}
+.lab-h .replay:hover{border-color:var(--fg-3)}
+.stage-area{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:10px;height:190px;overflow:hidden}
+.stage-area svg,.stage-area canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage-area .kpi{position:absolute;left:14px;top:12px;font:600 1.5rem var(--mono);letter-spacing:-.02em;color:var(--fg)}
+.stage-area .kpi small{display:block;font:500 .64rem var(--mono);color:var(--fg-3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.lab-meta{display:grid;grid-template-columns:repeat(3,auto);gap:8px 16px;font:500 .74rem var(--mono);color:var(--fg-3)}
+.lab-meta b{display:block;color:var(--fg);font-weight:500}
+.lab p{font-size:.9rem;color:var(--fg-2)}
+.lab p b{color:var(--fg)}
+.lab .verdict{font:500 .76rem var(--mono);color:var(--accent);letter-spacing:.04em}
+.lab.off .stage-area{display:grid;place-items:center;color:var(--fg-3);font:500 .8rem var(--mono);text-align:center;padding:20px}
+.lab.off{border-style:dashed}
+
+/* CSS demo keyframes (demo A) */
+@property --n{syntax:"<integer>";initial-value:0;inherits:false}
+.lab[data-tool=css] .line{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+.lab[data-tool=css] .area{opacity:0}
+.lab[data-tool=css] .end{transform:scale(0);transform-origin:center;transform-box:fill-box}
+.stage-area svg .grid,#heroGrid,#dashGrid{stroke:var(--line)}
+.lab[data-tool=css].on .line{animation:cssDraw .8s var(--ease) forwards}
+.lab[data-tool=css].on .area{animation:cssFade .8s var(--ease) forwards}
+.lab[data-tool=css].on .end{animation:cssPulse .3s .8s var(--ease) forwards}
+.lab[data-tool=css] .kpi output{--n:0;counter-reset:n var(--n)}
+.lab[data-tool=css] .kpi output::after{content:counter(n)}
+.lab[data-tool=css].on .kpi output{animation:cssCount .6s .4s var(--ease) forwards}
+@keyframes cssDraw{to{stroke-dashoffset:0}}
+@keyframes cssFade{to{opacity:1}}
+@keyframes cssPulse{0%{transform:scale(0)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes cssCount{to{--n:12847}}
+@media (prefers-reduced-motion:reduce){
+  .lab[data-tool=css].on .line,.lab[data-tool=css].on .area,.lab[data-tool=css].on .end,.lab[data-tool=css].on .kpi output{animation-duration:.2s;animation-delay:0s}
+  .lab[data-tool=css].on .line{stroke-dashoffset:0;animation-name:cssFade}
+}

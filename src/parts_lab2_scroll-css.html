@@ -1,0 +1,78 @@
+<!-- lab2:scroll-css | lib: aucune (CSS animation-timeline scroll()/view(), repli JS IntersectionObserver) | poids: 0 Ko gzip | autonome: oui -->
+<style>
+/* @property et @keyframes sont des règles globales par nature : noms préfixés l2sc pour éviter toute collision */
+@property --l2n{syntax:"<integer>";initial-value:60;inherits:true}
+@keyframes l2sc-bar{from{width:60%}to{width:100%}}
+@keyframes l2sc-n{from{--l2n:60}to{--l2n:100}}
+@keyframes l2sc-col{from{color:var(--warn)}60%{color:var(--warn)}to{color:var(--good)}}
+@keyframes l2sc-fill{from{background:var(--warn)}60%{background:var(--warn)}to{background:var(--good)}}
+@keyframes l2sc-in{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.lab2[data-tool="scroll-css"] .scroller{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#C9C4D8 transparent;background:linear-gradient(118deg,#EEF4FF 0%,#F3EEFF 40%,#FFEFF6 72%,#FFF4EC 100%);font-family:var(--body),sans-serif;color:var(--ink)}
+.lab2[data-tool="scroll-css"] .head{position:sticky;top:0;z-index:2;padding:14px 18px 12px;background:rgba(255,255,255,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.lab2[data-tool="scroll-css"] .head .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.lab2[data-tool="scroll-css"] .head small{font-size:.84rem;font-weight:500;color:var(--ink-2)}
+.lab2[data-tool="scroll-css"] .pct{font-size:1.6rem;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1;color:var(--warn);--l2n:60}
+.lab2[data-tool="scroll-css"] .pct::after{counter-reset:l2n var(--l2n);content:counter(l2n) "\202F%"}
+.lab2[data-tool="scroll-css"] .track{margin-top:8px;height:10px;border-radius:999px;background:rgba(11,11,12,.08);overflow:clip}
+.lab2[data-tool="scroll-css"] .bar{height:100%;width:60%;border-radius:999px;background:var(--warn)}
+.lab2[data-tool="scroll-css"] .hint{padding:10px 18px 0;font-size:.82rem;color:var(--ink-3)}
+.lab2[data-tool="scroll-css"] .fix{margin:140px 18px 0;padding:14px 16px;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(60,40,90,.10);display:flex;align-items:center;gap:12px;font-size:1rem;font-weight:500;opacity:0;transform:translateY(22px)}
+.lab2[data-tool="scroll-css"] .fix:last-child{margin-bottom:96px}
+.lab2[data-tool="scroll-css"] .fix i{flex:none;width:24px;height:24px;border-radius:50%;background:var(--good);position:relative}
+.lab2[data-tool="scroll-css"] .fix i::after{content:"";position:absolute;left:8px;top:4px;width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(42deg)}
+/* animations pilotées par le défilement (Chrome 115+, Edge, Firefox 110+ via drapeau, Safari 26) */
+@supports (animation-timeline: scroll()) {
+  .lab2[data-tool="scroll-css"] .bar{animation:l2sc-bar linear both,l2sc-fill linear both;animation-timeline:scroll(nearest)}
+  .lab2[data-tool="scroll-css"] .pct{animation:l2sc-n linear both,l2sc-col linear both;animation-timeline:scroll(nearest)}
+  .lab2[data-tool="scroll-css"] .fix{animation:l2sc-in var(--ease) both;animation-timeline:view();animation-range:entry 10% entry 75%}
+}
+/* repli JS : classes posées par IntersectionObserver et scroll */
+.lab2[data-tool="scroll-css"].js .fix{transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.lab2[data-tool="scroll-css"].js .fix.on{opacity:1;transform:none}
+.lab2[data-tool="scroll-css"].js .bar{transition:width .15s linear,background .3s}
+.lab2[data-tool="scroll-css"].js .pct::after{content:attr(data-n) "\202F%"}
+.lab2[data-tool="scroll-css"].js .done .bar{background:var(--good)}
+.lab2[data-tool="scroll-css"].js .done .pct{color:var(--good)}
+@media (prefers-reduced-motion:reduce){ .lab2[data-tool="scroll-css"] .fix{animation-duration:.01s;transition:none} }
+</style>
+<figure class="lab2" data-tool="scroll-css">
+  <div class="lab-h"><h3>7 · CSS natif, animation au défilement</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="scroller" tabindex="0" aria-label="En faisant défiler, les ventes visibles passent de 60 % à 100 % et trois corrections s'affichent">
+      <div class="head"><div class="row"><small>ventes visibles</small><span class="pct" data-n="60"></span></div><div class="track"><div class="bar"></div></div></div>
+      <p class="hint">faites défiler</p>
+      <div class="fix"><i></i>Bandeau cookies réparé</div>
+      <div class="fix"><i></i>Google Ads relié aux ventes</div>
+      <div class="fix"><i></i>Ventes en double retirées</div>
+    </div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>0 Ko gzip</b></span><span>Lignes<b>≈ 70</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> chaque correction fait remonter la part de ventes visibles, de 60 % à 100 %, au rythme de votre lecture. <b>Ce que l'outil fait de spécial :</b> <code>animation-timeline: scroll()</code> et <code>view()</code> lient une animation CSS à la position de défilement, sans JavaScript, calculée hors du thread principal (jamais saccadée, même sur mobile). Le compteur 60 → 100 est un <code>@property</code> animé, affiché par <code>counter()</code>. <b>Limite :</b> pas encore universel (Safari seulement depuis 2025), d'où le repli IntersectionObserver fourni ; et la règle <code>@property</code> est globale par nature.</p>
+  <div class="verdict">Verdict : à utiliser partout sur le site pour les apparitions et jauges liées au scroll, c'est le choix le plus léger et le plus fluide ; garder le repli JS.</div>
+</figure>
+<script>
+(function(){
+  const fig=document.querySelector('.lab2[data-tool="scroll-css"]'); if(!fig) return;
+  window.LAB2=window.LAB2||{};
+  const sc=fig.querySelector('.scroller'), bar=fig.querySelector('.bar'), pct=fig.querySelector('.pct'), fixes=[...fig.querySelectorAll('.fix')];
+  const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const native=!window.__lab2ForceJs&&CSS.supports&&CSS.supports('animation-timeline: scroll()');
+  const bez=(x1,y1,x2,y2)=>{ const f=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t; return x=>{ if(x<=0) return 0; if(x>=1) return 1; let lo=0,hi=1,t=x; for(let i=0;i<14;i++){ t=(lo+hi)/2; if(f(x1,x2,t)<x) lo=t; else hi=t; } return f(y1,y2,t); }; };
+  const ease=bez(.22,1,.36,1);
+  if(!native){ /* repli : la barre suit le défilement, les corrections apparaissent à l'entrée dans la vue */
+    fig.classList.add('js');
+    const upd=()=>{ const max=sc.scrollHeight-sc.clientHeight; const p=max>0?sc.scrollTop/max:1; const n=Math.round(60+40*p); bar.style.width=n+'%'; pct.setAttribute('data-n',String(n)); fig.classList.toggle('done',n>=100); };
+    sc.addEventListener('scroll',upd,{passive:true}); upd();
+    if('IntersectionObserver' in window){ new IntersectionObserver(es=>es.forEach(x=>x.target.classList.toggle('on',x.isIntersecting)),{root:sc,threshold:.4}).observe(fixes[0]); fixes.slice(1).forEach(f=>new IntersectionObserver(es=>es.forEach(x=>x.target.classList.toggle('on',x.isIntersecting)),{root:sc,threshold:.4}).observe(f)); }
+    else fixes.forEach(f=>f.classList.add('on'));
+  }
+  let raf=null, busy=false;
+  sc.addEventListener('wheel',()=>{ if(raf){ cancelAnimationFrame(raf); raf=null; busy=false; } },{passive:true});
+  sc.addEventListener('touchstart',()=>{ if(raf){ cancelAnimationFrame(raf); raf=null; busy=false; } },{passive:true});
+  window.LAB2['scroll-css']={ play(){ if(raf) cancelAnimationFrame(raf); raf=null; const max=()=>sc.scrollHeight-sc.clientHeight;
+    if(REDUCED){ sc.scrollTop=max(); return; }
+    sc.scrollTop=0; const t0=performance.now(), D=3200; busy=true;
+    const step=now=>{ const k=Math.min(1,(now-t0-300)/D); if(k>=0) sc.scrollTop=max()*ease(k); if(k<1) raf=requestAnimationFrame(step); else { raf=null; busy=false; } };
+    raf=requestAnimationFrame(step); } };
+})();
+</script>

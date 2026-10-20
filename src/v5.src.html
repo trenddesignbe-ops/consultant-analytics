@@ -1,0 +1,1011 @@
+<title>Consultant Analytics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- SEO · en production ces balises vont dans <head> -->
+<meta name="description" content="Consultant web analytics freelance : audit de tracking, paramétrage GA4 et Google Tag Manager, Consent Mode v2, tableaux de bord Looker Studio. Expert Google Analytics, y compris sur Wix.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://consultant-analytics.fr/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Consultant Analytics">
+<meta property="og:title" content="Consultant web analytics freelance · GA4, GTM, Looker Studio">
+<meta property="og:description" content="Vos conversions ont chuté sans explication ? Audit de tracking gratuit en dix secondes, puis des données auxquelles vous pouvez croire.">
+<meta property="og:url" content="https://consultant-analytics.fr/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Cabin:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: Aura Flow spirit. Centered editorial column on warm off-white, soft serif display, black pill buttons, very round cards carrying generative pastel skies. Motion is rationed: hero reveal, aurora drift, scroll reveals, three interactive moments. Single light theme by choice. */
+:root{
+  --bg:#FDFCFC; --bg-2:#F5F3F1; --bg-3:#EDEAE6; --card:#FFFFFF;
+  --ink:#0B0B0C; --ink-2:#55555C; --ink-3:#8A8A93;
+  --line:rgba(11,11,12,.08); --line-2:rgba(11,11,12,.16);
+  --accent:#2E5BFF; --accent-rgb:46,91,255; --accent-dim:rgba(46,91,255,.10); --accent-line:rgba(46,91,255,.4);
+  --good:#16A34A; --good-dim:rgba(22,163,74,.12);
+  --warn:#E5484D; --warn-dim:rgba(229,72,77,.10); --warn-line:rgba(229,72,77,.5);
+  --p1:#CDB9FF; --p2:#FFB9E3; --p3:#FFD7C4; --p4:#BFDBFF; --p5:#FFF1F6;
+  --glass:rgba(253,252,252,.82);
+  --display:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --body:"Cabin",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Cabin",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --code:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --r:22px; --max:1100px;
+  /* legacy token names used by the lab */
+  --fg:var(--ink); --fg-2:var(--ink-2); --fg-3:var(--ink-3); --bg-2-lab:var(--card);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bg)}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.015em;text-wrap:balance;margin:0;line-height:1.05}
+h1{font-size:clamp(2.6rem,6.2vw,4.6rem)}
+h2{font-size:clamp(2rem,4.2vw,3.1rem)}
+h3{font-size:1.5rem;line-height:1.15}
+h1 em,h2 em{font-style:italic;color:var(--accent)}
+p{margin:0}
+.num,.mono{font-family:var(--body);font-variant-numeric:tabular-nums;font-weight:600}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+section{padding-block:clamp(72px,9vw,120px)}
+.sec-head{text-align:center;display:grid;justify-items:center;gap:14px;margin-bottom:40px}
+.sec-head h2{max-width:26ch}
+.sec-head .sub,.hero .sub{color:var(--ink-2);max-width:56ch;font-size:1.08rem;line-height:1.55}
+.center{text-align:center;display:grid;justify-items:center;gap:14px}
+.eyebrow{font:600 .72rem var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:inline-flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.lede{color:var(--ink-2);max-width:60ch;font-size:1.1rem}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:14px 22px;font:600 .96rem var(--body);text-decoration:none;cursor:pointer;border:1px solid var(--line-2);background:var(--card);color:var(--ink);transition:transform .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(11,11,12,.08)}
+.btn-primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn-primary:hover{background:#222}
+.btn:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tag{display:inline-flex;align-items:center;gap:7px;font:500 .8rem var(--body);padding:5px 10px;border-radius:8px;border:0;color:var(--ink-2);background:var(--bg-2)}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ink-3)}
+.tag-warn{color:var(--ink)}
+.tag-warn::before{background:var(--warn)}
+.tag-ok{color:var(--ink)}
+.tag-ok::before{background:var(--good)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 1px 2px rgba(11,11,12,.03),0 12px 40px rgba(11,11,12,.04)}
+.note{font-size:.8rem;color:var(--ink-3)}
+
+/* aurora */
+.aurora{position:absolute;inset:-20%;width:140%;height:140%;filter:blur(28px) saturate(1.1);transform:translateZ(0);pointer-events:none}
+.sky{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--p4),var(--p1) 40%,var(--p2) 75%,var(--p3));border-radius:var(--r)}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:22px;min-height:64px}
+.nav .logo{font-family:var(--display);font-size:1.35rem;text-decoration:none;letter-spacing:-.01em}
+.nav .logo i{color:var(--accent);font-style:normal}
+.nav ul{list-style:none;margin:0 0 0 auto;padding:0;display:flex;gap:22px;font-size:.94rem;font-weight:500}
+.nav ul a{text-decoration:none;color:var(--ink-2)}
+.nav ul a:hover{color:var(--ink)}
+.nav .live{display:inline-flex;align-items:center;gap:8px;font:500 .8rem var(--body);color:var(--ink-2);border-radius:8px;padding:6px 10px;background:var(--bg-2);white-space:nowrap}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(22,163,74,.5);animation:ping 2.4s var(--ease) infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(22,163,74,.5)}70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+@media (max-width:860px){.nav ul{display:none}}
+
+/* hero */
+.hero{padding-block:clamp(56px,8vw,96px) 0}
+.hero .center h1{max-width:14ch}
+.hero .sub{font-size:1.15rem;max-width:52ch}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.hero-word{display:inline-block;will-change:transform,opacity}
+.stage{margin-top:clamp(36px,5vw,56px);position:relative;aspect-ratio:16/8;max-width:100%;min-height:360px}
+.stage .float{position:absolute;background:var(--card);border-radius:18px;box-shadow:0 20px 60px rgba(60,40,90,.18),0 2px 6px rgba(11,11,12,.06);padding:22px 26px;min-width:0}
+.stage .gap{inset:0;margin:auto;height:max-content;width:min(560px,92%);display:grid;gap:18px}
+.stage .gap .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:.95rem;color:var(--ink-2)}
+.stage .gap .head b{color:var(--ink);font-weight:600;font-size:1.05rem}
+.stage .gap .head span{font-variant-numeric:tabular-nums;font-weight:600;color:var(--warn)}
+.stage .gap .head span.ok{color:var(--good)}
+.stage .gap .rows{display:grid;gap:12px}
+.stage .gap .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr) 2.2ch;align-items:center;gap:12px;font-size:.92rem;color:var(--ink-2)}
+.stage .gap .bar{height:14px;border-radius:999px;background:var(--bg-2);overflow:hidden}
+.stage .gap .fill{display:block;height:100%;border-radius:999px;transform-origin:left center;transform:scaleX(0)}
+.stage .gap .fill.real{background:#D9D6D2}
+.stage .gap .fill.seen{background:var(--accent)}
+.stage .gap .n{text-align:right;font-weight:600;color:var(--ink);font-size:1.05rem}
+.stage .gap .fixes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.stage .gap .fixes li{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--ink-2);opacity:0;transform:translateY(8px)}
+.stage .gap .fixes li i{flex:0 0 20px;height:20px;border-radius:50%;background:var(--good);position:relative;transform:scale(0)}
+.stage .gap .fixes li i::after{content:"";position:absolute;left:6px;top:4px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.stage .gap .fixes li em{font-style:normal;color:var(--good);font-weight:600;margin-left:6px}
+.stage .gap .foot{font-size:.92rem;color:var(--ink-2);opacity:0}
+.stage .gap .foot b{color:var(--ink);font-weight:600}
+@media (max-width:760px){.stage{aspect-ratio:auto;min-height:440px}.stage .gap .row{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) 2.2ch;font-size:.84rem}}
+
+/* trust marquee */
+.trust{padding-block:28px 0}
+.trust .label{text-align:center;font:400 .92rem var(--body);color:var(--ink-3);margin-bottom:18px}
+.marquee{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.marquee ul{display:flex;gap:56px;list-style:none;margin:0;padding:0;width:max-content;animation:scroll 34s linear infinite;font:500 1.05rem var(--body);color:var(--ink-2);white-space:nowrap}
+.marquee:hover ul{animation-play-state:paused}
+@keyframes scroll{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee ul{animation:none;flex-wrap:wrap;width:auto;justify-content:center}}
+
+/* tool */
+.tool{padding:clamp(22px,3.5vw,36px);display:grid;gap:18px}
+.tool form{display:flex;gap:10px;flex-wrap:wrap}
+.tool input[type=url]{flex:1 1 280px;min-width:0;background:var(--bg-2);border:1px solid transparent;border-radius:999px;color:var(--ink);font:500 1rem var(--mono);padding:14px 20px}
+.tool input[type=url]:focus{background:var(--card);border-color:var(--line-2)}
+.tool input::placeholder{color:var(--ink-3)}
+.scan{display:none;gap:10px;align-items:center;font:500 .82rem var(--mono);color:var(--ink-2)}
+.scan.on{display:flex}
+.scan .bar{flex:1;height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden}
+.scan .bar i{display:block;height:100%;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform 1.4s var(--ease)}
+.scan.on .bar i{transform:scaleX(1)}
+.report-box{display:none;grid-template-columns:auto 1fr;gap:22px;align-items:start}
+.report-box.on{display:grid}
+.score{display:grid;place-items:center;width:118px;height:118px;border-radius:50%;border:4px solid var(--line-2);font:600 2.1rem var(--mono);position:relative}
+.score.good{border-color:var(--good)}.score.mid{border-color:var(--warn)}
+.score span{font:600 .6rem var(--body);color:var(--ink-3);letter-spacing:.1em;position:absolute;bottom:16px}
+.checks{display:grid;gap:10px;min-width:0}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:.96rem;opacity:0;transform:translateY(6px);transition:opacity .3s var(--ease),transform .3s var(--ease)}
+.check.on{opacity:1;transform:none}
+.check i{flex:0 0 20px;height:20px;border-radius:50%;display:grid;place-items:center;font:700 .72rem var(--mono);margin-top:3px}
+.check.ok i{background:var(--good-dim);color:var(--good)}.check.ko i{background:var(--warn-dim);color:var(--warn)}
+.check small{display:block;color:var(--ink-3);font-size:.84rem}
+.tool form.gate{display:none;gap:10px;flex-wrap:wrap;align-items:center;padding-top:16px;border-top:1px solid var(--line);font-size:.94rem;color:var(--ink-2)}
+.tool form.gate.on{display:flex}
+.tool input[type=email]{flex:1 1 220px;background:var(--bg-2);border:1px solid transparent;border-radius:999px;color:var(--ink);font:500 .95rem var(--body);padding:12px 16px}
+.sent{display:none;color:var(--good);font-weight:600;font-size:.9rem}
+.sent.on{display:block}
+@media (max-width:560px){.report-box{grid-template-columns:1fr}}
+
+/* symptoms */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+@media (max-width:900px){.grid3{grid-template-columns:1fr}}
+.sym{padding:0;min-width:0;overflow:hidden}
+.sym .pic{height:150px;position:relative}
+.sym .pic svg{position:absolute;inset:0;width:100%;height:100%}
+.sym summary{list-style:none;cursor:pointer;padding:20px 22px 6px;display:grid;gap:8px}
+.sym summary::-webkit-details-marker{display:none}
+.sym summary q{font-family:var(--display);font-size:1.45rem;quotes:"« " " »";line-height:1.15}
+.sym summary .more{font:600 .88rem var(--body);color:var(--accent)}
+.sym .body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease)}
+.sym[open] .body{grid-template-rows:1fr}
+.sym .body>div{overflow:hidden;min-height:0}
+.sym .body p{padding:8px 22px 22px;color:var(--ink-2);font-size:.98rem}
+.sym .body p b{color:var(--ink)}
+
+/* tabs (prestations) */
+.tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:0;background:var(--bg-2);border-radius:999px;padding:6px;width:max-content;max-width:100%;margin-inline:auto}
+.tabs button{border:0;background:transparent;border-radius:999px;padding:10px 16px;font:600 .9rem var(--body);color:var(--ink-2);cursor:pointer;transition:background .2s var(--ease),color .2s var(--ease)}
+.tabs button[aria-selected=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(11,11,12,.08)}
+.panels{margin-top:22px;position:relative}
+.panel{display:none;grid-template-columns:1.1fr .9fr;gap:0;overflow:hidden;min-height:380px}
+.panel.on{display:grid}
+.panel .txt{padding:clamp(24px,4vw,48px);display:grid;gap:14px;align-content:center}
+.panel .txt h3{font-size:clamp(1.6rem,2.6vw,2.1rem)}
+.panel .txt p{color:var(--ink-2)}
+.panel .txt ul{margin:4px 0 0;padding-left:18px;color:var(--ink-2);display:grid;gap:4px;font-size:.95rem}
+.panel .txt .go{font:600 .95rem var(--body);color:var(--accent);text-decoration:none;margin-top:6px}
+.panel .pic{position:relative;min-height:260px}
+.panel .pic .mini{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(360px,84%);background:var(--card);border-radius:16px;box-shadow:0 20px 60px rgba(60,40,90,.18);padding:16px 18px;display:grid;gap:10px}
+.mini .h{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-2)}
+.mini .h b{color:var(--ink)}
+.mini svg{width:100%;height:auto;display:block}
+.mini .row{display:flex;justify-content:space-between;font:500 .8rem var(--mono);color:var(--ink-2);border-top:1px solid var(--line);padding-top:8px}
+.mini .row b{color:var(--ink)}
+@media (max-width:860px){.panel{grid-template-columns:1fr}.panel .pic{min-height:300px}}
+
+/* funnel */
+.funnel{padding:clamp(22px,3.5vw,36px);display:grid;gap:18px}
+.funnel-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end}
+.funnel-head .total{display:grid;gap:4px}
+.funnel-head .total small{font:500 .84rem var(--body);color:var(--ink-3)}
+.funnel-head .total .num{font:600 clamp(2rem,4vw,2.8rem) var(--mono);letter-spacing:-.02em;line-height:1}
+.funnel-head .total .of{font:400 .92rem var(--body);color:var(--ink-2)}
+.funnel-head .total .of b{font-weight:600}
+.flow{position:relative;aspect-ratio:640/300;max-width:100%;margin-top:10px}
+.flow canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.flow-labels{position:absolute;inset:0;pointer-events:none}
+.flow-labels .lab{position:absolute;transform:translateX(-50%);font:500 .8rem var(--body);color:var(--ink-2);white-space:nowrap;background:var(--card);padding:4px 10px;border-radius:8px;box-shadow:0 1px 2px rgba(11,11,12,.06)}
+.flow-labels .lab b{font-family:var(--mono);font-weight:600;color:var(--ink);margin-left:4px}
+.flow-labels .cnt{position:absolute;transform:translateX(-50%);font:600 .86rem var(--mono);color:var(--ink)}
+.flow-labels .leak{position:absolute;transform:translateX(-50%);pointer-events:auto;display:inline-flex;align-items:center;gap:7px;border:0;background:var(--card);box-shadow:0 1px 2px rgba(11,11,12,.08),0 6px 18px rgba(11,11,12,.08);border-radius:8px;padding:7px 10px;font:500 .78rem var(--body);color:var(--ink);cursor:pointer;white-space:nowrap;transition:transform .2s var(--ease)}
+.flow-labels .leak:hover{transform:translateX(-50%) translateY(-1px)}
+.flow-labels .leak::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--warn)}
+.flow-labels .leak.sealed{color:var(--ink-2)}
+.flow-labels .leak.sealed b{color:var(--good)}
+.flow-labels .leak.sealed::before{background:var(--good)}
+.flow-labels .leak b{font-family:var(--mono);font-weight:600}
+@media (max-width:640px){.flow{aspect-ratio:640/360}.flow-labels .lab,.flow-labels .cnt{font-size:.7rem}.flow-labels .leak{font-size:.68rem;padding:5px 8px}}
+
+/* flow 3d */
+.flow3d{position:relative;aspect-ratio:640/320;max-width:100%;margin-top:10px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#F7F5FB,#FDFCFC 60%)}
+.flow3d canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.flow3d .flow-labels .leak{bottom:14px;top:auto}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+@media (max-width:760px){.stats{grid-template-columns:1fr}}
+.stat{padding:28px;display:grid;gap:6px}
+.stat .v{font:400 clamp(2.6rem,5vw,3.6rem) var(--display);line-height:1;letter-spacing:-.02em}
+.stat .v b{font-family:var(--mono);font-weight:600;font-size:.8em}
+.stat .l{color:var(--ink-2);font-size:.95rem}
+
+/* proof */
+.proof{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){.proof{grid-template-columns:1fr}}
+.case{padding:26px;display:grid;gap:14px;min-width:0}
+.case .ba{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.case .ba .v{font:600 1.7rem var(--mono);letter-spacing:-.02em}
+.case .ba .v small{display:block;font:500 .78rem var(--body);color:var(--ink-3)}
+.case .ba .arrow{color:var(--accent);font-family:var(--mono)}
+.case p{color:var(--ink-2);font-size:.96rem}
+.dash{grid-column:1/-1;padding:26px;display:grid;gap:18px}
+.dash .h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dash .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:560px){.dash .tiles{grid-template-columns:1fr}}
+.tile{background:var(--bg-2);border-radius:14px;padding:16px 18px;display:grid;gap:4px}
+.tile .l{font:500 .84rem var(--body);color:var(--ink-3)}
+.tile .v{font:600 1.6rem var(--mono);letter-spacing:-.02em}
+.tile .d{font:600 .8rem var(--body);color:var(--good)}
+.dash svg{width:100%;height:auto;display:block}
+
+/* pricing */
+.price{overflow:hidden}
+.price .row{display:grid;grid-template-columns:1.4fr 1fr auto;gap:16px;align-items:center;padding:22px 26px;border-top:1px solid var(--line)}
+.price .row:first-child{border-top:0}
+.price .row p{color:var(--ink-2);font-size:.94rem}
+.price .row .amt{font:600 1.15rem var(--mono);white-space:nowrap}
+@media (max-width:700px){.price .row{grid-template-columns:1fr;gap:6px}}
+
+/* about */
+.about{display:grid;grid-template-columns:220px 1fr;gap:clamp(24px,4vw,56px);align-items:center}
+@media (max-width:700px){.about{grid-template-columns:1fr}}
+.avatar{aspect-ratio:1;max-width:100%;border-radius:var(--r);display:grid;place-items:center;font:400 4rem var(--display);color:var(--ink);position:relative}
+.avatar span{position:absolute;bottom:12px;font:500 .76rem var(--body);color:var(--ink-2)}
+.about .facts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+/* faq */
+.faq{max-width:760px;margin-inline:auto}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;padding:20px 0;font-family:var(--display);font-size:1.35rem;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:400 1.5rem var(--mono);color:var(--accent);transition:transform .25s var(--ease)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq .a{color:var(--ink-2);padding:0 0 22px;font-size:.98rem}
+
+/* final band */
+.band{background:var(--ink);color:#fff;border-radius:calc(var(--r) + 6px);padding:clamp(28px,5vw,56px);display:grid;gap:24px;position:relative;overflow:hidden}
+.band .aurora{position:absolute;inset:0;width:100%;height:100%;opacity:.35;pointer-events:none}
+.band>*:not(.aurora){position:relative}
+.band>*{position:relative}
+.band h2{color:#fff}
+.band dl{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.band dt{font:500 .82rem var(--body);color:rgba(255,255,255,.6)}
+.band dd{margin:4px 0 0;font:600 1.35rem var(--mono);letter-spacing:-.01em}
+.band .lede{color:rgba(255,255,255,.8)}
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:860px){.contact{grid-template-columns:1fr}}
+.contact form,.contact .alt{background:var(--card);border-radius:18px;padding:22px;display:grid;gap:12px;color:var(--ink)}
+.contact label{display:grid;gap:6px;font-size:.86rem;color:var(--ink-2)}
+.contact input,.contact textarea{background:var(--bg-2);border:1px solid transparent;border-radius:12px;color:var(--ink);font:500 .98rem var(--body);padding:12px 14px;width:100%}
+.contact textarea{min-height:110px;resize:vertical}
+.contact .alt{align-content:start}
+.contact .alt .big{font:600 1rem var(--mono);word-break:break-all}
+
+/* hud + consent */
+.hud{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:35;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 40px rgba(11,11,12,.12);font:500 .78rem var(--mono);color:var(--ink-2);width:min(280px,calc(100vw - 28px));transform:translateY(12px);opacity:0;transition:opacity .4s var(--ease),transform .4s var(--ease);pointer-events:none}
+.hud.show{opacity:1;transform:none;pointer-events:auto}
+.hud header{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.hud header .dot{width:6px;height:6px}
+.hud header b{font-weight:500;flex:1}
+.hud header span{color:var(--ink-3)}
+.hud .rows{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease)}
+.hud.open .rows{grid-template-rows:1fr}
+.hud .rows>div{overflow:hidden;min-height:0}
+.hud dl{margin:0;padding:0 12px 12px;display:grid;grid-template-columns:1fr auto;gap:6px 12px}
+.hud dt{color:var(--ink-3)}.hud dd{margin:0;color:var(--ink);text-align:right}
+.consent{position:fixed;left:max(14px,env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:36;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 40px rgba(11,11,12,.12);padding:16px 18px;width:min(360px,calc(100vw - 28px));display:grid;gap:12px;font-size:.9rem;color:var(--ink-2);transform:translateY(12px);opacity:0;transition:opacity .4s var(--ease),transform .4s var(--ease);pointer-events:none}
+.consent.show{opacity:1;transform:none;pointer-events:auto}
+.consent b{color:var(--ink)}
+.consent .acts{display:flex;gap:8px}
+.consent .acts button{flex:1;border-radius:999px;padding:10px 12px;font:600 .86rem var(--body);cursor:pointer;border:1px solid var(--line-2);background:transparent;color:var(--ink)}
+.consent .acts button.yes{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+footer{border-top:1px solid var(--line);padding-block:32px;font-size:.84rem;color:var(--ink-3)}
+footer .wrap{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:24px}
+footer h4{margin:0 0 10px;font:600 .72rem var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+footer a{text-decoration:none;color:var(--ink-2)}
+footer a:hover{color:var(--ink)}
+@media (max-width:700px){footer .wrap{grid-template-columns:1fr}}
+
+/* learn cards */
+.learn{display:grid;grid-template-columns:.9fr 1.1fr;gap:0;overflow:hidden;margin-top:28px}
+.learn:first-of-type{margin-top:0}
+.learn-txt{padding:clamp(22px,3.5vw,36px);display:grid;gap:14px;align-content:start}
+.learn-txt h3{font-size:clamp(1.45rem,2.3vw,1.9rem)}
+.learn-txt p{color:var(--ink-2);font-size:.98rem}
+.learn-txt .go{font:600 .95rem var(--body);color:var(--accent);text-decoration:none}
+.learn-stage{background:var(--bg-2);padding:clamp(16px,3vw,28px);display:grid;align-items:center;min-height:300px}
+.cmp{display:grid;gap:14px;width:min(420px,100%);margin:0 auto}
+.cmp-card{background:var(--card);border-radius:16px;box-shadow:0 20px 60px rgba(60,40,90,.14),0 2px 6px rgba(11,11,12,.05);padding:18px 20px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px 14px}
+.cmp-card .nm{font-size:.95rem;font-weight:600;color:var(--ink);grid-column:1}
+.cmp-card .big{grid-column:2;grid-row:1/3;font-size:2.4rem;font-weight:600;line-height:1;color:var(--ink);display:flex;align-items:center;gap:10px}
+.cmp-card .big::after{content:"";width:22px;height:22px;border-radius:50%;background:var(--good) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/70% no-repeat;transform:scale(0);transition:transform .4s var(--ease)}
+.cmp-card.ok .big::after{transform:scale(1)}
+.cmp-card .dots{grid-column:1;display:flex;gap:6px;flex-wrap:wrap}
+.cmp-card .dots i{width:14px;height:14px;border-radius:50%;background:var(--accent);display:block}
+.cmp-card .dots i.off{background:transparent;box-shadow:inset 0 0 0 2px #D9D6D2}
+.cmp-foot{text-align:center;font-size:.92rem;color:var(--ink-2);font-weight:600}
+.cmp-card .dots-100{gap:4px;max-width:238px}
+.cmp-card .dots-100 i{width:9px;height:9px}
+.cmp-card .dots i.est{background:var(--p4)}
+.cmp-card .dots i.dup{background:var(--warn)}
+.cmp-card.bad .big{color:var(--warn)}
+.learn-stage svg{width:100%;height:auto;display:block;overflow:visible}
+.ctl{display:grid;gap:8px}
+.ctl-row{grid-auto-flow:column;justify-content:start;gap:10px}
+.ctl-l{font:600 .82rem var(--body);color:var(--ink-2)}
+.seg{display:inline-flex;background:var(--bg-2);border-radius:999px;padding:4px;width:max-content;max-width:100%}
+.seg button{border:0;background:transparent;border-radius:999px;padding:7px 12px;font:600 .84rem var(--mono);color:var(--ink-2);cursor:pointer;transition:background .2s var(--ease),color .2s var(--ease)}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(11,11,12,.08)}
+.chk{display:flex;align-items:center;gap:10px;font-size:.92rem;color:var(--ink-2);cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.learn-out{background:var(--bg-2);border-radius:12px;padding:12px 14px;font-size:.92rem;color:var(--ink);min-height:48px}
+.learn-out b{font-family:var(--mono)}
+.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.counts>div{background:var(--bg-2);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
+.counts .l{font:500 .76rem var(--body);color:var(--ink-3)}
+.counts .v{font:600 1.4rem var(--mono);letter-spacing:-.02em}
+.counts .v.bad{color:var(--warn)}
+#attrSvg .conv{transition:fill .35s var(--ease),stroke .35s var(--ease)}
+#consSvg .dot{transition:fill .4s var(--ease)}
+@media (max-width:900px){.learn{grid-template-columns:1fr}.learn-stage{min-height:260px}}
+
+/* lab overrides for the new system */
+#labo{background:var(--bg-2);border-radius:calc(var(--r) + 6px);margin:0 16px}
+__LAB_CSS__
+.lab{background:var(--card);border-color:var(--line);border-radius:18px}
+.stage-area{background:var(--bg);border-color:var(--line)}
+.lab-h .replay{border-color:var(--line-2);color:var(--ink);border-radius:999px}
+.prompt{background:var(--card);border-color:var(--accent-line);color:var(--ink-2);font-family:var(--code)}
+.prompt b{color:var(--ink)}
+.lab p{color:var(--ink-2)}.lab p b{color:var(--ink)}
+.lab-meta{color:var(--ink-3);font-family:var(--code)}.lab-meta b{color:var(--ink)}
+.lab .verdict,.lab-h .replay,.stage-area .kpi{font-family:var(--code)}
+.lab.off .stage-area{color:var(--ink-3)}
+.lab-tall .stage-area{height:300px}
+.stage-area .kpi{color:var(--ink)}
+.stage-area .kpi small{color:var(--ink-3)}
+</style>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Consultant Analytics, accueil">consultant<i>·</i>analytics</a>
+    <ul>
+      <li><a href="#prestations">Prestations</a></li>
+      <li><a href="#tarifs">Tarifs</a></li>
+      <li><a href="#faq">Questions</a></li>
+      <li><a href="/blog">Blog</a></li>
+    </ul>
+    <span class="live"><i class="dot" aria-hidden="true"></i>en direct · LCP <b id="lcp">…</b></span>
+    <a class="btn btn-primary" href="#test" style="padding:10px 16px">Tester mon tracking</a>
+  </div>
+</header>
+
+<main>
+<!-- 1 · hero -->
+<section class="hero">
+  <div class="wrap">
+    <div class="center">
+      <h1 id="h1">Consultant web analytics <em>freelance</em></h1>
+      <p class="sub">Vos ventes semblent baisser sans raison, Google Analytics et Google Ads ne racontent pas la même histoire, et depuis le bandeau cookies une partie de vos ventes n'apparaît plus nulle part. Expert Google Analytics et Google Tag Manager, je remets vos chiffres d'aplomb.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#test">Testez votre tracking</a>
+        <a class="btn" href="#tarifs">Voir les tarifs</a>
+      </div>
+    </div>
+    <div class="stage sky" id="stage" aria-label="Vos ventes vendues contre vos ventes visibles dans vos rapports">
+      <canvas class="aurora" data-aurora></canvas>
+      <div class="float gap" id="heroGap">
+        <div class="head"><b>Vos ventes du mois</b><span id="gapPct">6 visibles sur 10</span></div>
+        <div class="rows">
+          <div class="row"><span class="rlab">Vendues</span><div class="bar"><i class="fill real" id="gapReal"></i></div><b class="n num">10</b></div>
+          <div class="row"><span class="rlab">Visibles dans vos rapports</span><div class="bar"><i class="fill seen" id="gapSeenBar"></i></div><b class="n num" id="gapSeen">6</b></div>
+        </div>
+        <ul class="fixes" id="gapFixes">
+          <li><i></i><span>Cookies refusés <em>ventes récupérées</em></span></li>
+          <li><i></i><span>Origine de la visite perdue <em>retrouvée</em></span></li>
+          <li><i></i><span>Achat jamais signalé <em>compté</em></span></li>
+        </ul>
+        <div class="foot" id="gapFoot">Après correction : <b>100 % de vos ventes visibles</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- trust -->
+<div class="trust">
+  <div class="wrap">
+    <div class="label">Ils m'ont confié leur site et leurs chiffres</div>
+    <div class="marquee" aria-label="Clients"><ul>
+      <li>Teolia</li><li>Alan Geday</li><li>Kepler HR</li><li>Swim Easy</li><li>Blooming Brand</li><li>Maison MCH</li><li>We Care At Work</li><li>Trend Design</li>
+      <li aria-hidden="true">Teolia</li><li aria-hidden="true">Alan Geday</li><li aria-hidden="true">Kepler HR</li><li aria-hidden="true">Swim Easy</li><li aria-hidden="true">Blooming Brand</li><li aria-hidden="true">Maison MCH</li><li aria-hidden="true">We Care At Work</li><li aria-hidden="true">Trend Design</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- 2 · outil -->
+<section id="test">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Testez votre tracking Google Analytics <em>en dix secondes</em></h2>
+      <p class="sub">Collez l'adresse de votre site : je vérifie que Google Analytics est bien installé, qu'il compte vos ventes une seule fois, et qu'il mesure encore quand on refuse les cookies. Score immédiat, rapport complet par mail.</p>
+    </div>
+    <div class="card tool reveal">
+      <form id="scanForm" novalidate>
+        <input type="url" id="scanUrl" placeholder="https://votre-site.fr" aria-label="Adresse de votre site" required>
+        <button class="btn btn-primary" type="submit">Analyser mon site</button>
+      </form>
+      <div class="scan" id="scanBar"><span id="scanMsg">Récupération de la page…</span><div class="bar"><i></i></div></div>
+      <div class="report-box" id="report">
+        <div class="score" id="score"><span>SCORE</span><output id="scoreVal">0</output></div>
+        <div class="checks" id="checks"></div>
+      </div>
+      <form class="gate" id="gate" novalidate>
+        <span>Recevoir le rapport complet avec les correctifs :</span>
+        <input type="email" id="gateMail" placeholder="vous@entreprise.fr" aria-label="Votre adresse mail">
+        <button class="btn" type="submit">Envoyer</button>
+        <span class="sent" id="gateSent">Reçu. Le rapport part dans l'heure.</span>
+      </form>
+      <p class="note">Maquette : l'analyse est simulée dans cette version. En production, une fonction serveur lit réellement la page.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 3b · comprendre en trente secondes -->
+<section id="comprendre">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Google Ads dit 12, Google Analytics dit 10. <em>Lequel croire&nbsp;?</em></h2>
+      <p class="sub">Aucun des deux ne ment, ils ne comptent pas pareil. Trois mécaniques à essayer vous même, et à chaque fois ce que je règle chez vous.</p>
+    </div>
+
+    <!-- A · attribution -->
+    <article class="card learn reveal" id="learnAttr">
+      <div class="learn-txt">
+        <h3>Google Ads et Google Analytics ne donnent pas les mêmes ventes</h3>
+        <p>Même mois, même boutique, deux chiffres différents. Aucun des deux ne se trompe, ils ne comptent pas de la même façon. Résultat : vous ne savez pas ce que votre publicité rapporte.</p>
+        <div class="ctl ctl-row"><button class="btn btn-primary" type="button" id="attrFix">Je les aligne</button><button class="btn" type="button" id="attrReset">Revoir le problème</button></div>
+        <p class="learn-out" id="attrOut">12 ventes d'un côté, 6 de l'autre. Vous décidez de votre budget pub sur lequel ?</p>
+        <a class="go" href="/consultant-google-analytics">Chez vous : un seul chiffre fiable pour décider de votre budget pub →</a>
+      </div>
+      <div class="learn-stage sky">
+        <div class="cmp" id="attrCmp">
+          <div class="cmp-card"><span class="nm">Google Ads</span><span class="dots" data-k="ads"></span><b class="big num" data-k="ads">12</b></div>
+          <div class="cmp-card"><span class="nm">Google Analytics</span><span class="dots" data-k="ga"></span><b class="big num" data-k="ga">6</b></div>
+          <div class="cmp-foot" id="attrFoot">12 ventes réelles</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- B · consent -->
+    <article class="card learn reveal" id="learnConsent">
+      <div class="learn-txt">
+        <h3>Cookies refusés : des ventes disparaissent de vos rapports</h3>
+        <p>Cent clients achètent chez vous. Ceux qui refusent les cookies deviennent invisibles dans vos rapports. Un réglage Google, bien fait, permet de les retrouver sans cookie et dans les règles.</p>
+        <div class="ctl"><label class="ctl-l" for="refuse">Clients qui refusent les cookies : <b class="num" id="refuseVal">40 %</b></label><input type="range" id="refuse" min="0" max="70" value="40" step="5"></div>
+        <div class="ctl ctl-row"><button class="btn btn-primary" type="button" id="consFix">Je fais le réglage</button><button class="btn" type="button" id="consReset">Revoir le problème</button></div>
+        <p class="learn-out" id="consOut"></p>
+        <a class="go" href="/consultant-google-tag-manager">Chez vous : des ventes retrouvées, et un bandeau conforme CNIL →</a>
+      </div>
+      <div class="learn-stage">
+        <div class="cmp">
+          <div class="cmp-card"><span class="nm">Ventes réelles</span><span class="dots dots-100" data-k="real"></span><b class="big num" id="consReal">100</b></div>
+          <div class="cmp-card" id="consCard"><span class="nm">Dans vos rapports</span><span class="dots dots-100" data-k="seen"></span><b class="big num" id="consSeen">60</b></div>
+          <div class="cmp-foot" id="consFoot">40 ventes invisibles</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- C · GTM -->
+    <article class="card learn reveal" id="learnGtm">
+      <div class="learn-txt">
+        <h3>Un achat compté deux fois, et toutes vos décisions sont faussées</h3>
+        <p>Entre votre site et vos rapports, une petite boîte, Google Tag Manager, décide ce qui est compté. Mal réglée, elle compte chaque achat deux fois. Je la trouve dans cet état chez la moitié de mes nouveaux clients.</p>
+        <div class="ctl ctl-row"><button class="btn btn-primary" type="button" id="gtmBuy">Un client achète</button><button class="btn" type="button" id="gtmReset">Remettre à zéro</button></div>
+        <div class="ctl"><label class="chk"><input type="checkbox" id="gtmDup" checked> La boîte est mal réglée</label></div>
+        <p class="learn-out" id="gtmOut">Cliquez : chaque achat réel est compté deux fois dans vos rapports.</p>
+        <a class="go" href="/consultant-google-tag-manager">Chez vous : une boîte rangée, chaque vente comptée une fois →</a>
+      </div>
+      <div class="learn-stage">
+        <div class="cmp">
+          <div class="cmp-card"><span class="nm">Achats réels</span><span class="dots" data-k="real"></span><b class="big num" id="gtmReal">0</b></div>
+          <div class="cmp-card" id="gtmCard"><span class="nm">Dans vos rapports</span><span class="dots" data-k="seen"></span><b class="big num" id="gtmSeen">0</b></div>
+          <div class="cmp-foot" id="gtmFoot">Un achat, un envoi, un chiffre juste.</div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- 4 · prestations (tabs) -->
+<section id="prestations">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Google Analytics, Tag Manager, <em>Google Ads, Looker Studio</em></h2>
+      <p class="sub">Quatre chantiers, un seul but : des chiffres justes pour décider de votre budget pub. Je travaille sur Shopify, WooCommerce, PrestaShop, <a href="/google-analytics-wix">Wix</a>, Webflow, WordPress et les sites générés par IA.</p>
+    </div>
+    <div class="tabs reveal" role="tablist" aria-label="Prestations">
+      <button role="tab" aria-selected="true" data-tab="ga4">Google Analytics</button>
+      <button role="tab" aria-selected="false" data-tab="gtm">Tag Manager</button>
+      <button role="tab" aria-selected="false" data-tab="ads">Google Ads</button>
+      <button role="tab" aria-selected="false" data-tab="looker">Looker Studio</button>
+    </div>
+    <div class="panels reveal">
+      <article class="card panel on" data-panel="ga4">
+        <div class="txt"><h3>Consultant Google Analytics</h3><p>Vous voyez enfin d'où viennent vos clients et ce qui déclenche vos ventes. Je corrige ce qui est faux ou compté en double, dans vos comptes, pas à côté.</p><ul><li>Vous savez d'où viennent vraiment vos clients, fini le « Direct » à 60 %</li><li>Vos équipes et vos prestataires ne polluent plus vos chiffres</li><li>Un rapport qui répond à votre question du lundi : qu'est-ce qui a marché ?</li></ul><a class="go" href="/consultant-google-analytics">Consultant Google Analytics freelance →</a></div>
+        <div class="pic sky" style="border-radius:0"><canvas class="aurora" data-aurora data-seed="5"></canvas><div class="mini"><div class="h"><span><b>Acquisition</b> · canal</span><span>30 j</span></div><svg viewBox="0 0 320 110" aria-hidden="true"><g font-family="Cabin,sans-serif" font-size="11" fill="#8A8A93"><text x="0" y="22">Organic</text><text x="0" y="48">Paid</text><text x="0" y="74">Direct</text><text x="0" y="100">Referral</text></g><g fill="#2E5BFF"><rect x="60" y="12" width="230" height="14" rx="7"/><rect x="60" y="38" width="150" height="14" rx="7" opacity=".8"/><rect x="60" y="64" width="70" height="14" rx="7" opacity=".6"/><rect x="60" y="90" width="110" height="14" rx="7" opacity=".45"/></g></svg><div class="row"><span>Direct avant correction</span><b>61 % → 14 %</b></div></div></div>
+      </article>
+      <article class="card panel" data-panel="gtm">
+        <div class="txt"><h3>Consultant Google Tag Manager</h3><p>Chaque vente, chaque demande de devis, chaque clic qui compte est enregistré une fois, au bon endroit, sans toucher au code de votre site.</p><ul><li>Vos ventes ne sont plus comptées deux fois ni oubliées</li><li>Un nouvel outil pub ou un nouveau formulaire se branche en une heure, pas en une refonte</li><li>Votre site reste rapide et conforme CNIL, même avec dix outils marketing</li></ul><a class="go" href="/consultant-google-tag-manager">Consultant Google Tag Manager →</a></div>
+        <div class="pic sky" style="border-radius:0"><canvas class="aurora" data-aurora data-seed="6"></canvas><div class="mini"><div class="h"><span><b>Conteneur GTM</b></span><span class="tag tag-ok">publié</span></div><svg viewBox="0 0 320 90" aria-hidden="true"><g font-family="Cabin,sans-serif" font-size="11" fill="#0B0B0C"><text x="0" y="18">GA4 · purchase</text><text x="0" y="44">Ads · conversion</text><text x="0" y="70">Meta · lead</text></g><g font-family="JetBrains Mono,monospace" font-size="11" fill="#16A34A" text-anchor="end"><text x="320" y="18">1 déclenchement</text><text x="320" y="44">1 déclenchement</text><text x="320" y="70">1 déclenchement</text></g><g stroke="rgba(11,11,12,.08)"><line x1="0" y1="28" x2="320" y2="28"/><line x1="0" y1="54" x2="320" y2="54"/></g></svg><div class="row"><span>Balises en double supprimées</span><b>4</b></div></div></div>
+      </article>
+      <article class="card panel" data-panel="looker">
+        <div class="txt"><h3>Expert Looker Studio</h3><p>Looker Studio est l'outil gratuit de Google pour transformer vos chiffres en tableau de bord. Je construis celui que vous ouvrirez vraiment le lundi matin.</p><ul><li>Votre chiffre d'affaires par canal lu en 30 secondes, chaque lundi</li><li>Un seul écran pour vous, votre agence et votre comptable</li><li>Des chiffres corrigés, donc des décisions prises sur du vrai</li></ul><a class="go" href="/expert-looker-studio">Expert Looker Studio freelance →</a></div>
+        <div class="pic sky" style="border-radius:0"><canvas class="aurora" data-aurora data-seed="7"></canvas><div class="mini"><div class="h"><span><b>Tableau de bord</b> · direction</span><span>hebdo</span></div><svg viewBox="0 0 320 100" aria-hidden="true"><g fill="#F5F3F1"><rect x="0" y="0" width="100" height="44" rx="10"/><rect x="110" y="0" width="100" height="44" rx="10"/><rect x="220" y="0" width="100" height="44" rx="10"/></g><g font-family="JetBrains Mono,monospace" font-size="14" fill="#0B0B0C" font-weight="600"><text x="12" y="28">2 418</text><text x="122" y="28">3,4 %</text><text x="232" y="28">38 €</text></g><g font-family="Cabin,sans-serif" font-size="9" fill="#8A8A93"><text x="12" y="40">VISITEURS</text><text x="122" y="40">CONVERSION</text><text x="232" y="40">COÛT / LEAD</text></g><path d="M0 92 L40 84 L80 86 L120 72 L160 76 L200 60 L240 64 L280 50 L320 44" fill="none" stroke="#2E5BFF" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>
+      </article>
+      <article class="card panel" data-panel="ads">
+        <div class="txt"><h3>Conversions Google Ads fiables</h3><p>Vous savez ce que chaque euro de publicité rapporte, à l'euro près. Et vos campagnes apprennent sur de vraies ventes, donc elles coûtent moins cher.</p><ul><li>Vous savez ce que chaque euro de pub rapporte</li><li>Google Ads et Google Analytics racontent enfin la même histoire</li><li>Vos campagnes apprennent sur de vraies ventes, donc elles coûtent moins cher</li></ul><a class="go" href="/suivi-conversions-google-ads">Suivi des conversions Google Ads →</a></div>
+        <div class="pic sky" style="border-radius:0"><canvas class="aurora" data-aurora data-seed="8"></canvas><div class="mini"><div class="h"><span><b>Google Ads</b> · ce mois</span><span class="tag tag-ok">ventes vérifiées</span></div><svg viewBox="0 0 320 100" aria-hidden="true"><g fill="#F5F3F1"><rect x="0" y="0" width="100" height="44" rx="10"/><rect x="110" y="0" width="100" height="44" rx="10"/><rect x="220" y="0" width="100" height="44" rx="10"/></g><g font-family="Cabin,sans-serif" font-size="15" fill="#0B0B0C" font-weight="600"><text x="12" y="28">3 200 €</text><text x="122" y="28">84</text><text x="232" y="28">38 €</text></g><g font-family="Cabin,sans-serif" font-size="10" fill="#8A8A93"><text x="12" y="40">Dépensés</text><text x="122" y="40">Ventes</text><text x="232" y="40">Coût par vente</text></g><g font-family="Cabin,sans-serif" font-size="11" fill="#8A8A93"><text x="0" y="78">Avant correction</text><text x="0" y="96">Après correction</text></g><g fill="#2E5BFF"><rect x="110" y="68" width="130" height="12" rx="6" opacity=".45"/><rect x="110" y="86" width="210" height="12" rx="6"/></g></svg><div class="row"><span>Ventes manquantes avant correction</span><b>31 %</b></div></div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · tunnel -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Où se perdent vos ventes <em>avant vos rapports</em></h2>
+      <p class="sub">Mille visiteurs entrent dans votre boutique, une partie achète. Entre l'achat et vos rapports, il y a des fuites. Cliquez sur une fuite pour la colmater et regardez vos ventes réapparaître.</p>
+    </div>
+    <div class="card funnel reveal" id="funnel">
+      <div class="funnel-head">
+        <div class="total"><small>Achats que Google Analytics voit</small><span class="num" id="fTotal">0</span><span class="of">sur <b class="num" id="fReal">72</b> achats réels</span></div>
+        <span class="tag" id="fState">3 fuites ouvertes</span>
+      </div>
+      <div class="flow" id="flow"><canvas id="flowCanvas" aria-label="Flux de visiteurs avec des fuites de tracking"></canvas><div class="flow-labels" id="flowLabels"></div></div>
+      <p class="note">Chaque point est un visiteur. Les gris quittent la boutique sans acheter, c'est normal. Les rouges achètent vraiment, mais leur achat n'arrive jamais dans vos rapports.</p>
+    </div>
+    <div class="card funnel reveal" id="funnel3d" style="margin-top:16px">
+      <div class="funnel-head">
+        <div class="total"><small>La même chose, en verre et en 3D</small><span class="num" id="f3Total">0</span><span class="of">sur <b class="num">72</b> achats réels</span></div>
+        <span class="tag" id="f3State">3 fuites ouvertes</span>
+      </div>
+      <div class="flow3d" id="flow3d"><canvas id="flow3dCanvas" aria-label="Tunnel de verre en 3D avec les fuites de mesure"></canvas><div class="flow-labels" id="flow3dLabels"></div></div>
+      <p class="note">Version de test : le même tunnel, construit en Three.js avec un tube de verre et des visiteurs en relief. Même logique, mêmes fuites, cliquez pour colmater.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- 7 · preuve -->
+<section>
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Audit Google Analytics&nbsp;: <em>avant, après</em></h2>
+      <p class="sub">Deux cas clients, et mon propre tableau de bord en public.</p>
+    </div>
+    <div class="proof">
+      <div class="card case reveal">
+        <span class="tag tag-warn">Cas client à remplacer</span>
+        <h3>E-commerce, 40 % de conversions « perdues »</h3>
+        <div class="ba"><div class="v"><small>Attribué à Direct</small>61 %</div><span class="arrow">→</span><div class="v"><small>Après correction</small>14 %</div></div>
+        <p>Une redirection vers la page de paiement effaçait les UTM. Trois lignes dans la liste d'exclusion et une règle de redirection plus tard, les campagnes retrouvaient leurs ventes.</p>
+      </div>
+      <div class="card case reveal">
+        <span class="tag tag-warn">Cas client à remplacer</span>
+        <h3>Site de services, double comptage des leads</h3>
+        <div class="ba"><div class="v"><small>Demandes dans vos rapports</small>212</div><span class="arrow">→</span><div class="v"><small>Demandes réelles</small>106</div></div>
+        <p>Le formulaire déclenchait l'événement à l'envoi et à la page de remerciement. Le vrai coût par lead était le double de ce que l'équipe croyait.</p>
+      </div>
+      <div class="card dash reveal">
+        <div class="h"><h3>Le tableau de bord que je livre, lisible en trente secondes</h3></div>
+        <div class="tiles">
+          <div class="tile"><span class="l">Chiffre d'affaires, 30 jours</span><span class="v num" data-count="48200" data-suffix=" €">0</span><span class="d">+18 % vs le mois précédent</span></div>
+          <div class="tile"><span class="l">Coût par vente</span><span class="v num" data-count="38" data-suffix=" €">0</span><span class="d">61 € avant correction</span></div>
+          <div class="tile"><span class="l">Ventes retrouvées dans les rapports</span><span class="v num" data-count="31" data-suffix=" %">0</span><span class="d">après correction du suivi</span></div>
+        </div>
+        <svg viewBox="0 0 640 120" aria-hidden="true" id="dashSpark"><g id="dashGrid" stroke="var(--line)"></g><path id="dashArea" fill="var(--accent-dim)"></path><path id="dashLine" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+        <p class="note">Exemple type d'un rapport Looker Studio livré : trois chiffres qui répondent à vos questions, une courbe de chiffre d'affaires, rien d'autre.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · tarifs -->
+<section id="tarifs" style="background:var(--bg-2);border-radius:calc(var(--r) + 6px);margin:0 16px">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Tarifs du consultant analytics <em>freelance</em></h2>
+      <p class="sub">Des prix affichés, parce que c'est votre deuxième question. Fourchettes indicatives, devis précis sous 48 h.</p>
+    </div>
+    <div class="card price reveal">
+      <div class="row"><div><h3>Vérification complète de vos mesures</h3><p>Ce qui est compté, mal compté ou pas compté du tout. Un rapport clair et un plan de correction.</p></div><span class="tag tag-warn">Fourchette à valider</span><span class="amt">à partir de 390 €</span></div>
+      <div class="row"><div><h3>Installation Google Analytics et Google Tag Manager</h3><p>Une installation propre, vos ventes et demandes suivies, le tout testé avant livraison.</p></div><span class="tag tag-warn">Fourchette à valider</span><span class="amt">600 à 1 200 €</span></div>
+      <div class="row"><div><h3>Mesure malgré les refus de cookies</h3><p>Un bandeau conforme CNIL, relié à Google pour que les visites refusées soient estimées plutôt que perdues.</p></div><span class="tag tag-warn">Fourchette à valider</span><span class="amt">à partir de 290 €</span></div>
+      <div class="row"><div><h3>Tableau de bord Looker Studio</h3><p>Vos chiffres réunis sur une page lisible en trente secondes.</p></div><span class="tag tag-warn">Fourchette à valider</span><span class="amt">500 à 1 500 €</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · qui -->
+<section>
+  <div class="wrap">
+    <div class="about">
+      <div class="avatar sky reveal" aria-label="Photo à venir"><canvas class="aurora" data-aurora data-seed="9"></canvas><span style="position:relative">AC</span><span>Photo à venir</span></div>
+      <div class="reveal" style="display:grid;gap:14px">
+        <h2>Alexandre Cottret, consultant <em>web analytics freelance</em></h2>
+        <p class="sub">Dix ans à construire des sites, cent soixante-dix mis en ligne, et au bout d'un mois toujours la même question du client : « ça marche ? ». Je ne réponds plus sans chiffres fiables. Expert Google Analytics et Google Tag Manager, je travaille à distance depuis le Vietnam : disponible tôt le matin en France, aucun déplacement à facturer.</p>
+        <div class="facts" style="margin-top:4px"><span class="tag tag-ok">Wix Partner Legend</span><span class="tag">170 sites livrés</span><span class="tag">GA4 · GTM · Looker Studio</span><span class="tag">Réponse sous 24 h</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · FAQ -->
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Questions sur le consultant <em>Google Analytics</em></h2>
+    </div>
+    <div class="faq reveal">
+      <details><summary>Combien de temps prend un audit de tracking ?</summary><p class="a">Trois à cinq jours ouvrés entre l'accès aux comptes et le rapport. Les corrections simples sont souvent faites dans la foulée.</p></details>
+      <details><summary>Mes ventes Shopify, ou mes demandes de devis, seront elles bien comptées ?</summary><p class="a">Oui, c'est le cœur du travail : chaque vente ou demande comptée une fois, avec son origine. Shopify, WooCommerce, PrestaShop, Wix, Webflow ou WordPress, je connais les pièges de chacun.</p></details>
+      <details><summary>Vous travaillez à distance, ça change quoi ?</summary><p class="a">Rien pour le résultat. Tout se passe dans vos comptes Google et en visio. Vous avez un compte rendu écrit après chaque échange.</p></details>
+      <details><summary>Mon site est sur Wix, c'est un problème ?</summary><p class="a">C'est au contraire mon terrain. Wix Partner Legend, je connais les limites et les bons réglages de Google Analytics et de Google Tag Manager sur Wix et Wix Studio.</p></details>
+      <details><summary>Et le RGPD ?</summary><p class="a">Le Consent Mode v2 permet de respecter le refus des visiteurs tout en gardant une mesure exploitable. Je paramètre le bandeau et sa liaison avec Google, et je documente ce qui est collecté.</p></details>
+      <details><summary>Faut il un accès administrateur à mes comptes ?</summary><p class="a">Un accès éditeur sur Google Analytics et Google Tag Manager suffit pour l'audit et les corrections. Vous gardez la propriété de tout.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · chute + contact -->
+<section id="contact" style="padding-top:0">
+  <div class="wrap">
+    <div class="band reveal">
+      <canvas class="aurora" data-aurora data-seed="11"></canvas>
+      <h2>Voilà ce que je viens de mesurer <em>sur votre visite</em></h2>
+      <dl>
+        <div><dt>Canal</dt><dd id="rChan">Direct</dd></div>
+        <div><dt>Temps sur la page</dt><dd id="rTime">0:00</dd></div>
+        <div><dt>Page lue</dt><dd id="rScroll">0 %</dd></div>
+        <div><dt>Événements</dt><dd id="rEv">0</dd></div>
+        <div><dt>Consentement</dt><dd id="rCons">en attente</dd></div>
+        <div><dt>LCP mesuré</dt><dd id="rLcp">…</dd></div>
+      </dl>
+      <p class="sub" style="color:rgba(255,255,255,.8)">Tout ça, je l'ai installé en deux heures. Chez vous, ce sera pareil.</p>
+      <div class="contact">
+        <form id="contactForm" novalidate>
+          <label>Votre nom<input type="text" id="cName" autocomplete="name"></label>
+          <label>Votre mail<input type="email" id="cMail" autocomplete="email"></label>
+          <label>Votre site et votre problème<textarea id="cMsg"></textarea></label>
+          <button class="btn btn-primary" type="submit">Envoyer</button>
+          <span class="sent" id="cSent">Reçu. Réponse sous 24 h ouvrées.</span>
+        </form>
+        <div class="alt">
+          <h3>Ou un créneau de trente minutes</h3>
+          <p style="color:var(--ink-2)">Gratuit, sans engagement, on regarde vos comptes ensemble.</p>
+          <a class="btn" href="https://calendly.com/" target="_blank" rel="noopener">Réserver un créneau</a>
+          <p class="note">Lien Calendly à remplacer par le tien.</p>
+          <div class="big">contact@consultant-analytics.fr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+__LAB_HTML__
+
+<footer>
+  <div class="wrap">
+    <div><a class="logo" href="/" style="font-family:var(--display);font-size:1.3rem;text-decoration:none;color:var(--ink)">consultant·analytics</a><p style="margin-top:8px;max-width:38ch">Consultant web analytics freelance. GA4, Google Tag Manager, Consent Mode v2, Looker Studio, et le tracking sur Wix.</p><p style="margin-top:8px">SIRET 905 374 237 00014 · prototype v5 · 16/10/2026</p></div>
+    <div><h4>Prestations</h4><ul><li><a href="/consultant-google-analytics">Consultant Google Analytics</a></li><li><a href="/consultant-google-tag-manager">Consultant Google Tag Manager</a></li><li><a href="/expert-looker-studio">Expert Looker Studio</a></li><li><a href="/google-analytics-wix">Google Analytics sur Wix</a></li><li><a href="/test-tracking">Test de tracking gratuit</a></li></ul></div>
+    <div><h4>Blog</h4><ul><li><a href="/blog/kpi-google-analytics">Les KPI à suivre dans Google Analytics</a></li><li><a href="/blog/taux-de-rebond-ga4">Le taux de rebond dans GA4</a></li><li><a href="/blog/trafic-referral-google-analytics">Le trafic referral expliqué</a></li><li><a href="/blog/cross-network-ga4">Le canal Cross-network</a></li></ul></div>
+  </div>
+</footer>
+
+<aside class="hud" id="hud" aria-label="Mesure en direct de votre visite">
+  <header id="hudHead"><i class="dot" aria-hidden="true"></i><b>en direct</b><span id="hudMini">0:00</span></header>
+  <div class="rows"><div><dl>
+    <dt>Canal</dt><dd id="hChan">Direct</dd>
+    <dt>Temps</dt><dd id="hTime">0:00</dd>
+    <dt>Page lue</dt><dd id="hScroll">0 %</dd>
+    <dt>Événements</dt><dd id="hEv">0</dd>
+    <dt>Consentement</dt><dd id="hCons">en attente</dd>
+  </dl></div></div>
+</aside>
+
+<div class="consent" id="consent" role="dialog" aria-label="Consentement">
+  <div><b>Ce bandeau est en Consent Mode v2.</b> Conforme CNIL, et il ne casse pas la mesure. C'est aussi une de mes prestations.</div>
+  <div class="acts"><button type="button" id="cNo">Refuser</button><button type="button" class="yes" id="cYes">Accepter</button></div>
+</div>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"ProfessionalService","@id":"https://consultant-analytics.fr/#org","name":"Consultant Analytics","alternateName":"Alexandre Cottret, consultant web analytics freelance","url":"https://consultant-analytics.fr/","description":"Consultant web analytics freelance : audit de tracking, GA4, Google Tag Manager, Consent Mode v2, Looker Studio, tracking sur Wix.","areaServed":{"@type":"Country","name":"France"},"founder":{"@id":"https://consultant-analytics.fr/#person"},"makesOffer":[
+ {"@type":"Offer","itemOffered":{"@type":"Service","name":"Audit de tracking Google Analytics","url":"https://consultant-analytics.fr/consultant-google-analytics"}},
+ {"@type":"Offer","itemOffered":{"@type":"Service","name":"Paramétrage Google Tag Manager","url":"https://consultant-analytics.fr/consultant-google-tag-manager"}},
+ {"@type":"Offer","itemOffered":{"@type":"Service","name":"Tableau de bord Looker Studio","url":"https://consultant-analytics.fr/expert-looker-studio"}},
+ {"@type":"Offer","itemOffered":{"@type":"Service","name":"Google Analytics sur Wix","url":"https://consultant-analytics.fr/google-analytics-wix"}}]},
+{"@type":"Person","@id":"https://consultant-analytics.fr/#person","name":"Alexandre Cottret","jobTitle":"Consultant web analytics freelance","url":"https://consultant-analytics.fr/","sameAs":["https://www.linkedin.com/in/alexandre-cottret-designer-web/","https://www.trend-design.fr/"]},
+{"@type":"WebSite","url":"https://consultant-analytics.fr/","name":"Consultant Analytics","inLanguage":"fr-FR"},
+{"@type":"FAQPage","mainEntity":[
+ {"@type":"Question","name":"Combien de temps prend un audit de tracking ?","acceptedAnswer":{"@type":"Answer","text":"Trois à cinq jours ouvrés entre l'accès aux comptes et le rapport."}},
+ {"@type":"Question","name":"Consultant ou expert Google Analytics, quelle différence ?","acceptedAnswer":{"@type":"Answer","text":"Aucune dans le travail : le consultant audite et conseille, l'expert met les mains dans GA4 et GTM. Je fais les deux."}},
+ {"@type":"Question","name":"Mon site est sur Wix, c'est un problème ?","acceptedAnswer":{"@type":"Answer","text":"C'est mon terrain : Wix Partner Legend, je connais les bons réglages de Google Analytics et Google Tag Manager sur Wix et Wix Studio."}},
+ {"@type":"Question","name":"Et le RGPD ?","acceptedAnswer":{"@type":"Answer","text":"Le Consent Mode v2 permet de respecter le refus des visiteurs tout en gardant une mesure exploitable."}}]}
+]}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/motion@11.18.2/dist/motion.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+(function(){
+'use strict';
+/* ---------- shared ---------- */
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EASE = t => 1 - Math.pow(1 - t, 5);
+const BEZ = [0.22, 1, 0.36, 1];
+const DATA = [18, 24, 21, 30, 38, 35, 47];
+const W = 320, H = 140, PAD = 12, MAX = 50;
+const KPI = 12847;
+const fmt = n => Math.round(n).toLocaleString('fr-FR');
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const hexInt = h => parseInt(h.replace('#',''),16);
+function pts(){ const n = DATA.length; return DATA.map((v,i)=>[PAD + i*(W-2*PAD)/(n-1), H-PAD - (v/MAX)*(H-2*PAD)]); }
+function pathD(p){ return p.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' '); }
+function areaD(p){ return pathD(p)+' L '+p[p.length-1][0].toFixed(1)+' '+(H-PAD)+' L '+p[0][0].toFixed(1)+' '+(H-PAD)+' Z'; }
+function gridLines(g, w, h, step){ let s=''; for(let x=0;x<=w;x+=step) s+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="'+h+'"/>'; for(let y=0;y<=h;y+=step) s+='<line x1="0" y1="'+y+'" x2="'+w+'" y2="'+y+'"/>'; g.innerHTML=s; }
+function onceInView(el, cb, ratio){ if(!el) return; ratio = ratio==null?0.2:ratio; if(!('IntersectionObserver' in window)){cb();return;} const io=new IntersectionObserver(es=>{es.forEach(e=>{ if(e.isIntersecting && e.intersectionRatio>=ratio){ io.disconnect(); cb(); } }); },{threshold:[ratio]}); io.observe(el); }
+function tween(dur, delay, fn, done){ if(REDUCED){ fn(1); done&&done(); return; } const t0 = performance.now() + delay; function step(now){ const t = Math.min(1, Math.max(0,(now - t0)/dur)); if(now>=t0) fn(EASE(t)); if(t<1) requestAnimationFrame(step); else done&&done(); } requestAnimationFrame(step); }
+function countTo(el, target, dur, delay){ const suf=el.dataset.suffix||''; tween(dur, delay, e=>{ el.textContent = fmt(target*e)+suf; }); }
+let events = 0; const bump = ()=>{ events++; };
+document.addEventListener('click', e=>{ if(e.target.closest('button, a, summary')) bump(); });
+const hasGsap = !!window.gsap; if(hasGsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- aurora backgrounds (generative pastel skies) ---------- */
+(function(){
+  const P = ['--p1','--p2','--p3','--p4'].map(cssVar);
+  function hexRgb(h){ h=h.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+  const RGB = P.map(hexRgb);
+  document.querySelectorAll('[data-aurora]').forEach((c,idx)=>{
+    const seed = +(c.dataset.seed||1); const ctx=c.getContext('2d'); const LW=96, LH=60; c.width=LW; c.height=LH;
+    const blobs=[]; let r=seed*9301+49297; const rnd=()=>{ r=(r*9301+49297)%233280; return r/233280; };
+    for(let i=0;i<5;i++) blobs.push({x:rnd(),y:rnd(),rad:.35+rnd()*.3,sp:.08+rnd()*.12,ph:rnd()*6.28,col:RGB[(i+seed)%4]});
+    let running=false, raf=null, t0=performance.now();
+    function frame(now){ const t=(now-t0)/1000; ctx.fillStyle='#fff'; ctx.fillRect(0,0,LW,LH);
+      blobs.forEach(b=>{ const x=(b.x+Math.sin(t*b.sp+b.ph)*.18)*LW, y=(b.y+Math.cos(t*b.sp*.8+b.ph)*.18)*LH; const g=ctx.createRadialGradient(x,y,0,x,y,b.rad*LW); g.addColorStop(0,'rgba('+b.col.join(',')+',.95)'); g.addColorStop(1,'rgba('+b.col.join(',')+',0)'); ctx.fillStyle=g; ctx.fillRect(0,0,LW,LH); });
+      if(running && !REDUCED) raf=requestAnimationFrame(frame); }
+    function start(){ if(running) return; running=true; raf=requestAnimationFrame(frame); }
+    function stop(){ running=false; if(raf) cancelAnimationFrame(raf); }
+    frame(performance.now());
+    if('IntersectionObserver' in window) new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting) start(); else stop(); }); },{threshold:[0.02]}).observe(c); else start();
+  });
+})();
+
+/* ---------- nav LCP + time ---------- */
+const lcpEl = document.getElementById('lcp'), rLcp = document.getElementById('rLcp');
+try{ let lcp=0; new PerformanceObserver(list=>{ list.getEntries().forEach(e=>{ lcp=e.startTime; }); const s=(lcp/1000).toFixed(2).replace('.',',')+' s'; lcpEl.textContent=s; rLcp.textContent=s; }).observe({type:'largest-contentful-paint', buffered:true}); }catch(err){ lcpEl.textContent='n/d'; rLcp.textContent='n/d'; }
+const start = Date.now();
+const mmss = ms=>{ const s=Math.floor(ms/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+
+/* ---------- hero: words + "ventes vendues / ventes visibles" ---------- */
+(function(){
+  const real=document.getElementById('gapReal'), seen=document.getElementById('gapSeenBar'), seenN=document.getElementById('gapSeen'), pct=document.getElementById('gapPct'), foot=document.getElementById('gapFoot');
+  const fixes=[...document.querySelectorAll('#gapFixes li')];
+  const steps=[6,7,9,10];
+  function finalState(){ real.style.transform='scaleX(1)'; seen.style.transform='scaleX(1)'; seenN.textContent='10'; pct.textContent='10 visibles sur 10'; pct.classList.add('ok'); fixes.forEach(li=>{ li.style.opacity=1; li.style.transform='none'; li.querySelector('i').style.transform='scale(1)'; }); foot.style.opacity=1; }
+  if(REDUCED||!hasGsap){ finalState(); return; }
+  function gap(){
+    const t=gsap.timeline({defaults:{ease:'power3.out'}});
+    t.to(real,{scaleX:1,duration:.9})
+     .to(seen,{scaleX:.6,duration:.9},'<.15');
+    fixes.forEach((li,i)=>{
+      t.to(li,{opacity:1,y:0,duration:.5},'+=.35')
+       .to(li.querySelector('i'),{scale:1,duration:.4,ease:'back.out(2)'},'<.1')
+       .to(seen,{scaleX:steps[i+1]/10,duration:.7},'<')
+       .add(()=>{ seenN.textContent=String(steps[i+1]); pct.textContent=steps[i+1]+' visibles sur 10'; if(steps[i+1]===10) pct.classList.add('ok'); },'<.35');
+    });
+    t.to(foot,{opacity:1,duration:.6},'+=.2');
+  }
+  // split headline into words
+  const h1=document.getElementById('h1'); const nodes=[...h1.childNodes]; h1.innerHTML='';
+  nodes.forEach(n=>{ if(n.nodeType===3){ n.textContent.split(/(\s+)/).forEach(w=>{ if(!w.trim()){ h1.appendChild(document.createTextNode(' ')); return; } const s=document.createElement('span'); s.className='hero-word'; s.textContent=w; h1.appendChild(s); }); } else { const em=document.createElement('em'); n.textContent.split(/(\s+)/).forEach(w=>{ if(!w.trim()){ em.appendChild(document.createTextNode(' ')); return; } const s=document.createElement('span'); s.className='hero-word'; s.textContent=w; em.appendChild(s); }); h1.appendChild(em); } });
+  const tl=gsap.timeline({defaults:{ease:'power4.out'}});
+  tl.from('.hero-word',{y:28,opacity:0,duration:.8,stagger:.045},.05)
+    .from('.hero .sub',{y:16,opacity:0,duration:.7},.45)
+    .from('.hero .cta .btn',{y:12,opacity:0,duration:.6,stagger:.08,clearProps:'transform,opacity'},.6)
+    .from('#stage',{y:40,opacity:0,scale:.97,duration:1,ease:'power3.out'},.5)
+    .from('#heroGap',{y:30,opacity:0,duration:.8,onComplete:gap,clearProps:'opacity'},.9);
+  gsap.to('#heroGap',{yPercent:-12,ease:'none',scrollTrigger:{trigger:'#stage',start:'top 80%',end:'bottom top',scrub:true}});
+})();
+
+/* ---------- scroll reveals ---------- */
+(function(){
+  if(REDUCED||!hasGsap||!window.ScrollTrigger) return;
+  document.querySelectorAll('.reveal').forEach(el=>{ gsap.from(el,{y:26,opacity:0,duration:.8,ease:'power4.out',scrollTrigger:{trigger:el,start:'top 88%',once:true}}); });
+  document.querySelectorAll('.grid3, .stats').forEach(g=>{ const kids=[...g.children]; kids.forEach(k=>k.classList.remove('reveal')); gsap.from(kids,{y:26,opacity:0,duration:.8,ease:'power4.out',stagger:.1,scrollTrigger:{trigger:g,start:'top 85%',once:true}}); });
+})();
+
+/* ---------- tabs ---------- */
+(function(){
+  const tabs=[...document.querySelectorAll('.tabs [role=tab]')], panels=[...document.querySelectorAll('.panel')];
+  tabs.forEach(t=>t.addEventListener('click',()=>{ const id=t.dataset.tab; tabs.forEach(x=>x.setAttribute('aria-selected', x===t)); panels.forEach(p=>{ const on=p.dataset.panel===id; if(on&&!p.classList.contains('on')){ p.classList.add('on'); if(hasGsap&&!REDUCED){ gsap.fromTo(p.querySelector('.txt'),{x:-14,opacity:0},{x:0,opacity:1,duration:.5,ease:'power4.out'}); gsap.fromTo(p.querySelector('.mini'),{y:14,opacity:0},{y:0,opacity:1,duration:.6,ease:'power4.out',delay:.05,clearProps:'transform'}); } } else if(!on) p.classList.remove('on'); }); }));
+})();
+
+__TOOL_FUNNEL_JS__
+
+/* ---------- LEARN A · deux chiffres, un seul vrai ---------- */
+(function(){
+  const root=document.getElementById('learnAttr'); if(!root) return;
+  const cards=[...root.querySelectorAll('.cmp-card')], out=document.getElementById('attrOut');
+  const dots={}; root.querySelectorAll('.dots').forEach(d=>{ dots[d.dataset.k]=[]; for(let i=0;i<12;i++){ const el=document.createElement('i'); d.appendChild(el); dots[d.dataset.k].push(el); } });
+  const big={ads:root.querySelector('.big[data-k=ads]'), ga:root.querySelector('.big[data-k=ga]')};
+  function problem(){ cards.forEach(c=>c.classList.remove('ok')); dots.ads.forEach(el=>el.classList.remove('off')); dots.ga.forEach((el,i)=>el.classList.toggle('off',i>=6)); big.ga.textContent='6'; out.innerHTML="12 ventes d'un côté, 6 de l'autre. Vous décidez de votre budget pub sur lequel ?"; }
+  function fix(){
+    const missing=dots.ga.slice(6); let n=6;
+    if(hasGsap&&!REDUCED){ missing.forEach((el,i)=>{ gsap.delayedCall(.12*i,()=>{ el.classList.remove('off'); n++; big.ga.textContent=String(n); if(n===12){ cards.forEach(c=>c.classList.add('ok')); } }); }); gsap.fromTo(missing,{scale:.4},{scale:1,duration:.35,stagger:.12,ease:'back.out(2)'}); }
+    else { missing.forEach(el=>el.classList.remove('off')); big.ga.textContent='12'; cards.forEach(c=>c.classList.add('ok')); }
+    out.innerHTML='<b>12</b> ventes des deux côtés. Un seul chiffre, une décision prise sur du vrai.';
+  }
+  document.getElementById('attrFix').addEventListener('click',fix);
+  document.getElementById('attrReset').addEventListener('click',problem);
+  problem();
+})();
+
+/* ---------- LEARN B · cookies refusés ---------- */
+(function(){
+  const root=document.getElementById('learnConsent'); if(!root) return;
+  const range=document.getElementById('refuse'), rv=document.getElementById('refuseVal'), out=document.getElementById('consOut'), seenN=document.getElementById('consSeen'), foot=document.getElementById('consFoot'), card=document.getElementById('consCard');
+  const mk=k=>{ const d=root.querySelector('.dots[data-k='+k+']'); const arr=[]; for(let i=0;i<100;i++){ const el=document.createElement('i'); d.appendChild(el); arr.push(el); } return arr; };
+  const real=mk('real'), seen=mk('seen'); let fixed=false;
+  function render(){
+    const r=+range.value, lost=r, est=Math.round(r*0.7), shown=fixed?100-lost+est:100-lost;
+    rv.textContent=r+' %';
+    seen.forEach((el,i)=>{ el.classList.remove('off','est'); if(i>=100-lost){ if(fixed&&i<100-lost+est) el.classList.add('est'); else el.classList.add('off'); } });
+    seenN.textContent=String(shown); card.classList.toggle('ok',fixed); card.classList.toggle('bad',!fixed&&lost>0);
+    foot.textContent=fixed?(100-shown)+' ventes encore inconnues, '+est+' retrouvées':lost+' ventes invisibles';
+    out.innerHTML=fixed?'Avec <b>'+r+' %</b> de refus et le bon réglage, vos rapports montrent <b>'+shown+'</b> ventes sur 100 : Google estime celles des clients sans cookie (en bleu clair), dans les règles CNIL.':'Avec <b>'+r+' %</b> de refus, vos rapports ne montrent que <b>'+(100-lost)+'</b> ventes sur 100. Les autres existent, mais vous ne les voyez pas.';
+  }
+  range.addEventListener('input',render);
+  document.getElementById('consFix').addEventListener('click',()=>{ fixed=true; render(); if(hasGsap&&!REDUCED) gsap.fromTo(seen.filter(e=>e.classList.contains('est')),{scale:.3},{scale:1,duration:.3,stagger:.02,ease:'back.out(2)'}); });
+  document.getElementById('consReset').addEventListener('click',()=>{ fixed=false; render(); });
+  render();
+})();
+
+/* ---------- LEARN C · achat compté deux fois ---------- */
+(function(){
+  const root=document.getElementById('learnGtm'); if(!root) return;
+  const dup=document.getElementById('gtmDup'), out=document.getElementById('gtmOut'), realN=document.getElementById('gtmReal'), seenN=document.getElementById('gtmSeen'), foot=document.getElementById('gtmFoot'), card=document.getElementById('gtmCard');
+  const dReal=root.querySelector('.dots[data-k=real]'), dSeen=root.querySelector('.dots[data-k=seen]'); let real=0, seen=0;
+  const add=(box,cls)=>{ const el=document.createElement('i'); if(cls) el.className=cls; box.appendChild(el); if(hasGsap&&!REDUCED) gsap.from(el,{scale:.2,duration:.35,ease:'back.out(2)'}); return el; };
+  function update(){ realN.textContent=String(real); seenN.textContent=String(seen); const gap=seen-real; card.classList.toggle('bad',gap>0); card.classList.toggle('ok',real>0&&gap===0);
+    foot.textContent=gap>0?gap+' ventes en trop dans vos rapports':'Un achat, un envoi, un chiffre juste.';
+    out.innerHTML=real===0?(dup.checked?'Cliquez : chaque achat réel est compté deux fois dans vos rapports.':'Cliquez : chaque achat réel est compté une fois.'):gap>0?'<b>'+real+'</b> achats réels, <b>'+seen+'</b> dans vos rapports. Votre coût par vente paraît deux fois plus bas qu\'il ne l\'est.':'<b>'+real+'</b> achats réels, <b>'+seen+'</b> dans vos rapports. Vous décidez sur du vrai.'; }
+  document.getElementById('gtmBuy').addEventListener('click',()=>{ if(real>=12) return; real++; add(dReal); seen++; add(dSeen); if(dup.checked){ seen++; setTimeout(()=>add(dSeen,'dup'),160); } update(); });
+  document.getElementById('gtmReset').addEventListener('click',()=>{ real=0; seen=0; dReal.innerHTML=''; dSeen.innerHTML=''; update(); });
+  dup.addEventListener('change',update); update();
+})();
+
+/* ---------- counters (stats + dash) ---------- */
+(function(){
+  const d=[31,34,30,38,41,39,45,48,44,52,57,55,61,66,63,70,74,71,79,84,82,88,93,90,97,104,101,108,113,118];
+  const w=640,h=120,p=10; const mx=Math.max(...d);
+  const P=d.map((v,i)=>[p+i*(w-2*p)/(d.length-1), h-p-(v/mx)*(h-2*p)]);
+  gridLines(document.getElementById('dashGrid'), w, h, 40);
+  const line=document.getElementById('dashLine'), area=document.getElementById('dashArea');
+  line.setAttribute('d', P.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' '));
+  area.setAttribute('d', line.getAttribute('d')+' L '+P[P.length-1][0].toFixed(1)+' '+(h-p)+' L '+P[0][0].toFixed(1)+' '+(h-p)+' Z');
+  const L=line.getTotalLength(); line.style.strokeDasharray=L; line.style.strokeDashoffset=L; area.style.opacity=0;
+  const dash=document.querySelector('.dash');
+  onceInView(dash, ()=>{ tween(800,0,e=>{ line.style.strokeDashoffset=L*(1-e); area.style.opacity=e; }); dash.querySelectorAll('[data-count]').forEach((el,i)=>countTo(el, +el.dataset.count, 600, 300+i*60)); });
+  const stats=document.querySelector('.stats'); if(stats) onceInView(stats, ()=>{ stats.querySelectorAll('[data-count]').forEach((el,i)=>countTo(el, +el.dataset.count, 700, 100+i*90)); });
+})();
+
+/* ---------- HUD, consent, contact ---------- */
+(function(){
+  const hud=document.getElementById('hud'), head=document.getElementById('hudHead');
+  const hTime=document.getElementById('hTime'), hMini=document.getElementById('hudMini'), hScroll=document.getElementById('hScroll'), hEv=document.getElementById('hEv'), hCons=document.getElementById('hCons'), hChan=document.getElementById('hChan');
+  const rTime=document.getElementById('rTime'), rScroll=document.getElementById('rScroll'), rEv=document.getElementById('rEv'), rCons=document.getElementById('rCons'), rChan=document.getElementById('rChan');
+  let consent='en attente'; let maxScroll=0;
+  const chan = document.referrer ? (/google\./.test(document.referrer)?'Organic Search':'Referral') : 'Direct'; hChan.textContent=chan; rChan.textContent=chan;
+  function scrollPct(){ const doc=document.documentElement; const max=doc.scrollHeight-innerHeight; return max>0? Math.min(100, Math.round(scrollY/max*100)) : 100; }
+  addEventListener('scroll', ()=>{ maxScroll=Math.max(maxScroll, scrollPct()); }, {passive:true});
+  setInterval(()=>{ const t=mmss(Date.now()-start); hTime.textContent=t; hMini.textContent=t; rTime.textContent=t; hScroll.textContent=maxScroll+' %'; rScroll.textContent=maxScroll+' %'; hEv.textContent=events; rEv.textContent=events; hCons.textContent=consent; rCons.textContent=consent; }, 1000);
+  setTimeout(()=>hud.classList.add('show'), 15000);
+  head.addEventListener('click', ()=>{ hud.classList.toggle('open'); });
+  const consentEl=document.getElementById('consent'); setTimeout(()=>consentEl.classList.add('show'), 2500);
+  document.getElementById('cYes').addEventListener('click', ()=>{ consent='accordé'; consentEl.classList.remove('show'); });
+  document.getElementById('cNo').addEventListener('click', ()=>{ consent='refusé · mesure sans cookie'; consentEl.classList.remove('show'); });
+  document.getElementById('contactForm').addEventListener('submit', e=>{ e.preventDefault(); bump(); const m=document.getElementById('cMail'); if(!/.+@.+\..+/.test(m.value)){ m.focus(); return; } document.getElementById('cSent').classList.add('on'); });
+})();
+
+__LAB_JS__
+/* ---------- the leaking funnel, 3D glass version ---------- */
+(function(){
+  const box=document.getElementById('flow3d'); if(!box||!window.THREE) return;
+  const c=document.getElementById('flow3dCanvas'), labels=document.getElementById('flow3dLabels');
+  const total=document.getElementById('f3Total'), state=document.getElementById('f3State');
+  const CP=[
+    {x:-5.4, kind:'gate', name:'Visiteurs', f:1},
+    {x:-3.6, kind:'leak', id:'utm',     name:'Origine de la visite perdue', loss:.18},
+    {x:-1.8, kind:'gate', name:'Fiches produit', f:.62},
+    {x:0,    kind:'leak', id:'consent', name:'Cookies refusés', loss:.22},
+    {x:1.8,  kind:'gate', name:'Panier', f:.21/.62},
+    {x:3.6,  kind:'leak', id:'event',   name:'Achat non signalé', loss:.30},
+    {x:5.4,  kind:'gate', name:'Achats comptés', f:.072/.21}
+  ];
+  const X0=-6.2, X1=6.2, RMIN=.16, RMAX=1.25;
+  const sealed={};
+  function kAt(x){ let k=1; for(const cp of CP){ if(x<cp.x) break; if(cp.kind==='gate') k*=cp.f; else if(!sealed[cp.id]) k*=(1-cp.loss); } return k; }
+  function keepAt(i){ let k=1; for(let j=0;j<=i;j++){ const cp=CP[j]; if(cp.kind==='gate') k*=cp.f; else if(!sealed[cp.id]) k*=(1-cp.loss); } return k; }
+  function rad(x){ const R=.5; let k=kAt(x); for(const cp of CP){ if(x>cp.x-R && x<cp.x+R){ const a=kAt(cp.x-R-.01), b=kAt(cp.x+R+.01); const t=(x-(cp.x-R))/(2*R); const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; k=a+(b-a)*e; } } return RMIN+RMAX*Math.sqrt(k); }
+  function counts(){ const out=[]; let k=1; CP.forEach(cp=>{ if(cp.kind==='gate'){ k*=cp.f; out.push({x:cp.x,n:Math.round(1000*k),name:cp.name}); } else if(!sealed[cp.id]) k*=(1-cp.loss); }); return out; }
+  // renderer, scene, camera
+  const r=makeRenderer(c); r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFSoftShadowMap;
+  const scene=new THREE.Scene(); scene.environment=pastelEnv(r);
+  const cam=new THREE.PerspectiveCamera(28,2,.1,100); cam.position.set(0,2.6,12.4); cam.lookAt(0,-.25,0);
+  const key=pastelLights(scene); key.intensity=1.1; key.castShadow=true; key.shadow.mapSize.set(1024,1024); key.shadow.camera.left=-8; key.shadow.camera.right=8; key.shadow.camera.top=6; key.shadow.camera.bottom=-6; key.shadow.radius=5;
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(40,20), new THREE.ShadowMaterial({opacity:.045})); ground.rotation.x=-Math.PI/2; ground.position.y=-2.4; ground.receiveShadow=true; scene.add(ground);
+  const group=new THREE.Group(); scene.add(group);
+  // glass tube with varying radius (bottom edge drops as it narrows, like the 2D one)
+  const L=180, S=40; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(L*S*3); const idx=[];
+  for(let i=0;i<L-1;i++){ for(let k=0;k<S;k++){ const a=i*S+k, b=i*S+(k+1)%S, cc=(i+1)*S+k, d=(i+1)*S+(k+1)%S; idx.push(a,cc,b,b,cc,d); } }
+  geo.setIndex(idx); geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  function buildTube(){ const TOP=RMAX+RMIN; for(let i=0;i<L;i++){ const x=X0+(X1-X0)*i/(L-1); const rr=rad(x); const cy=TOP-rr; for(let k=0;k<S;k++){ const a=(k/S)*Math.PI*2; const o=(i*S+k)*3; pos[o]=x; pos[o+1]=cy+Math.cos(a)*rr; pos[o+2]=Math.sin(a)*rr; } } geo.attributes.position.needsUpdate=true; geo.computeVertexNormals(); geo.computeBoundingSphere(); }
+  buildTube();
+  const glass=new THREE.MeshPhysicalMaterial({color:0xdfe8ff, roughness:.15, metalness:0, transmission:.25, ior:1.3, clearcoat:1, clearcoatRoughness:.1, transparent:true, opacity:.42, side:THREE.DoubleSide, envMapIntensity:1.3, depthWrite:false});
+  const tube=new THREE.Mesh(geo,glass); tube.castShadow=true; tube.renderOrder=2; group.add(tube);
+  // gates as thin rings, leak marks as small discs under the tube
+  const gateMat=new THREE.MeshBasicMaterial({color:0x0B0B0C,transparent:true,opacity:.12});
+  const marks={};
+  function rebuildMarks(){ Object.values(marks).forEach(m=>group.remove(m)); CP.forEach(cp=>{ const rr=rad(cp.x), cy=RMAX+RMIN-rr; if(cp.kind==='gate'){ const ring=new THREE.Mesh(new THREE.TorusGeometry(rr+.02,.012,8,64), gateMat); ring.position.set(cp.x,cy,0); ring.rotation.y=Math.PI/2; marks['g'+cp.x]=ring; group.add(ring); } else { const m=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.05,24), new THREE.MeshStandardMaterial({color: sealed[cp.id]?0x16A34A:0xE5484D, roughness:.5})); m.position.set(cp.x,cy-rr+.01,0); marks['l'+cp.id]=m; group.add(m); } }); }
+  rebuildMarks();
+  // particles
+  const N=520; const inst=new THREE.InstancedMesh(new THREE.SphereGeometry(.055,8,8), new THREE.MeshStandardMaterial({roughness:.4,metalness:0,emissive:0x1b3bff,emissiveIntensity:.18}), N); inst.castShadow=false; inst.renderOrder=1; group.add(inst);
+  const accent=new THREE.Color(cssVar('--accent')), warn=new THREE.Color(cssVar('--warn')), grey=new THREE.Color(cssVar('--ink-3'));
+  const M=new THREE.Matrix4(); const Q=new THREE.Quaternion(); const SC=new THREE.Vector3(1,1,1); const V=new THREE.Vector3();
+  function reset(p,initial){ p.x= initial ? X0-2+Math.random()*(X1-X0+2) : X0-.5-Math.random()*2; p.ang=Math.random()*Math.PI*2; p.fr=Math.sqrt(Math.random())*.9; p.v=.075+Math.random()*.035; p.st='flow'; p.col=accent; p.s=1; p.ci=0; while(p.ci<CP.length && p.x>=CP[p.ci].x) p.ci++; const kNow=p.ci?keepAt(p.ci-1):1; p.u=Math.random()*kNow; }
+  const P=[]; for(let i=0;i<N;i++){ const p={x:0,u:0,ang:0,fr:0,v:0,st:'flow',ci:0,vy:0,vz:0,y:0,z:0,col:accent,s:1}; reset(p,true); P.push(p); }
+  function step(){ for(const p of P){
+    if(p.st==='flow'){ p.x+=p.v; const rr=rad(p.x), cy=RMAX+RMIN-rr; p.y=cy+Math.cos(p.ang)*rr*p.fr; p.z=Math.sin(p.ang)*rr*p.fr;
+      while(p.ci<CP.length && p.x>=CP[p.ci].x){ const cp=CP[p.ci]; const kB=p.ci?keepAt(p.ci-1):1, kA=keepAt(p.ci); if(p.u>=kA && p.u<kB){ p.st='drop'; p.col= cp.kind==='leak'?warn:grey; p.y=cy-rr+.02; p.vy=-.01-Math.random()*.02; p.vz=(Math.random()-.5)*.02; break; } p.ci++; }
+      if(p.x>X1+.4) reset(p);
+    } else { p.y+=p.vy; p.vy-=.004; p.z+=p.vz; p.s*=.985; if(p.y<-2.6||p.s<.2) reset(p); }
+    inst.setColorAt(P.indexOf(p), p.col); } }
+  function write(){ for(let i=0;i<N;i++){ const p=P[i]; V.set(p.x,p.y,p.z); SC.setScalar(p.s); M.compose(V,Q,SC); inst.setMatrixAt(i,M); } inst.instanceMatrix.needsUpdate=true; if(inst.instanceColor) inst.instanceColor.needsUpdate=true; }
+  for(let i=0;i<N;i++) inst.setColorAt(i,accent);
+  // labels (projected)
+  let labelEls=[];
+  function layout(){ let h=''; const cs=counts(); cs.forEach(g=>{ h+='<span class="lab" data-x="'+g.x+'">'+g.name+' <b>'+fmt(g.n)+'</b></span>'; });
+    CP.filter(cp=>cp.kind==='leak').forEach((cp,i)=>{ h+='<button type="button" class="leak'+(sealed[cp.id]?' sealed':'')+'" data-leak="'+cp.id+'" style="left:'+(17+i*33)+'%">'+(sealed[cp.id]?cp.name+' <b>réparé</b>':cp.name+' <b>−'+Math.round(cp.loss*100)+' %</b>')+'</button>'; });
+    labels.innerHTML=h; labelEls=[...labels.querySelectorAll('.lab')]; }
+  function placeLabels(){ const b=c.getBoundingClientRect(); labelEls.forEach(el=>{ const x=+el.dataset.x; V.set(x, RMAX+RMIN+.35, 0).applyMatrix4(group.matrixWorld).project(cam); el.style.left=((V.x*.5+.5)*100)+'%'; el.style.top=((-V.y*.5+.5)*100-6)+'%'; }); }
+  let shown=0;
+  function updateHead(){ const cs=counts(); const n=cs[cs.length-1].n; const from=shown; shown=n; tween(600,0,e=>{ total.textContent=fmt(from+(n-from)*e); }); const open=CP.filter(cp=>cp.kind==='leak'&&!sealed[cp.id]).length; state.textContent= open? open+' fuite'+(open>1?'s':'')+' ouverte'+(open>1?'s':'') : 'Tout est compté'; state.className='tag '+(open?'':'tag-ok'); }
+  labels.addEventListener('click',e=>{ const b=e.target.closest('[data-leak]'); if(!b) return; sealed[b.dataset.leak]=!sealed[b.dataset.leak]; bump(); buildTube(); rebuildMarks(); layout(); updateHead(); });
+  let mx=0; box.addEventListener('pointermove',e=>{ const b=box.getBoundingClientRect(); mx=((e.clientX-b.left)/b.width-.5)*2; },{passive:true}); box.addEventListener('pointerleave',()=>{ mx=0; });
+  const ctl=loopCtl(box,t=>{ fitRenderer(r,c,cam,false); group.rotation.y+=((mx*.18)-group.rotation.y)*.05; group.rotation.x=-.06; group.updateMatrixWorld(); step(); write(); r.render(scene,cam); placeLabels(); });
+  layout(); if(REDUCED){ for(let k=0;k<600;k++) step(); write(); ctl.once(); } else ctl.start();
+  onceInView(box, updateHead, 0.2);
+})();
+
+document.querySelectorAll('.lab').forEach(fig=>{ const key=fig.dataset.tool; const lab=labs[key]; if(!lab) return; onceInView(fig, ()=>lab.play(), 0.2); const b=fig.querySelector('.replay'); if(b) b.addEventListener('click', ()=>lab.play()); });
+})();
+</script>

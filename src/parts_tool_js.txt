@@ -1,0 +1,31 @@
+/* ---------- 2 · tool (mock) ---------- */
+(function(){
+  const form = document.getElementById('scanForm'), url = document.getElementById('scanUrl'), bar = document.getElementById('scanBar'), msg = document.getElementById('scanMsg');
+  const report = document.getElementById('report'), score = document.getElementById('score'), scoreVal = document.getElementById('scoreVal'), checks = document.getElementById('checks'), gate = document.getElementById('gate');
+  const steps = ['Récupération de la page…','Recherche des balises gtag et GTM…','Lecture du Consent Mode…','Vérification des doublons…'];
+  function hash(s){ let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+  form.addEventListener('submit', e=>{
+    e.preventDefault(); bump();
+    const v = url.value.trim(); if(!/^https?:\/\/.+\..+/.test(v)){ url.focus(); url.style.borderColor='var(--warn)'; return; } url.style.borderColor='';
+    report.classList.remove('on'); gate.classList.remove('on'); checks.innerHTML=''; bar.classList.add('on');
+    let i=0; msg.textContent=steps[0]; const iv=setInterval(()=>{ i++; if(i<steps.length) msg.textContent=steps[i]; else clearInterval(iv); }, 350);
+    setTimeout(()=>{
+      bar.classList.remove('on');
+      const h = hash(v);
+      const items = [
+        {ok: true,            t:'Google Analytics est installé', s:'Le code de mesure est bien présent sur la page.'},
+        {ok: (h%3)!==0,       t:'Google Tag Manager, la boîte qui pilote vos mesures', s:(h%3)!==0?'Présent et chargé une seule fois.':'Absent : chaque outil de mesure est posé à la main, difficile à maintenir.'},
+        {ok: (h%2)===0,       t:'Mesure maintenue quand les cookies sont refusés', s:(h%2)===0?'Le Consent Mode est en place : Google estime les visites refusées.':'Absent : chaque refus de cookies fait disparaître la visite de vos rapports.'},
+        {ok: (h%5)!==1,       t:'Rien n\'est compté deux fois', s:(h%5)!==1?'Le code de mesure n\'est présent qu\'une fois.':'Le code de mesure est chargé deux fois : vos ventes sont comptées en double.'},
+        {ok: (h%4)!==2,       t:'Vos ventes ou demandes sont bien signalées', s:(h%4)!==2?'Au moins une action importante est suivie comme conversion.':'Aucune action importante n\'est suivie : impossible de savoir ce qui rapporte.'}
+      ];
+      const okCount = items.filter(x=>x.ok).length; const sc = Math.round(okCount/items.length*100);
+      report.classList.add('on'); score.className='score '+(sc>=80?'good':'mid');
+      items.forEach((it,k)=>{ const d=document.createElement('div'); d.className='check '+(it.ok?'ok':'ko'); d.innerHTML='<i>'+(it.ok?'✓':'!')+'</i><div>'+it.t+'<small>'+it.s+'</small></div>'; checks.appendChild(d); setTimeout(()=>d.classList.add('on'), 80*k+60); });
+      countTo(scoreVal, sc, 600, 100);
+      setTimeout(()=>gate.classList.add('on'), 80*items.length+200);
+    }, 1500);
+  });
+  gate.addEventListener('submit', e=>{ e.preventDefault(); bump(); const m=document.getElementById('gateMail'); if(!/.+@.+\..+/.test(m.value)){ m.focus(); return; } document.getElementById('gateSent').classList.add('on'); });
+})();
+

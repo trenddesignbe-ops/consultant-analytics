@@ -1,0 +1,3 @@
+.flow3d{position:relative;aspect-ratio:640/320;max-width:100%;margin-top:10px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#F7F5FB,#FDFCFC 60%)}
+.flow3d canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.flow3d .flow-labels .leak{bottom:14px;top:auto}

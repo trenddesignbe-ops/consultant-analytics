@@ -1,0 +1,56 @@
+<!-- lab2:codrops-grid | lib: gsap@3.12.5 (effet Codrops OnScrollLayoutFormations, grille 4, MIT) | poids: 27 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="codrops-grid"] .stage-area{background:linear-gradient(135deg,#EEF4FF 0%,#F4EEFF 50%,#FFEFF6 100%);perspective:900px}
+.lab2[data-tool="codrops-grid"] .cols{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 22px 16px}
+.lab2[data-tool="codrops-grid"] .col{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.lab2[data-tool="codrops-grid"] .lab{font:400 .95rem/1.2 var(--body);color:var(--ink-2);text-align:center;white-space:nowrap}
+.lab2[data-tool="codrops-grid"] .lab b{display:block;font:600 2.1rem/1.1 var(--body);font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:-.02em}
+.lab2[data-tool="codrops-grid"] .col.b .lab b{color:var(--warn)}
+.lab2[data-tool="codrops-grid"] .grid{display:grid;grid-template-columns:repeat(3,52px);gap:8px;transform-style:preserve-3d}
+.lab2[data-tool="codrops-grid"] .tile{height:30px;border-radius:8px;background:var(--card);box-shadow:0 6px 18px rgba(60,40,90,.14);display:grid;place-items:center;font:500 .72rem var(--body);color:var(--ink-2);font-variant-numeric:tabular-nums;will-change:transform,opacity}
+.lab2[data-tool="codrops-grid"] .tile.ghost{background:rgba(229,72,77,.10);box-shadow:none;color:var(--warn);font-weight:600}
+.lab2[data-tool="codrops-grid"] .gap{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);font:500 .8rem var(--body);color:var(--warn);white-space:nowrap;opacity:0;transition:opacity .5s var(--ease)}
+.lab2[data-tool="codrops-grid"].done .gap{opacity:1}
+.lab2[data-tool="codrops-grid"] .credit{position:absolute;right:14px;top:10px;font:400 .68rem var(--body);color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){.lab2[data-tool="codrops-grid"] .gap{transition:none}}
+</style>
+<figure class="lab2" data-tool="codrops-grid">
+  <div class="lab-h"><h3>4 · Démo Codrops « On-Scroll Layout Formations », grille 3D</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="cols">
+      <div class="col a"><div class="lab">Google Ads dit<b>12</b></div><div class="grid" data-n="12"></div></div>
+      <div class="col b"><div class="lab">Google Analytics dit<b>10</b></div><div class="grid" data-n="12" data-ghost="2"></div></div>
+    </div>
+    <div class="gap">2 ventes de différence, chaque mois, sans explication</div>
+    <div class="credit">effet Codrops, licence MIT</div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>27 Ko gzip</b></span><span>Lignes<b>≈ 50</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> les ventes du mois arrivent de loin et se rangent en deux piles, douze d'un côté, dix de l'autre, et les deux cases vides sautent aux yeux. <b>Ce que l'outil fait de spécial :</b> c'est la « formation » n° 4 de Codrops : chaque carte part d'une position 3D calculée selon sa distance au centre (translation, rotation X et Y, profondeur) et GSAP les fait converger avec un décalage en grille depuis le centre. L'original est piloté par le défilement, ici il est joué en 2,5 s. <b>Limite :</b> au delà d'une trentaine de cartes l'effet devient un nuage illisible, et la perspective CSS varie un peu d'un navigateur à l'autre.</p>
+  <div class="verdict">Verdict : parfait pour la section « vos chiffres se contredisent », avec les vrais totaux du client, et nulle part ailleurs.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  window.LAB2 = window.LAB2 || {};
+  var fig = document.querySelector('.lab2[data-tool="codrops-grid"]'); if(!fig) return;
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stage = fig.querySelector('.stage-area');
+  var AMOUNTS = [129, 89, 214, 59, 340, 129, 76, 188, 95, 262, 149, 112];
+  var fmt = function(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €'; };
+  var grids = Array.prototype.slice.call(fig.querySelectorAll('.grid'));
+  grids.forEach(function(g){ var n = +g.getAttribute('data-n'), ghost = +(g.getAttribute('data-ghost') || 0); var html = ''; for(var i = 0; i < n; i++){ var isGhost = i >= n - ghost; html += '<div class="tile' + (isGhost ? ' ghost' : '') + '">' + (isGhost ? '?' : fmt(AMOUNTS[i])) + '</div>'; } g.innerHTML = html; });
+  var tiles = Array.prototype.slice.call(fig.querySelectorAll('.tile'));
+  if(!window.gsap){ fig.classList.add('done'); window.LAB2['codrops-grid'] = { play: function(){} }; return; }
+  // Codrops: calculateInitialTransform, elements further from the center start further away and more rotated
+  function initial(el, offset, maxRot, maxZ){ var s = stage.getBoundingClientRect(), b = el.getBoundingClientRect(); var vc = { x: s.width/2, y: s.height/2 }; var ec = { x: b.left - s.left + b.width/2, y: b.top - s.top + b.height/2 }; var angle = Math.atan2(Math.abs(vc.y - ec.y), Math.abs(vc.x - ec.x)); var tx = Math.abs(Math.cos(angle) * offset), ty = Math.abs(Math.sin(angle) * offset); var maxD = Math.sqrt(vc.x*vc.x + vc.y*vc.y); var d = Math.sqrt(Math.pow(vc.x - ec.x, 2) + Math.pow(vc.y - ec.y, 2)); var f = d / maxD; return { x: ec.x < vc.x ? -tx : tx, y: ec.y < vc.y ? -ty : ty, z: maxZ * f, rotateX: (ec.y < vc.y ? -1 : 1) * (ty/offset) * maxRot * f, rotateY: (ec.x < vc.x ? 1 : -1) * (tx/offset) * maxRot * f }; }
+  var tl = null;
+  var api = { play: function(){
+    if(tl) tl.kill(); fig.classList.remove('done');
+    if(REDUCED){ gsap.set(tiles, { clearProps: 'all' }); fig.classList.add('done'); return; }
+    tl = gsap.timeline({ defaults: { ease: 'expo.out' }, onComplete: function(){ fig.classList.add('done'); } });
+    grids.forEach(function(g, gi){ var ts = Array.prototype.slice.call(g.children); tl.fromTo(ts, { x: function(_, el){ return initial(el, 260, 300, 900).x; }, y: function(_, el){ return initial(el, 260, 300, 900).y; }, z: function(_, el){ return initial(el, 260, 300, 900).z; }, rotateX: function(_, el){ return initial(el, 260, 300, 900).rotateX * .5; }, rotateY: function(_, el){ return initial(el, 260, 300, 900).rotateY; }, autoAlpha: 0, scale: .7 }, { x: 0, y: 0, z: 0, rotateX: 0, rotateY: 0, autoAlpha: 1, scale: 1, duration: 1.6, stagger: { amount: .55, from: 'center', grid: [4, 3] } }, .15 + gi * .35); });
+  } };
+  gsap.set(tiles, { autoAlpha: 0 });
+  window.LAB2['codrops-grid'] = api;
+})();
+</script>

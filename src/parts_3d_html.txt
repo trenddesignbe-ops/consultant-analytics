@@ -1,0 +1,31 @@
+      <figure class="lab lab-tall" data-tool="glass">
+        <div class="lab-h"><h3>N · Three.js, verre dépoli en vue isométrique</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><canvas></canvas><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>145 Ko gzip</b></span><span>Lignes<b>≈ 60</b></span><span>Lisibilité<b>préservée</b></span></div>
+        <p><b>La 3D qui ne ment pas.</b> Caméra orthographique, donc aucune perspective : la cinquième barre est exactement aussi haute à l'écran qu'en données. Matière en verre dépoli, lumière douce, ombre de contact. C'est l'esthétique des sites primés appliquée à un graphique qui reste juste.</p>
+        <span class="verdict">Verdict : la seule 3D acceptable pour de la donnée. À utiliser une fois, en hero, pas dans les rapports.</span>
+      </figure>
+
+      <figure class="lab lab-tall" data-tool="shader">
+        <div class="lab-h"><h3>O · Shader GLSL, aurore en WebGL</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><canvas></canvas><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>145 Ko gzip</b></span><span>Lignes<b>≈ 45</b></span><span>Résolution<b>infinie</b></span></div>
+        <p><b>Le même ciel pastel que les cartes de la page, mais calculé sur la carte graphique.</b> Bruit fractal animé dans un fragment shader. Plus fluide et plus fin que le canvas flouté, sans aucun pixel visible, et il coûte presque rien au processeur. C'est la technique derrière la plupart des fonds vivants des sites primés.</p>
+        <span class="verdict">Verdict : remplace le canvas flouté si on accepte Three.js dans la page. Sinon le canvas suffit.</span>
+      </figure>
+
+      <figure class="lab lab-tall" data-tool="signal">
+        <div class="lab-h"><h3>P · Objet d'ambiance « le signal », verre et lumière</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><canvas></canvas><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>145 Ko gzip</b></span><span>Lignes<b>≈ 55</b></span><span>Interaction<b>suit la souris</b></span></div>
+        <p><b>Un seul objet, en verre, qui tourne lentement sur le ciel pastel et s'incline vers la souris.</b> Aucune donnée dedans, et c'est voulu : c'est un objet de marque, comme la ville de Townhouse ou le produit d'Opal. Il donne la sensation de matière que les sites primés ont et que les pages de consultants n'ont jamais.</p>
+        <span class="verdict">Verdict : le candidat pour le hero, à la place des cartes flottantes, si tu veux l'effet Awwwards. Un seul, jamais deux.</span>
+      </figure>
+
+      <figure class="lab lab-tall" data-tool="gltf">
+        <div class="lab-h"><h3>Q · Objet modélisé puis chargé en glTF</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><canvas></canvas><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>145 Ko + 238 Ko de modèle</b></span><span>Lignes<b>≈ 40 + export</b></span><span>Pipeline<b>modèle → glTF → Three.js</b></span></div>
+        <p><b>Le pipeline des sites primés : un objet modélisé à part, exporté en glTF, chargé dans la page.</b> Blender n'est pas installé ici, j'ai donc généré le modèle en code : la courbe des sept semaines, lissée, extrudée en tube de verre qui ondule. C'est « le signal » rendu littéral. Le même fichier sortirait de Blender ou de Spline, et se compresse cinq fois avec Draco.</p>
+        <span class="verdict">Verdict : c'est comme ça qu'on obtient un objet de marque unique, que personne d'autre n'a. À faire dessiner, ou à affiner avec toi dans Spline.</span>
+      </figure>

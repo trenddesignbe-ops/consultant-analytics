@@ -1,0 +1,92 @@
+<!-- lab2:three-instanced | lib: three@r128 | poids: 149 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="three-instanced"] .sky{position:absolute;inset:0;background:linear-gradient(118deg,#EDF3FF 0%,#F2EDFF 42%,#FFEFF7 74%,#FFF3EB 100%)}
+.lab2[data-tool="three-instanced"] canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.lab2[data-tool="three-instanced"] .hud{position:absolute;left:18px;top:16px;width:150px;display:grid;gap:3px;font-family:var(--body),sans-serif;color:var(--ink);pointer-events:none}
+.lab2[data-tool="three-instanced"] .hud small{font-size:.82rem;font-weight:500;color:var(--ink-2)}
+.lab2[data-tool="three-instanced"] .hud output{display:block;font-size:2.6rem;line-height:1;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;transition:color .45s var(--ease)}
+.lab2[data-tool="three-instanced"] .hud .lbl{font-size:.9rem;line-height:1.25;color:var(--ink-2);min-height:2.5em}
+.lab2[data-tool="three-instanced"] .hud.lost output{color:var(--warn)}
+.lab2[data-tool="three-instanced"] .hud.ok output{color:var(--good)}
+.lab2[data-tool="three-instanced"] .nolib{display:none;position:absolute;inset:0;place-items:center;margin:0;color:var(--ink-3);font:500 .85rem var(--body),sans-serif}
+.lab2[data-tool="three-instanced"].nolib .nolib{display:grid}
+.lab2[data-tool="three-instanced"].nolib canvas,.lab2[data-tool="three-instanced"].nolib .hud{display:none}
+</style>
+<figure class="lab2" data-tool="three-instanced">
+  <div class="lab-h"><h3>1 · Three.js, InstancedMesh</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="sky"></div>
+    <canvas aria-label="1 000 visiteurs, 40 ventes, 15 invisibles puis toutes visibles"></canvas>
+    <div class="hud"><small>1 000 visiteurs</small><output>0</output><span class="lbl">vente</span></div>
+    <p class="nolib">Three.js non chargé</p>
+  </div>
+  <div class="lab-meta"><span>Poids<b>149 Ko gzip</b></span><span>Lignes<b>≈ 120</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> sur 1 000 visiteurs, 40 achètent, mais 15 de ces ventes disparaissent des rapports avant qu'une correction les rende toutes visibles. <b>Ce que l'outil fait de spécial :</b> InstancedMesh dessine les 1 000 sphères en un seul appel GPU, avec une couleur et une taille propres à chacune, mises à jour chaque image. Les lumières, l'environnement pastel et le matériau verre viennent gratuitement avec le moteur. <b>Limite :</b> 149 Ko gzip pour trois vagues de couleur, c'est lourd pour une page d'accueil.</p>
+  <div class="verdict">Verdict : à réserver au bloc « héros » si la page n'embarque qu'une seule scène Three.js, sinon la version Canvas 2D suffit.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const fig=document.querySelector('.lab2[data-tool="three-instanced"]'); if(!fig) return;
+  window.LAB2=window.LAB2||{};
+  const stage=fig.querySelector('.stage-area'), c=fig.querySelector('canvas'), hud=fig.querySelector('.hud'), out=hud.querySelector('output'), lbl=hud.querySelector('.lbl');
+  if(!window.THREE){ fig.classList.add('nolib'); window.LAB2['three-instanced']={play(){}}; return; }
+  const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fmt=n=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  const bez=(x1,y1,x2,y2)=>{ const f=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t; return x=>{ if(x<=0) return 0; if(x>=1) return 1; let lo=0,hi=1,t=x; for(let i=0;i<14;i++){ t=(lo+hi)/2; if(f(x1,x2,t)<x) lo=t; else hi=t; } return f(y1,y2,t); }; };
+  const ease=bez(.22,1,.36,1), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), seg=(e,a,b)=>clamp((e-a)/(b-a),0,1);
+
+  /* --- helpers (copiés du labo 3D) --- */
+  function makeRenderer(c){ const r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true}); r.setPixelRatio(Math.min(2,devicePixelRatio||1)); r.outputEncoding=THREE.sRGBEncoding; r.toneMapping=THREE.NoToneMapping; return r; }
+  function pastelLights(scene){ scene.add(new THREE.HemisphereLight(0xdcd3ff,0xffd7c4,.9)); const key=new THREE.DirectionalLight(0xffffff,.9); key.position.set(4,7,5); scene.add(key); const fill=new THREE.DirectionalLight(0xffb9e3,.35); fill.position.set(-5,3,-4); scene.add(fill); return key; }
+  function pastelEnv(r){ const es=new THREE.Scene(); const g=new THREE.SphereGeometry(10,32,16); const cols=[]; const pos=g.attributes.position; const top=new THREE.Color(0xcdb9ff), mid=new THREE.Color(0xfff1f6), bot=new THREE.Color(0xffd7c4); for(let i=0;i<pos.count;i++){ const y=pos.getY(i)/10; const c= y>0? mid.clone().lerp(top,y) : mid.clone().lerp(bot,-y); cols.push(c.r,c.g,c.b); } g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3)); es.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide}))); const panel=(x,y,z,c)=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(4,2.2),new THREE.MeshBasicMaterial({color:c})); m.position.set(x,y,z); m.lookAt(0,0,0); es.add(m); }; panel(-4,5,3,0xffffff); panel(5,3,-2,0xffe9f3); panel(0,-2,6,0xe6ecff); const p=new THREE.PMREMGenerator(r); p.compileEquirectangularShader(); const t=p.fromScene(es,0.04).texture; p.dispose(); return t; }
+
+  /* --- scène --- */
+  const COLS=40, ROWS=25, N=COLS*ROWS, VIEW_W=57, CX=6, DZ=1.1;
+  const r=makeRenderer(c); r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFShadowMap; const scene=new THREE.Scene(); scene.environment=pastelEnv(r); const key=pastelLights(scene); key.intensity=.75; key.position.set(-6,14,8); key.castShadow=true; key.shadow.mapSize.set(768,768); key.shadow.camera.left=-30; key.shadow.camera.right=30; key.shadow.camera.top=20; key.shadow.camera.bottom=-20; key.shadow.camera.far=60; key.shadow.radius=3; key.shadow.bias=-.0005;
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(120,80),new THREE.ShadowMaterial({opacity:.13})); ground.rotation.x=-Math.PI/2; ground.position.y=-.5; ground.receiveShadow=true; scene.add(ground);
+  const cam=new THREE.OrthographicCamera(-1,1,1,-1,.1,200); const el=46*Math.PI/180; cam.position.set(0,60*Math.sin(el),60*Math.cos(el)); cam.lookAt(0,0,0);
+  function fit(){ const b=c.getBoundingClientRect(); if(!b.width) return; if(Math.round(b.width*r.getPixelRatio())!==c.width||Math.round(b.height*r.getPixelRatio())!==c.height) r.setSize(b.width,b.height,false); const a=b.width/b.height; cam.left=-VIEW_W/2; cam.right=VIEW_W/2; cam.top=VIEW_W/a/2; cam.bottom=-VIEW_W/a/2; cam.updateProjectionMatrix(); }
+  const geo=new THREE.SphereGeometry(.42,12,8);
+  const mat=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.38,metalness:0,clearcoat:.6,clearcoatRoughness:.25,envMapIntensity:.55});
+  const im=new THREE.InstancedMesh(geo,mat,N); im.castShadow=true; scene.add(im);
+  const X=new Float32Array(N), Z=new Float32Array(N), M=new THREE.Matrix4(), P=new THREE.Vector3(), S=new THREE.Vector3(), Q=new THREE.Quaternion();
+  for(let i=0;i<N;i++){ const cx=i%COLS, rz=Math.floor(i/COLS); X[i]=cx-(COLS-1)/2+CX; Z[i]=(rz-(ROWS-1)/2)*DZ; }
+  /* 40 acheteurs, 15 d'entre eux perdus, tirage déterministe */
+  let seed=20240917; const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+  const buyers=[], isBuyer=new Uint8Array(N), isLost=new Uint8Array(N), buyerOrder=new Int32Array(N).fill(-1);
+  while(buyers.length<40){ const i=Math.floor(rnd()*N); if(!isBuyer[i]){ isBuyer[i]=1; buyerOrder[i]=buyers.length; buyers.push(i); } }
+  const sorted=buyers.slice().sort((a,b)=>X[a]-X[b]); for(let k=0;k<40;k++) if(k%8<3) isLost[sorted[k]]=1; /* 15 perdus, répartis sur la largeur */
+  const WHITE=new THREE.Color(0xffffff), BLUE=new THREE.Color(0x2E5BFF), GHOST=new THREE.Color(0xF1B3C7), RED=new THREE.Color(0xE5484D), GREEN=new THREE.Color(0x16A34A), tmp=new THREE.Color();
+  const T={lit0:.2,lit1:1.0,red0:1.5,red1:2.3,grn0:2.8,grn1:3.6,end:4.2};
+  const wavePos=p=>-15+ (CX+COLS/2+3+15)*p; /* de la gauche à la droite de la grille */
+  function frame(e){
+    const redP=seg(e,T.red0,T.red1), grnP=seg(e,T.grn0,T.grn1);
+    const wxR=wavePos(ease(redP)), wxG=wavePos(ease(grnP));
+    let lit=0, off=0;
+    for(let i=0;i<N;i++){
+      let s=1; tmp.copy(WHITE);
+      if(isBuyer[i]){
+        const t0=T.lit0+buyerOrder[i]*((T.lit1-T.lit0)/40), k=seg(e,t0,t0+.3);
+        if(k>0){ tmp.lerp(BLUE,ease(Math.min(1,k*1.4))); s=1+Math.sin(k*Math.PI)*.7; if(e>=t0) lit++; }
+        if(isLost[i]){
+          if(redP>0 && X[i]<wxR && !(grnP>0 && X[i]<wxG)){ tmp.copy(GHOST); s=.56; off++; }
+        }
+      }
+      if(redP>0&&redP<1){ const d=X[i]-wxR, f=Math.exp(-d*d/3.2); tmp.lerp(RED,f*.9); s+=f*.5; }
+      if(grnP>0&&grnP<1){ const d=X[i]-wxG, f=Math.exp(-d*d/3.2); tmp.lerp(GREEN,f*.9); s+=f*.5; }
+      S.setScalar(s); P.set(X[i],0,Z[i]); M.compose(P,Q,S); im.setMatrixAt(i,M); im.setColorAt(i,tmp);
+    }
+    im.instanceMatrix.needsUpdate=true; im.instanceColor.needsUpdate=true;
+    /* HUD */
+    if(e<T.red0){ out.textContent=fmt(lit); lbl.textContent=lit>1?'ventes':'vente'; hud.className='hud'; }
+    else if(e<T.grn0+.15){ out.textContent=fmt(lit-off); lbl.textContent=off?('ventes visibles, '+off+' invisibles'):'ventes visibles'; hud.className='hud'+(off?' lost':''); }
+    else { out.textContent=fmt(lit-off); lbl.textContent=off?('ventes visibles, '+off+' invisibles'):'ventes visibles, toutes'; hud.className='hud'+(off?' lost':' ok'); }
+  }
+  let raf=null, last=0, e=0; /* pas de temps plafonné : la démo se joue en entier même si le GPU est lent */
+  function loop(now){ e+=Math.min(.05,(now-last)/1000); last=now; fit(); frame(Math.min(e,T.end)); r.render(scene,cam); if(e<T.end) raf=requestAnimationFrame(loop); else raf=null; }
+  /* état initial : grille blanche */
+  fit(); frame(0); r.render(scene,cam);
+  window.LAB2['three-instanced']={ play(){ if(raf) cancelAnimationFrame(raf); raf=null; if(REDUCED){ fit(); frame(T.end); r.render(scene,cam); return; } e=0; last=performance.now(); raf=requestAnimationFrame(loop); } };
+})();
+</script>

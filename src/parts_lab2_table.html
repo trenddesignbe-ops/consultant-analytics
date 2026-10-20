@@ -1,0 +1,45 @@
+<div class="l2-table-wrap">
+  <h3 class="l2-h">Tableau comparatif : ce que chaque outil peut faire pour toi</h3>
+  <p class="l2-p">Poids = ce que le visiteur télécharge en plus (gzip). Autonome = je peux le faire seul, sans action de ta part. Les notes vont de 1 à 5 : facilité pour moi, beauté du rendu obtenu ici, utilité pour convaincre le persona.</p>
+  <table class="l2-table">
+    <thead><tr><th>Outil</th><th>Ce qu'il fait de spécial</th><th>Quand l'utiliser sur le site</th><th>Poids</th><th>Autonome</th><th>Facile</th><th>Beau</th><th>Convainc</th></tr></thead>
+    <tbody>
+      <tr><td>CSS pur</td><td>Transitions, keyframes, compteurs, défilement natif (scroll-driven)</td><td>Partout : c'est la base, 80 % des animations de la page</td><td>0 Ko</td><td>oui</td><td>5</td><td>3</td><td>3</td></tr>
+      <tr><td>Web Animations API (natif)</td><td>Animer en JavaScript sans bibliothèque, pause, inversion, vitesse</td><td>Tableau de bord qui se construit, micro interactions avec contrôle</td><td>0 Ko</td><td>oui</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><td>GSAP + ScrollTrigger</td><td>Timelines, easings, animations liées au défilement, fiabilité</td><td>Orchestration de toute la page, hero, révélations au scroll</td><td>27 Ko</td><td>oui</td><td>5</td><td>4</td><td>4</td></tr>
+      <tr><td>GSAP Flip</td><td>Anime un changement de disposition (avant / après) sur de vrais éléments HTML</td><td>« Vos chiffres en désordre se rangent en un tableau de bord »</td><td>+9 Ko</td><td>oui</td><td>4</td><td>4</td><td>5</td></tr>
+      <tr><td>SplitType + GSAP</td><td>Texte découpé en mots et lettres, réécriture d'une phrase</td><td>Titre du hero, deux ou trois phrases clés</td><td>+4 Ko</td><td>oui</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><td>Effet Codrops « blur typography »</td><td>Révélation lettre par lettre par flou et écrasement</td><td>Une phrase d'accroche forte, une fois</td><td>0 Ko (GSAP)</td><td>oui</td><td>5</td><td>4</td><td>4</td></tr>
+      <tr><td>Effet Codrops « grid formations »</td><td>Cartes qui arrivent en 3D et se rangent en piles</td><td>Section « Google Ads dit 12, Google Analytics dit 10 »</td><td>0 Ko (GSAP)</td><td>oui</td><td>4</td><td>4</td><td>5</td></tr>
+      <tr><td>Motion (motion.dev)</td><td>Équivalent moderne de GSAP, s'appuie sur le navigateur</td><td>Si le site passe un jour en React</td><td>21 Ko</td><td>oui</td><td>4</td><td>4</td><td>3</td></tr>
+      <tr><td>Anime.js</td><td>Micro animations très légères</td><td>Petites interactions isolées</td><td>6 Ko</td><td>oui</td><td>4</td><td>3</td><td>3</td></tr>
+      <tr><td>Lenis</td><td>Défilement lissé « premium » des sites primés</td><td>Toute la page, discret, à coupler à GSAP</td><td>+20 Ko</td><td>oui</td><td>4</td><td>4</td><td>3</td></tr>
+      <tr><td>SVG morphing (flubber)</td><td>Une forme se transforme en une autre (graphique cassé → coche)</td><td>Pictogrammes avant / après des prestations</td><td>+18 Ko</td><td>oui</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><td>Rough.js</td><td>Style dessiné à la main, hachures, redessin trait par trait</td><td>Bloc « vos chiffres aujourd'hui / corrigés », schémas explicatifs</td><td>9 Ko</td><td>oui</td><td>5</td><td>5</td><td>5</td></tr>
+      <tr><td>D3</td><td>Liberté totale sur les données : échelles, axes, forces</td><td>Scènes où des centaines d'éléments se rangent selon une donnée</td><td>90 Ko</td><td>oui</td><td>2</td><td>4</td><td>4</td></tr>
+      <tr><td>ECharts</td><td>Graphiques interactifs complets, transitions entre jeux de données</td><td>Seulement pour de vrais tableaux de bord interactifs</td><td>326 Ko</td><td>oui</td><td>4</td><td>3</td><td>3</td></tr>
+      <tr><td>Matter.js (physique)</td><td>Objets qui tombent, rebondissent, trappe qui se ferme</td><td>Une seule scène métaphorique mémorable</td><td>25 Ko</td><td>oui</td><td>3</td><td>4</td><td>4</td></tr>
+      <tr><td>Zdog (pseudo 3D)</td><td>Illustrations 3D plates, très légères, manipulables</td><td>Petites illustrations des prestations ou des étapes</td><td>11 Ko</td><td>oui</td><td>3</td><td>4</td><td>3</td></tr>
+      <tr><td>Lottie (bibliothèque LottieFiles)</td><td>Animation toute faite, recolorable au chargement</td><td>Pictogrammes génériques, si on accepte le style</td><td>47 Ko + fichier</td><td>oui</td><td>5</td><td>2</td><td>2</td></tr>
+      <tr><td>Lottie écrit en code</td><td>Un fichier Lottie fabriqué sans After Effects</td><td>Si plusieurs animations partagent le lecteur, sinon SVG + CSS</td><td>47 Ko + 1 Ko</td><td>oui</td><td>3</td><td>3</td><td>3</td></tr>
+      <tr><td>Rive</td><td>Animations interactives à états (jauge qui réagit à un bouton), 10 fois plus léger que Lottie en fichier</td><td>Pictogrammes interactifs des prestations, jauge « ventes visibles »</td><td>53 Ko + 445 Ko wasm</td><td>non : fichier .riv à exporter depuis Rive (ou accès écran)</td><td>2</td><td>4</td><td>4</td></tr>
+      <tr><td>Vidéo WebM</td><td>Rendu pré calculé, identique partout, très léger</td><td>Rendus lourds (3D, matières) en haut de page</td><td>31 Ko</td><td>oui</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><td>Séquence d'images au scroll</td><td>Style Apple : la scène avance avec la molette</td><td>Un objet 3D rendu hors ligne (Blender, Spline) piloté par le défilement</td><td>48 Ko et plus</td><td>oui</td><td>3</td><td>4</td><td>3</td></tr>
+      <tr><td>Three.js + modèle glTF tout fait</td><td>Objet 3D réel (CC0), matière verre, ombres</td><td>Hero uniquement, un seul objet</td><td>145 Ko + 66 Ko</td><td>oui (modèles GitHub) ; Poly Haven et Sketchfab via ton PC</td><td>2</td><td>5</td><td>4</td></tr>
+      <tr><td>Three.js (instances, verre, shaders)</td><td>3D complète dans le navigateur</td><td>Décor d'ambiance, jamais pour un chiffre</td><td>145 Ko</td><td>oui</td><td>2</td><td>4</td><td>2</td></tr>
+      <tr><td>Shader GLSL</td><td>Fond vivant calculé par la carte graphique, « du bruit au signal »</td><td>Fond du hero si on accepte WebGL</td><td>0 à 145 Ko</td><td>oui</td><td>2</td><td>4</td><td>3</td></tr>
+      <tr><td>OGL / WebGL brut</td><td>Même rendu que Three.js pour 0 à 10 Ko</td><td>Un seul objet 3D léger (compteur en verre)</td><td>0 à 10 Ko</td><td>oui</td><td>1</td><td>3</td><td>3</td></tr>
+      <tr><td>PixiJS</td><td>Milliers de particules fluides sur GPU</td><td>Flux de visiteurs, si on veut un effet de masse</td><td>136 Ko</td><td>oui</td><td>3</td><td>3</td><td>2</td></tr>
+      <tr><td>Babylon.js</td><td>Moteur de jeu complet (PBR, physique)</td><td>Pas pour nous : trop lourd</td><td>1 265 Ko</td><td>oui</td><td>3</td><td>3</td><td>2</td></tr>
+      <tr><td>curtains.js</td><td>Déformation WebGL d'une image (avant / après au curseur)</td><td>Comparateur « rapport illisible / rapport clair »</td><td>+30 Ko</td><td>oui</td><td>3</td><td>4</td><td>4</td></tr>
+      <tr><td>Spline (éditeur 3D)</td><td>Modéliser sans code, scène interactive</td><td>Objet de marque du hero, exporté en glTF plutôt qu'en runtime Spline (540 Ko)</td><td>0 Ko si glTF</td><td>non : Export glTF ou .splinecode depuis Spline</td><td>3</td><td>5</td><td>3</td></tr>
+      <tr><td>Blender</td><td>Modélisation pro, rendu photoréaliste, export glTF Draco</td><td>Objet maison unique, ou rendu en vidéo / séquence d'images</td><td>selon export</td><td>non : extension Blender à connecter, ou script à lancer chez toi</td><td>2</td><td>5</td><td>3</td></tr>
+      <tr><td>Figma</td><td>Dessiner le mouvement, exporter en CSS ou Motion</td><td>Maquetter avec toi avant de coder, pictogrammes</td><td>0 Ko</td><td>lecture seule</td><td>3</td><td>3</td><td>2</td></tr>
+      <tr><td>Recraft (IA, vecteur)</td><td>Illustrations SVG animables</td><td>Pictogrammes simples ; trop « clipart » pour le hero</td><td>selon SVG</td><td>oui (modèles externes refusés par l'abonnement)</td><td>4</td><td>2</td><td>2</td></tr>
+      <tr><td>Canva, Jitter, Unicorn Studio</td><td>Motion design sans code, effets WebGL en ligne</td><td>Non testés : Canva pour des visuels statiques, Jitter pour des Lottie maison, Unicorn pour des fonds (embed bloqué dans l'aperçu Claude)</td><td>variable</td><td>non : compte ou export de ta part</td><td>?</td><td>?</td><td>?</td></tr>
+    </tbody>
+  </table>
+  <h3 class="l2-h">Classement</h3>
+  <p class="l2-p"><b>Le plus facile pour moi :</b> CSS pur, GSAP, effets Codrops, WAAPI, Rough.js, SplitType, Flip. <b>Le plus beau rendu obtenu :</b> modèle glTF en verre, Rough.js, Spline, Flip, cartes Codrops, vidéo WebM. <b>Le plus convaincant pour le persona :</b> Rough.js (avant / après), Flip (chiffres qui se rangent), cartes Codrops (12 contre 10), SplitType (phrase qui se corrige), Matter.js (pièces dans le bocal).</p>
+  <p class="l2-p"><b>Ma recommandation :</b> CSS + GSAP + Lenis comme socle, Rough.js et Flip pour les démonstrations, un seul objet 3D (glTF depuis Spline ou Blender) ou une vidéo WebM dans le hero, Rive plus tard pour les pictogrammes si tu apprends l'éditeur. Rien d'autre.</p>
+</div>

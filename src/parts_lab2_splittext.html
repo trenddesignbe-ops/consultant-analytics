@@ -1,0 +1,90 @@
+<!-- lab2:splittext | lib: gsap@3.12.5 + split-type@0.3.4 | poids: 27 + 4 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="splittext"] .stage-area{background:linear-gradient(160deg,#FFF6EE 0%,#FFF1F8 50%,#F3F0FF 100%)}
+.lab2[data-tool="splittext"] .txt{position:absolute;inset:0;padding:26px 28px 22px;font-family:var(--display),serif;color:var(--ink);line-height:1.12}
+.lab2[data-tool="splittext"] .h1{font-size:34px;font-weight:400;letter-spacing:-.005em}
+.lab2[data-tool="splittext"] .l2wrap{position:relative}
+.lab2[data-tool="splittext"] .l2.new{position:absolute;left:0;top:0;right:0;visibility:hidden}
+.lab2[data-tool="splittext"] .word{display:inline-block;will-change:transform,opacity}
+.lab2[data-tool="splittext"] .char{display:inline-block;will-change:transform,opacity}
+.lab2[data-tool="splittext"] .strike{position:absolute;z-index:1;height:3px;border-radius:2px;background:var(--warn);transform:scaleX(0);transform-origin:left center;pointer-events:none}
+.lab2[data-tool="splittext"] .count{position:absolute;left:28px;bottom:22px;font-family:var(--body),sans-serif;font-size:16px;color:var(--ink-2);display:flex;align-items:baseline;gap:8px}
+.lab2[data-tool="splittext"] .count .n{font-size:40px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1;min-width:1.2em;display:inline-block}
+.lab2[data-tool="splittext"] .count .n.good{color:var(--good)}
+.lab2[data-tool="splittext"] .count .of{font-variant-numeric:tabular-nums}
+</style>
+<figure class="lab2" data-tool="splittext">
+  <div class="lab-h"><h3>4 · GSAP + SplitType</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="txt" aria-label="4 ventes sur 10 n'apparaissent nulle part, puis : apparaissent dans vos rapports, maintenant. Le compteur passe de 6 à 10 ventes visibles.">
+      <div class="h1 l1">4 ventes sur 10</div>
+      <div class="l2wrap">
+        <div class="h1 l2 old">n&rsquo;apparaissent nulle part.</div>
+        <div class="h1 l2 new">apparaissent dans vos rapports, maintenant.</div>
+      </div>
+      <div class="count"><span class="n">6</span><span class="of">/ 10 ventes visibles</span></div>
+    </div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>27 + 4 Ko gzip</b></span><span>Lignes<b>≈ 90</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> « 4 ventes sur 10 n'apparaissent nulle part » arrive mot à mot, « nulle part » se barre en rouge, puis la fin de phrase se réécrit lettre par lettre en « dans vos rapports, maintenant » pendant que le compteur passe de 6 à 10 ventes visibles. <b>Ce que l'outil fait de spécial :</b> SplitType découpe un texte HTML normal en mots et en lettres, chacun devenant une cible que GSAP décale d'un stagger sur une timeline unique, avec le compteur tweené dans le même enchaînement. Le texte reste du vrai texte, sélectionnable et lu par les lecteurs d'écran. <b>Limite :</b> les lettres découpées cassent la césure et le crénage, et il faut tout remettre en place à chaque rejeu.</p>
+  <div class="verdict">Verdict : pour le titre du hero et les deux ou trois phrases clés de la page, pas pour les paragraphes.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
+<script>
+(function(){
+  var root = document.querySelector('.lab2[data-tool="splittext"]');
+  if (!root || !window.gsap || !window.SplitType) return;
+  var txt = root.querySelector('.txt');
+  var stage = root.querySelector('.stage-area');
+  var initial = txt.innerHTML;
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var tl = null, splits = [];
+
+  function play(){
+    if (tl) tl.kill();
+    splits.forEach(function(s){ s.revert(); }); splits = [];
+    txt.innerHTML = initial;
+    var w = stage.clientWidth || 640;
+    var fs = Math.max(22, Math.min(34, w / 19));
+    Array.prototype.forEach.call(txt.querySelectorAll('.h1'), function(h){ h.style.fontSize = fs + 'px'; });
+
+    var l1 = txt.querySelector('.l1'), old = txt.querySelector('.old'), neu = txt.querySelector('.new');
+    var num = txt.querySelector('.count .n'), count = txt.querySelector('.count');
+    var s1 = new SplitType(l1, { types: 'words', tagName: 'span' });
+    var s2 = new SplitType(old, { types: 'words,chars', tagName: 'span' });
+    var s3 = new SplitType(neu, { types: 'words,chars', tagName: 'span' });
+    splits.push(s1, s2, s3);
+
+    // Trait rouge sous « nulle part. » : positionné sur les mots découpés
+    var words = s2.words, np = words.slice(1);
+    var r0 = old.getBoundingClientRect(), a = np[0].getBoundingClientRect(), b = np[np.length - 1].getBoundingClientRect();
+    var strike = document.createElement('span'); strike.className = 'strike';
+    strike.style.left = (a.left - r0.left) + 'px'; strike.style.width = (b.right - a.left) + 'px'; strike.style.top = (a.top - r0.top + a.height * 0.56) + 'px';
+    old.style.position = 'relative'; old.appendChild(strike);
+
+    var c = { v: 6 };
+    function setNum(){ num.textContent = Math.round(c.v); }
+
+    tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    tl.from(s1.words, { y: 26, opacity: 0, duration: 0.7, stagger: 0.09 }, 0)
+      .from(s2.words, { y: 26, opacity: 0, duration: 0.7, stagger: 0.09 }, 0.45)
+      .from(count, { y: 14, opacity: 0, duration: 0.6 }, 0.9)
+      .addLabel('strike', 1.55)
+      .to(strike, { scaleX: 1, duration: 0.45, ease: 'power2.inOut' }, 'strike')
+      .to(np, { color: '#8A8A93', duration: 0.4 }, 'strike+=0.1')
+      .addLabel('swap', 2.25)
+      .to(s2.chars, { yPercent: -70, opacity: 0, duration: 0.45, stagger: 0.012, ease: 'power2.in' }, 'swap')
+      .to(strike, { opacity: 0, duration: 0.3 }, 'swap')
+      .set(neu, { visibility: 'visible' }, 'swap+=0.3')
+      .from(s3.chars, { yPercent: 70, opacity: 0, duration: 0.55, stagger: 0.013 }, 'swap+=0.3')
+      .to(c, { v: 10, duration: 0.9, ease: 'power2.inOut', onUpdate: setNum, snap: { v: 1 } }, 'swap+=0.45')
+      .to(num, { color: '#16A34A', duration: 0.4 }, 'swap+=1.0');
+
+    if (RM) tl.progress(1).pause();
+  }
+
+  window.LAB2 = window.LAB2 || {};
+  window.LAB2.splittext = { play: play };
+})();
+</script>

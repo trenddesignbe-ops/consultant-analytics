@@ -1,0 +1,71 @@
+/* ---------- 5 · the leaking funnel, particle flow ---------- */
+(function(){
+  const box=document.getElementById('flow'); if(!box) return;
+  const c=document.getElementById('flowCanvas'), ctx=c.getContext('2d'), labels=document.getElementById('flowLabels');
+  const total=document.getElementById('fTotal'), state=document.getElementById('fState');
+  const CW=640, CH=300, TOP=46, TMAX=150, X0=28, X1=612;
+  // checkpoints along the pipe
+  const CP=[
+    {x:40,  kind:'gate', name:'Visiteurs', f:1},
+    {x:130, kind:'leak', id:'utm',     name:'Origine de la visite perdue', loss:.18},
+    {x:220, kind:'gate', name:'Fiches produit', f:.62},
+    {x:310, kind:'leak', id:'consent', name:'Cookies refusés', loss:.22},
+    {x:400, kind:'gate', name:'Panier', f:.21/.62},
+    {x:490, kind:'leak', id:'event',   name:'Achat non signalé', loss:.30},
+    {x:580, kind:'gate', name:'Achats comptés', f:.072/.21}
+  ];
+  const sealed={};
+  const accent=cssVar('--accent'), warn=cssVar('--warn'), ink3=cssVar('--ink-3');
+  const aRGB=cssVar('--accent-rgb');
+  function keepAt(i){ let k=1; for(let j=0;j<=i;j++){ const cp=CP[j]; if(cp.kind==='gate') k*=cp.f; else if(!sealed[cp.id]) k*=(1-cp.loss); } return k; }
+  function kAt(x){ let k=1; for(const cp of CP){ if(x<cp.x) break; if(cp.kind==='gate') k*=cp.f; else if(!sealed[cp.id]) k*=(1-cp.loss); } return k; }
+  function thick(x){ // smooth ramps around checkpoints
+    const R=18; let k=kAt(x); for(const cp of CP){ if(x>cp.x-R && x<cp.x+R){ const before=kAt(cp.x-R-1), after=kAt(cp.x+R+1); const t=(x-(cp.x-R))/(2*R); const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; k=before+(after-before)*e; } } return 6+TMAX*k; }
+  function counts(){ const out=[]; let k=1; CP.forEach(cp=>{ if(cp.kind==='gate'){ k*=cp.f; out.push({x:cp.x,n:Math.round(1000*k),name:cp.name}); } else if(!sealed[cp.id]) k*=(1-cp.loss); }); return out; }
+  const REAL=Math.round(1000*.072); document.getElementById('fReal').textContent=fmt(REAL);
+  // labels overlay
+  function layout(){ let h=''; const cs=counts();
+    cs.forEach((g,i)=>{ const x = i===0 ? g.x+34 : g.x+6; h+='<span class="lab" style="left:'+(x/CW*100)+'%;top:'+((TOP-34)/CH*100)+'%">'+g.name+' <b>'+fmt(g.n)+'</b></span>'; });
+    CP.filter(cp=>cp.kind==='leak').forEach(cp=>{ h+='<button type="button" class="leak'+(sealed[cp.id]?' sealed':'')+'" data-leak="'+cp.id+'" style="left:'+(cp.x/CW*100)+'%;top:'+((CH-34)/CH*100)+'%">'+(sealed[cp.id]?cp.name+' <b>réparé</b>':cp.name+' <b>−'+Math.round(cp.loss*100)+' %</b>')+'</button>'; });
+    labels.innerHTML=h; }
+  labels.addEventListener('click',e=>{ const b=e.target.closest('[data-leak]'); if(!b) return; sealed[b.dataset.leak]=!sealed[b.dataset.leak]; bump(); layout(); updateHead(); });
+  let shownTotal=0;
+  function updateHead(){ const cs=counts(); const n=cs[cs.length-1].n; const from=shownTotal; shownTotal=n; tween(600,0,e=>{ total.textContent=fmt(from+(n-from)*e); }); const open=CP.filter(cp=>cp.kind==='leak'&&!sealed[cp.id]).length; state.textContent= open? open+' fuite'+(open>1?'s':'')+' ouverte'+(open>1?'s':'') : 'Tout est compté'; state.className='tag '+(open?'':'tag-ok'); }
+  // particles
+  const parts=[]; let spawnAcc=0, running=false, raf=null, dpr=1;
+  function size(){ const r=c.getBoundingClientRect(); dpr=Math.min(2,devicePixelRatio||1); if(c.width!==Math.round(r.width*dpr)){ c.width=r.width*dpr; c.height=r.height*dpr; } ctx.setTransform(c.width/CW,0,0,c.height/CH,0,0); }
+  function spawn(){ parts.push({x:X0-6,u:Math.random(),v:0.9+Math.random()*0.5,fy:Math.random(),state:'flow',dy:0,a:1,col:accent,ci:0}); }
+  function step(){
+    for(const p of parts){
+      if(p.state==='flow'){ p.x+=p.v*1.6; const t=thick(p.x); p.y=TOP+2+p.fy*(t-4);
+        // checkpoint fate
+        while(p.ci<CP.length && p.x>=CP[p.ci].x){ const cp=CP[p.ci]; const kBefore=p.ci? keepAt(p.ci-1):1; const kAfter=keepAt(p.ci);
+          if(p.u>=kAfter && p.u<kBefore){ p.state='drop'; p.col = cp.kind==='leak'? warn : ink3; p.vy=0.4+Math.random()*0.6; p.vx=(Math.random()-.5)*0.3; p.y=TOP+thick(cp.x)-2; break; }
+          p.ci++; }
+        if(p.x>X1+8){ p.state='done'; }
+      } else if(p.state==='drop'){ p.y+=p.vy; p.vy+=0.045; p.x+=p.vx; p.a-=0.012; if(p.a<=0||p.y>CH+10) p.state='done'; }
+    }
+    for(let i=parts.length-1;i>=0;i--) if(parts[i].state==='done') parts.splice(i,1);
+  }
+  function draw(){ size(); ctx.clearRect(0,0,CW,CH);
+    // pipe band
+    ctx.beginPath(); ctx.moveTo(X0,TOP); ctx.lineTo(X1,TOP); for(let x=X1;x>=X0;x-=4) ctx.lineTo(x,TOP+thick(x)); ctx.closePath(); ctx.fillStyle='rgba('+aRGB+',.08)'; ctx.fill();
+    ctx.strokeStyle='rgba('+aRGB+',.35)'; ctx.lineWidth=1.5; ctx.beginPath(); let pen=false; for(let x=X0;x<=X1;x+=2){ const inHole=CP.some(cp=>cp.kind==='leak'&&!sealed[cp.id]&&Math.abs(x-cp.x)<14); const y=TOP+thick(x); if(inHole){ pen=false; continue; } if(!pen){ ctx.moveTo(x,y); pen=true; } else ctx.lineTo(x,y); } ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X0,TOP); ctx.lineTo(X1,TOP); ctx.stroke();
+    // gates
+    CP.filter(cp=>cp.kind==='gate').forEach(cp=>{ ctx.beginPath(); ctx.moveTo(cp.x,TOP-6); ctx.lineTo(cp.x,TOP+thick(cp.x)+6); ctx.strokeStyle='rgba(11,11,12,.10)'; ctx.lineWidth=1; ctx.stroke(); });
+    // leak holes
+    CP.filter(cp=>cp.kind==='leak').forEach(cp=>{ const yb=TOP+thick(cp.x); if(sealed[cp.id]){ ctx.fillStyle=cssVar('--good'); ctx.beginPath(); ctx.roundRect ? ctx.roundRect(cp.x-14,yb-3,28,6,3) : ctx.rect(cp.x-14,yb-3,28,6); ctx.fill(); } });
+    // particles
+    for(const p of parts){ ctx.globalAlpha=Math.max(0,p.a*(p.state==='flow'?.85:1)); ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(p.x,p.y,p.state==='flow'?1.8:2.2,0,Math.PI*2); ctx.fill(); }
+    ctx.globalAlpha=1;
+  }
+  function frame(){ spawnAcc+=2.2; while(spawnAcc>=1){ spawn(); spawnAcc-=1; } step(); draw(); if(running) raf=requestAnimationFrame(frame); }
+  function start(){ if(running||REDUCED) return; running=true; raf=requestAnimationFrame(frame); }
+  function stop(){ running=false; if(raf) cancelAnimationFrame(raf); }
+  layout(); draw();
+  if(REDUCED){ for(let i=0;i<400;i++){ spawn(); } for(let k=0;k<400;k++) step(); draw(); }
+  if('IntersectionObserver' in window) new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ start(); } else stop(); }); },{threshold:[0.05]}).observe(box); else start();
+  onceInView(box, updateHead, 0.2);
+  addEventListener('resize', ()=>{ layout(); }, {passive:true});
+})();

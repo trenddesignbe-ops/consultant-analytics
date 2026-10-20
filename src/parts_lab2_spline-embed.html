@@ -1,0 +1,97 @@
+<!-- lab2:spline-embed | lib: @splinetool/runtime@1.9.0 (unpkg, ESM uniquement, import() dynamique et seulement si assets/scene.splinecode existe) | poids: 0 Ko sans scène, 540 Ko gzip avec | autonome: non, besoin d'Alexandre : exporter la scène Spline en .splinecode dans assets/ -->
+<style>
+.lab2[data-tool="spline-embed"] .stage-area{background:linear-gradient(135deg,#BFDBFF,#CDB9FF 40%,#FFB9E3 72%,#FFD7C4)}
+.lab2[data-tool="spline-embed"] .sp-canvas{position:absolute;inset:0;width:100%;height:100%;display:none}
+.lab2[data-tool="spline-embed"].has-scene .sp-canvas{display:block}
+.lab2[data-tool="spline-embed"].has-scene .mock{display:none}
+.lab2[data-tool="spline-embed"] .mock{position:absolute;inset:0}
+.lab2[data-tool="spline-embed"] .mock svg{position:absolute;inset:0;width:100%;height:100%}
+.lab2[data-tool="spline-embed"] .ribbon{opacity:0;transform:translateX(40px);transition:opacity 2.2s var(--ease),transform 2.2s var(--ease)}
+.lab2[data-tool="spline-embed"] .mock.in .ribbon{opacity:1;transform:translateX(0)}
+.lab2[data-tool="spline-embed"] .mock.in .ribbon.breathe{animation:lab2SplineBreathe 7s ease-in-out 2.2s infinite}
+@keyframes lab2SplineBreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.lab2[data-tool="spline-embed"] .pill{position:absolute;left:24px;bottom:22px;padding:10px 16px;border-radius:14px;background:rgba(255,255,255,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(60,40,90,.14);font:600 1.05rem var(--body);color:var(--ink);font-variant-numeric:tabular-nums;opacity:0;transform:translateY(8px);transition:opacity .9s var(--ease) .8s,transform .9s var(--ease) .8s}
+.lab2[data-tool="spline-embed"] .pill small{display:block;font:500 .74rem var(--body);color:var(--ink-2);margin-top:2px}
+.lab2[data-tool="spline-embed"] .mock.in .pill{opacity:1;transform:translateY(0)}
+.lab2[data-tool="spline-embed"] .state{position:absolute;right:14px;top:10px;font:500 .72rem var(--body);color:var(--ink-2);text-align:right;max-width:60%}
+.lab2[data-tool="spline-embed"] .howto{font-size:.84rem;color:var(--ink-2);margin:0}
+.lab2[data-tool="spline-embed"] .howto b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){
+  .lab2[data-tool="spline-embed"] .ribbon,.lab2[data-tool="spline-embed"] .pill{transition-duration:.01s;transition-delay:0s}
+  .lab2[data-tool="spline-embed"] .mock.in .ribbon.breathe{animation:none}
+}
+</style>
+<figure class="lab2" data-tool="spline-embed">
+  <div class="lab-h"><h3>7 · Spline (scène 3D)</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <canvas class="sp-canvas" aria-label="Scène 3D Spline"></canvas>
+    <div class="mock">
+      <svg viewBox="0 0 640 260" preserveAspectRatio="xMidYMid slice" aria-label="Capture statique : ruban de verre sur ciel pastel">
+        <defs>
+          <linearGradient id="lab2SpGlass" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity=".85"/><stop offset=".45" stop-color="#CDB9FF" stop-opacity=".55"/><stop offset="1" stop-color="#BFDBFF" stop-opacity=".75"/>
+          </linearGradient>
+          <linearGradient id="lab2SpGlass2" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#FFD7C4" stop-opacity=".6"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".8"/><stop offset="1" stop-color="#FFB9E3" stop-opacity=".5"/>
+          </linearGradient>
+          <filter id="lab2SpShadow" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+          <filter id="lab2SpSoft" x="-10%" y="-20%" width="120%" height="140%"><feGaussianBlur stdDeviation="1.2"/></filter>
+        </defs>
+        <g class="ribbon breathe">
+          <path d="M-20,190 C120,60 260,300 400,150 S640,40 700,110" fill="none" stroke="#5B3FA0" stroke-opacity=".22" stroke-width="54" stroke-linecap="round" filter="url(#lab2SpShadow)" transform="translate(0,22)"/>
+          <path d="M-20,190 C120,60 260,300 400,150 S640,40 700,110" fill="none" stroke="url(#lab2SpGlass)" stroke-width="54" stroke-linecap="round"/>
+          <path d="M-20,190 C120,60 260,300 400,150 S640,40 700,110" fill="none" stroke="#FFFFFF" stroke-opacity=".75" stroke-width="3" stroke-linecap="round" transform="translate(0,-22)" filter="url(#lab2SpSoft)"/>
+          <path d="M-20,190 C120,60 260,300 400,150 S640,40 700,110" fill="none" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="10" stroke-linecap="round" transform="translate(0,-14)" filter="url(#lab2SpSoft)"/>
+        </g>
+        <g class="ribbon">
+          <path d="M-30,70 C110,140 250,-10 420,90 S620,230 700,180" fill="none" stroke="#5B3FA0" stroke-opacity=".16" stroke-width="30" stroke-linecap="round" filter="url(#lab2SpShadow)" transform="translate(0,16)"/>
+          <path d="M-30,70 C110,140 250,-10 420,90 S620,230 700,180" fill="none" stroke="url(#lab2SpGlass2)" stroke-width="30" stroke-linecap="round"/>
+          <path d="M-30,70 C110,140 250,-10 420,90 S620,230 700,180" fill="none" stroke="#FFFFFF" stroke-opacity=".7" stroke-width="2" stroke-linecap="round" transform="translate(0,-11)" filter="url(#lab2SpSoft)"/>
+        </g>
+      </svg>
+      <div class="pill">100 € de pub = 4 ventes<small>à l'euro près, chaque lundi</small></div>
+    </div>
+    <div class="state">Capture statique : la scène Spline (.splinecode) est à exporter</div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>0 Ko sans scène, 540 Ko gzip avec</b></span><span>Lignes<b>≈ 100</b></span><span>Autonome<b>besoin d'Alexandre : exporter scene.splinecode</b></span></div>
+  <p><b>Ce que montre la démo :</b> 100 € de pub = 4 ventes, à l'euro près, posé sur un décor de verre qui respire : le site respire la confiance avant même qu'on lise. <b>Ce que l'outil fait de spécial :</b> Spline permet de modeler une scène 3D (verre, lumière, matière, interactions souris) dans un éditeur visuel et de la jouer dans la page via son runtime, sans écrire de WebGL ; la carte charge le runtime uniquement si assets/scene.splinecode est présent, sinon elle affiche cette capture SVG. <b>Limite :</b> le runtime pèse 540 Ko gzip, n'existe qu'en module ESM (import dynamique), et une scène hébergée chez Spline (prod.spline.design) est bloquée par la CSP de l'artefact, d'où l'export local obligatoire.</p>
+  <p class="howto"><b>À faire dans Spline :</b> ouvrir la scène, bouton Export (en haut à droite) → Code → onglet Vanilla JS → Download : le fichier scene.splinecode se télécharge ; le déposer dans assets/ sous ce nom exact. La carte le détecte, importe le runtime depuis unpkg et remplace la capture par la scène vivante. Vérifier dans Spline que la scène n'utilise ni police ni texture hébergée chez Spline (sinon elles seront bloquées par la CSP).</p>
+  <div class="verdict">Verdict : réservé au décor du haut de page si Alexandre veut un vrai objet 3D signature, en acceptant 540 Ko ; pour tout le reste, une capture SVG comme celle ci fait illusion pour 3 Ko.</div>
+</figure>
+<script>
+(function(){
+  var fig=document.querySelector('.lab2[data-tool="spline-embed"]');
+  if(!fig)return;
+  var mock=fig.querySelector('.mock'), canvas=fig.querySelector('.sp-canvas'), stateEl=fig.querySelector('.state');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var RUNTIME='https://unpkg.com/@splinetool/runtime@1.9.0/build/runtime.js';
+  var SCENE='assets/scene.splinecode';
+  var app=null;
+
+  /* Pipeline Spline : le runtime n'existe qu'en ESM. On ne l'importe (import() dynamique, depuis unpkg) que si la scène
+     exportée est présente à côté de la page. Sans scène, zéro octet chargé, la capture SVG tient lieu de décor. */
+  function tryLoadScene(){
+    if(location.protocol==='file:'){ stateEl.textContent='Capture statique : la scène Spline (.splinecode) est à exporter'; return; }
+    var p; try{ p=fetch(SCENE,{method:'HEAD'}); }catch(e){ return; }
+    p.then(function(r){ if(!r.ok) throw new Error('absent'); return import(RUNTIME); })
+     .then(function(mod){
+        app=new mod.Application(canvas);
+        return app.load(SCENE);
+     })
+     .then(function(){ fig.classList.add('has-scene'); stateEl.textContent='Scène Spline chargée (runtime 540 Ko gzip)'; })
+     .catch(function(e){ if(app){ stateEl.textContent='Scène trouvée mais le runtime n\'a pas pu la lire : capture statique'; } });
+  }
+  tryLoadScene();
+
+  function play(){
+    if(app){ try{ app.play(); }catch(e){} return; }
+    mock.classList.remove('in');
+    if(reduce){ mock.classList.add('in'); return; }
+    void mock.offsetWidth;
+    requestAnimationFrame(function(){ mock.classList.add('in'); });
+  }
+  fig.querySelector('.replay').addEventListener('click',play);
+  window.LAB2=window.LAB2||{};
+  window.LAB2["spline-embed"]={play:play};
+})();
+</script>

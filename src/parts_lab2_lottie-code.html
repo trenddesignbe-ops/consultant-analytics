@@ -1,0 +1,118 @@
+<!-- lab2:lottie-code | lib: lottie-web@5.12.2 (build lottie_light, cdnjs) | poids: 47 Ko gzip + JSON généré 0,9 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="lottie-code"] .stage-area{background:#fff}
+.lab2[data-tool="lottie-code"] .scene{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100%,640px);aspect-ratio:640/260;container-type:inline-size}
+.lab2[data-tool="lottie-code"] .lot{position:absolute;inset:0}
+.lab2[data-tool="lottie-code"] .lot svg{position:absolute;inset:0;width:100%;height:100%}
+.lab2[data-tool="lottie-code"] .count{position:absolute;left:47cqw;top:13.75cqw;font:700 8.44cqw/1 var(--body);letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums;transition:color .4s var(--ease)}
+.lab2[data-tool="lottie-code"] .count.good{color:var(--good)}
+.lab2[data-tool="lottie-code"] .lbl{position:absolute;left:47.3cqw;top:23.4cqw;font:500 3.1cqw/1 var(--body);color:var(--ink-2)}
+.lab2[data-tool="lottie-code"] .json-size{position:absolute;right:14px;bottom:10px;font:500 .72rem var(--body);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.lab2[data-tool="lottie-code"] .off-msg{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:var(--ink-3);font:500 .85rem var(--body)}
+</style>
+<figure class="lab2" data-tool="lottie-code">
+  <div class="lab-h"><h3>1 · Lottie écrit en code</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="scene">
+      <div class="lot" aria-label="Une pile de pièces monte de 6 à 10, puis une coche verte : toutes vos ventes sont comptées"></div>
+      <div class="count" aria-hidden="true">6 sur 10</div>
+      <div class="lbl" aria-hidden="true">ventes comptées</div>
+    </div>
+    <div class="json-size"></div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>47 Ko gzip</b></span><span>Lignes<b>≈ 120</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> 6 ventes comptées sur 10, puis 10 sur 10, et une coche verte : toutes vos ventes sont visibles. <b>Ce que l'outil fait de spécial :</b> le fichier Lottie (JSON bodymovin) est écrit à la main dans le script, sans After Effects, avec calques de formes, images clés et easing bézier identiques au reste du site ; il pèse 0,9 Ko gzip (10 Ko bruts) là où un Lottie exporté d'After Effects du même labo pèse 6 Ko gzip pour 60 Ko bruts. <b>Limite :</b> la bibliothèque pèse 47 Ko gzip, 50 fois plus que l'animation, et son texte natif est posé lettre par lettre sans crénage, d'où le compteur gardé en HTML et synchronisé par l'événement enterFrame.</p>
+  <div class="verdict">Verdict : utile si plusieurs animations partagent le même lecteur ; pour une seule, un SVG animé en CSS fait le même travail sans les 47 Ko.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
+<script>
+(function(){
+  var fig=document.querySelector('.lab2[data-tool="lottie-code"]');
+  if(!fig)return;
+  var holder=fig.querySelector('.lot');
+  var sizeEl=fig.querySelector('.json-size');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Easing cubic-bezier(.22,1,.36,1) au format Lottie : o = tangente sortante, i = tangente entrante.
+     Chaque objet est créé à neuf : lottie-web écrit son état dans les objets du JSON, on ne partage rien. */
+  function ezI(){return {x:[0.36],y:[1]};}
+  function ezO(){return {x:[0.22],y:[1]};}
+  var GOOD=[0.086,0.639,0.290,1];
+  var PEACH=[1,0.843,0.769,1], PEACH_DARK=[0.89,0.60,0.47,1];
+
+  function staticK(v){return {a:0,k:v};}
+  function fill(c){return {ty:"fl",c:staticK(c),o:staticK(100),r:1,nm:"fill"};}
+  function stroke(c,w){return {ty:"st",c:staticK(c),o:staticK(100),w:staticK(w),lc:2,lj:2,nm:"stroke"};}
+  function TR(){return {ty:"tr",p:staticK([0,0]),a:staticK([0,0]),s:staticK([100,100]),r:staticK(0),o:staticK(100),sk:staticK(0),sa:staticK(0)};}
+
+  /* Une pièce vue de côté : rectangle arrondi 104 x 16. Les 6 premières sont posées, les 4 suivantes tombent. */
+  function coin(i,ind){
+    var x=170, y=222-(i-1)*15, t0=15+(i-7)*25;
+    var falls=i>6;
+    var p=falls
+      ? {a:1,k:[{t:t0,s:[x,y-70,0],e:[x,y,0],i:ezI(),o:ezO()},{t:t0+22,s:[x,y,0]}]}
+      : staticK([x,y,0]);
+    var o=falls
+      ? {a:1,k:[{t:t0,s:[0],e:[100],i:ezI(),o:ezO()},{t:t0+6,s:[100]}]}
+      : staticK(100);
+    return {ddd:0,ind:ind,ty:4,nm:"piece "+i,sr:1,
+      ks:{o:o,r:staticK(0),p:p,a:staticK([0,0,0]),s:staticK([100,100,100])},ao:0,
+      shapes:[{ty:"gr",nm:"piece",it:[
+        {ty:"rc",d:1,s:staticK([104,16]),p:staticK([0,0]),r:staticK(8),nm:"rect"},
+        fill(PEACH),stroke(PEACH_DARK,1.5),TR()]}],
+      ip:0,op:200,st:0,bm:0};
+  }
+
+  /* Le compteur reste en HTML (Cabin, chiffres tabulaires) et se synchronise sur l'événement enterFrame du lecteur :
+     Lottie pose son texte natif lettre par lettre et perd le crénage, autant garder la typographie du site. */
+  var LANDINGS=[37,62,87,112];
+  var countEl=fig.querySelector('.count');
+  function syncCount(frame){
+    var n=6; for(var k=0;k<LANDINGS.length;k++) if(frame>=LANDINGS[k]) n++;
+    var txt=n+' sur 10';
+    if(countEl.textContent!==txt) countEl.textContent=txt;
+    countEl.classList.toggle('good',n===10);
+  }
+
+  /* Coche verte : le disque apparaît avec un léger rebond, puis le trait se dessine par « trim paths », une spécificité Lottie. */
+  var check={ddd:0,ind:1,ty:4,nm:"coche",sr:1,
+    ks:{o:staticK(100),r:staticK(0),p:staticK([572,130,0]),a:staticK([0,0,0]),
+        s:{a:1,k:[{t:118,s:[0,0,100],e:[112,112,100],i:ezI(),o:ezO()},{t:132,s:[112,112,100],e:[100,100,100],i:ezI(),o:ezO()},{t:142,s:[100,100,100]}]}},ao:0,
+    shapes:[
+      {ty:"gr",nm:"trait",it:[
+        {ty:"sh",d:1,nm:"tick",ks:staticK({i:[[0,0],[0,0],[0,0]],o:[[0,0],[0,0],[0,0]],v:[[-13,1],[-4,10],[14,-9]],c:false})},
+        {ty:"tm",s:staticK(0),e:{a:1,k:[{t:136,s:[0],e:[100],i:ezI(),o:ezO()},{t:160,s:[100]}]},o:staticK(0),m:1,nm:"trim"},
+        stroke([1,1,1,1],5),TR()]},
+      {ty:"gr",nm:"disque",it:[{ty:"el",d:1,s:staticK([58,58]),p:staticK([0,0]),nm:"cercle"},fill(GOOD),TR()]}
+    ],ip:0,op:200,st:0,bm:0};
+
+  var layers=[check];
+  for(var i=10;i>=1;i--)layers.push(coin(i,20-i));
+
+  var animationData={v:"5.12.2",fr:60,ip:0,op:190,w:640,h:260,nm:"ventes comptees",ddd:0,assets:[],
+    layers:layers,markers:[]};
+
+  var json=JSON.stringify(animationData);
+  sizeEl.textContent='JSON généré en code : '+(json.length/1024).toFixed(1).replace('.',',')+' Ko brut, '+animationData.layers.length+' calques';
+
+  var anim=null;
+  if(window.lottie){
+    anim=lottie.loadAnimation({container:holder,renderer:'svg',loop:false,autoplay:false,animationData:animationData,
+      rendererSettings:{preserveAspectRatio:'xMidYMid meet',progressiveLoad:false}});
+    anim.addEventListener('DOMLoaded',function(){ anim.goToAndStop(0,true); syncCount(0); });
+    anim.addEventListener('enterFrame',function(e){ syncCount(anim.currentFrame); });
+  }else{
+    holder.innerHTML='<div class="off-msg">Lecteur Lottie non chargé depuis le CDN. Le JSON de l\'animation est tout de même généré ('+(json.length/1024).toFixed(1)+' Ko).</div>';
+  }
+
+  function play(){
+    if(!anim)return;
+    if(reduce){anim.goToAndStop(animationData.op-1,true);syncCount(animationData.op);return;}
+    anim.stop();
+    anim.goToAndPlay(0,true);
+  }
+  fig.querySelector('.replay').addEventListener('click',play);
+  window.LAB2=window.LAB2||{};
+  window.LAB2["lottie-code"]={play:play};
+})();
+</script>

@@ -1,0 +1,111 @@
+<!-- lab2:echarts | lib: echarts@5.5.1 | poids: 326 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="echarts"] .stage-area{background:#fff}
+.lab2[data-tool="echarts"] .chart{position:absolute;inset:0}
+.lab2[data-tool="echarts"] .chart > div{font-family:var(--body),sans-serif}
+.lab2[data-tool="echarts"] .ec-tip{font-family:var(--body),sans-serif;font-size:13px;line-height:1.45;color:var(--ink);font-variant-numeric:tabular-nums}
+.lab2[data-tool="echarts"] .ec-tip b{font-weight:600}
+.lab2[data-tool="echarts"] .ec-tip .gap{color:var(--warn);font-weight:600}
+.lab2[data-tool="echarts"] .ec-tip .ok{color:var(--good);font-weight:600}
+.lab2[data-tool="echarts"] .ec-tip .row{display:flex;justify-content:space-between;gap:18px}
+.lab2[data-tool="echarts"] .ec-tip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+</style>
+<figure class="lab2" data-tool="echarts">
+  <div class="lab-h"><h3>2 · Apache ECharts</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area"><div class="chart" role="img" aria-label="Google Ads compte 12 ventes, Google Analytics 10 ; après correction les deux courbes se superposent sur 12 ventes"></div></div>
+  <div class="lab-meta"><span>Poids<b>326 Ko gzip</b></span><span>Lignes<b>≈ 110</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> Google Ads dit 12 ventes, Google Analytics en dit 10, les deux courbes s'écartent sur la semaine, puis la correction les fait glisser l'une sur l'autre : un seul chiffre. <b>Ce que l'outil fait de spécial :</b> on ne redessine rien, on envoie de nouvelles données et ECharts fait glisser la courbe existante vers sa nouvelle forme, étiquettes de fin de ligne comprises ; l'infobulle est un vrai bloc HTML, ici avec l'écart calculé, et le graphique se redimensionne seul. <b>Limite :</b> 326 Ko gzip, trente fois le poids de la carte D3 pour deux courbes, et un style par défaut qu'il faut entièrement reprendre.</p>
+  <div class="verdict">Verdict : seulement si le site doit un jour afficher de vrais tableaux de bord interactifs, jamais pour une illustration.</div>
+</figure>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script>
+(function(){
+  var root = document.querySelector('.lab2[data-tool="echarts"]');
+  if (!root || !window.echarts) return;
+  var el = root.querySelector('.chart');
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var chart = null, timers = [], ro = null;
+  var days = ['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'];
+  var ads = [1, 3, 5, 6, 8, 10, 12];
+  var gaBefore = [1, 3, 4, 5, 7, 8, 10];
+  var ACC = '#2E5BFF', WARN = '#E5484D', P4 = '#BFDBFF';
+
+  function tip(params){
+    var a = params[0], g = params[1];
+    if (!a || !g) return '';
+    var diff = a.value - g.value;
+    var line = diff === 0
+      ? '<span class="ok">même chiffre</span>'
+      : '<span class="gap">' + diff + ' vente' + (diff > 1 ? 's' : '') + ' manque' + (diff > 1 ? 'nt' : '') + '</span>';
+    return '<div class="ec-tip"><b>' + a.axisValue + '</b>' +
+      '<div class="row"><span><i class="dot" style="background:' + ACC + '"></i>Google Ads</span><b>' + a.value + '</b></div>' +
+      '<div class="row"><span><i class="dot" style="background:' + g.color + '"></i>Google Analytics</span><b>' + g.value + '</b></div>' +
+      '<div class="row"><span>Écart</span>' + line + '</div></div>';
+  }
+
+  function series(name, id, data, color, fixed){
+    return {
+      id: id, name: name, type: 'line', data: data, smooth: 0.35, symbol: 'circle', symbolSize: 7, showSymbol: false,
+      z: fixed && id === 'ga' ? 1 : 2,
+      lineStyle: { width: fixed && id === 'ga' ? 11 : 3, color: color, opacity: fixed && id === 'ga' ? 0.8 : 1 }, itemStyle: { color: color, borderColor: '#fff', borderWidth: 2 },
+      universalTransition: { enabled: true },
+      endLabel: { show: !(fixed && id === 'ga'), formatter: function(p){ return p.value + ' ventes'; }, fontFamily: 'Cabin', fontSize: 13, fontWeight: 600, color: color, offset: [6, 0] },
+      labelLayout: { moveOverlap: 'shiftY' },
+      areaStyle: fixed ? { opacity: 0 } : { opacity: 0.12, color: color },
+      emphasis: { focus: 'none' }
+    };
+  }
+
+  function option(fixed){
+    var ga = fixed ? ads : gaBefore;
+    return {
+      animationDuration: RM ? 0 : 1300, animationEasing: 'cubicOut',
+      animationDurationUpdate: RM ? 0 : 1000, animationEasingUpdate: 'cubicInOut',
+      textStyle: { fontFamily: 'Cabin' },
+      title: {
+        text: fixed ? 'Un seul chiffre : 12 ventes' : 'Google Ads dit 12, Google Analytics dit 10',
+        subtext: fixed ? 'Les deux outils racontent la même semaine.' : 'Même semaine, même boutique, deux réponses.',
+        left: 18, top: 10,
+        textStyle: { fontFamily: 'Instrument Serif', fontWeight: 400, fontSize: 22, color: '#0B0B0C' },
+        subtextStyle: { fontFamily: 'Cabin', fontSize: 13, color: '#55555C' }
+      },
+      legend: { right: 18, top: 16, icon: 'roundRect', itemWidth: 14, itemHeight: 4, textStyle: { color: '#55555C', fontSize: 12 } },
+      grid: { left: 40, right: 86, top: 72, bottom: 30 },
+      xAxis: { type: 'category', data: days, boundaryGap: false, axisLine: { lineStyle: { color: '#E8E6E3' } }, axisTick: { show: false }, axisLabel: { color: '#8A8A93', fontSize: 11 } },
+      yAxis: { type: 'value', min: 0, max: 14, interval: 7, splitLine: { lineStyle: { color: '#F0EEEB' } }, axisLabel: { color: '#8A8A93', fontSize: 11 } },
+      tooltip: {
+        trigger: 'axis', formatter: tip, backgroundColor: '#fff', borderColor: '#E8E6E3', borderWidth: 1, padding: [10, 12],
+        extraCssText: 'box-shadow:0 12px 32px rgba(60,40,90,.14);border-radius:12px',
+        position: function(pt, params, dom, rect, size){ return [Math.max(8, pt[0] - size.contentSize[0] - 24), 64]; },
+        axisPointer: { type: 'line', lineStyle: { color: '#D9D6E6' } }
+      },
+      series: [
+        series('Google Ads', 'ads', ads, ACC, fixed),
+        series('Google Analytics', 'ga', ga, fixed ? P4 : WARN, fixed)
+      ]
+    };
+  }
+
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function later(fn, ms){ if (RM) return; timers.push(setTimeout(fn, ms)); }
+  function showTip(){ if (chart) chart.dispatchAction({ type: 'showTip', seriesIndex: 0, dataIndex: 6 }); }
+  function hideTip(){ if (chart) chart.dispatchAction({ type: 'hideTip' }); }
+
+  function play(){
+    clearTimers();
+    if (!chart) {
+      chart = echarts.init(el, null, { renderer: 'canvas', useDirtyRect: true });
+      if (window.ResizeObserver) { ro = new ResizeObserver(function(){ chart.resize(); }); ro.observe(el); }
+    }
+    chart.clear();
+    if (RM) { chart.setOption(option(true), true); showTip(); return; }
+    chart.setOption(option(false), true);
+    later(showTip, 1500);
+    later(function(){ hideTip(); chart.setOption(option(true)); }, 2500);
+    later(showTip, 3600);
+  }
+
+  window.LAB2 = window.LAB2 || {};
+  window.LAB2.echarts = { play: play };
+})();
+</script>

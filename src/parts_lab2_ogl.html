@@ -1,0 +1,90 @@
+<!-- lab2:ogl | lib: aucune (WebGL brut ; OGL 1.0.6 n'a pas de build UMD sur unpkg ni jsdelivr, ESM seulement, ≈ 38 Ko gzip via /+esm) | poids: 0 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="ogl"] .sky{position:absolute;inset:0;background:linear-gradient(118deg,#EEF4FF 0%,#F3EEFF 40%,#FFEFF6 72%,#FFF4EC 100%)}
+.lab2[data-tool="ogl"] canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.lab2[data-tool="ogl"] .hud{position:absolute;left:18px;top:16px;font-family:var(--body),sans-serif;color:var(--ink-2);font-size:.86rem;font-weight:500;pointer-events:none}
+.lab2[data-tool="ogl"] .lbl{position:absolute;left:18px;bottom:16px;font-family:var(--body),sans-serif;color:var(--good);font-size:1rem;font-weight:600;opacity:0;transform:translateY(6px);transition:opacity .5s var(--ease),transform .5s var(--ease);pointer-events:none}
+.lab2[data-tool="ogl"] .lbl.on{opacity:1;transform:none}
+.lab2[data-tool="ogl"] .nolib{display:none;position:absolute;inset:0;place-items:center;margin:0;color:var(--ink-3);font:500 .85rem var(--body),sans-serif}
+.lab2[data-tool="ogl"].nolib .nolib{display:grid}
+.lab2[data-tool="ogl"].nolib canvas,.lab2[data-tool="ogl"].nolib .hud,.lab2[data-tool="ogl"].nolib .lbl{display:none}
+</style>
+<figure class="lab2" data-tool="ogl">
+  <div class="lab-h"><h3>4 · WebGL brut (à la place d'OGL)</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="sky"></div>
+    <canvas aria-label="Compteur de ventes en verre pastel qui passe de 6 à 10"></canvas>
+    <div class="hud">vos ventes</div>
+    <div class="lbl">toutes comptées</div>
+    <p class="nolib">WebGL indisponible</p>
+  </div>
+  <div class="lab-meta"><span>Poids<b>0 Ko gzip</b></span><span>Lignes<b>≈ 115</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> le compteur de ventes passe de 6 à 10 : ce que vous voyez rejoint enfin ce que vous vendez. <b>Ce que l'outil fait de spécial :</b> OGL 1.0.6 n'existe qu'en module ESM (pas de fichier UMD sur unpkg ni jsdelivr), la carte est donc écrite en WebGL brut, zéro bibliothèque : 26 tranches d'un seul quad font l'extrusion, le relief et les reflets viennent d'une carte de hauteur dessinée en canvas, et le passage d'un chiffre à l'autre est un morphing entre deux cartes. <b>Limite :</b> sans moteur, chaque effet (caméra, lumière, texte) se code à la main, ce qui plafonne vite la complexité.</p>
+  <div class="verdict">Verdict : parfait pour un compteur « héros » unique et très léger ; au delà d'un objet, repasser sur Three.js ou charger OGL en module.</div>
+</figure>
+<script>
+(function(){
+  const fig=document.querySelector('.lab2[data-tool="ogl"]'); if(!fig) return;
+  window.LAB2=window.LAB2||{};
+  const stage=fig.querySelector('.stage-area'), c=fig.querySelector('canvas'), lbl=fig.querySelector('.lbl');
+  const gl=c.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:true});
+  if(!gl){ fig.classList.add('nolib'); window.LAB2.ogl={play(){}}; return; }
+  const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bez=(x1,y1,x2,y2)=>{ const f=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t; return x=>{ if(x<=0) return 0; if(x>=1) return 1; let lo=0,hi=1,t=x; for(let i=0;i<14;i++){ t=(lo+hi)/2; if(f(x1,x2,t)<x) lo=t; else hi=t; } return f(y1,y2,t); }; };
+  const ease=bez(.22,1,.36,1), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), seg=(e,a,b)=>clamp((e-a)/(b-a),0,1);
+  /* --- shaders --- */
+  const VS=`attribute vec2 aPos;uniform mat4 uMVP;uniform vec2 uHalf;uniform float uZ;varying vec2 vUv;
+    void main(){vUv=aPos*0.5+0.5;gl_Position=uMVP*vec4(aPos.x*uHalf.x,aPos.y*uHalf.y,uZ,1.0);}`;
+  const FS=`precision highp float;uniform sampler2D uA,uB;uniform float uMix,uFront,uDepth;uniform mat3 uNrm;uniform vec2 uTexel;varying vec2 vUv;
+    float H(vec2 uv){return mix(texture2D(uA,uv).r,texture2D(uB,uv).r,uMix);}
+    void main(){float h=H(vUv);float a=smoothstep(0.44,0.52,h);if(a<0.01)discard;
+      vec3 base=mix(vec3(0.80,0.73,1.0),vec3(1.0,0.73,0.89),vUv.x);base=mix(base,vec3(0.75,0.86,1.0),vUv.y*0.45);
+      if(uFront<0.5){float al=a*0.5;vec3 col=base*(0.95-0.35*uDepth);gl_FragColor=vec4(col*al,al);return;}
+      float hx=H(vUv+vec2(uTexel.x,0.0))-H(vUv-vec2(uTexel.x,0.0));float hy=H(vUv+vec2(0.0,uTexel.y))-H(vUv-vec2(0.0,uTexel.y));
+      float plateau=smoothstep(0.56,0.86,h);vec3 n=normalize(uNrm*normalize(vec3(-hx*16.0*(1.0-plateau),-hy*16.0*(1.0-plateau),1.0)));
+      vec3 v=vec3(0.0,0.0,1.0);float fres=pow(1.0-max(dot(n,v),0.0),3.0);vec3 r=reflect(-v,n);
+      vec3 env=mix(vec3(1.0,0.86,0.78),vec3(1.0),smoothstep(-0.3,0.5,r.y));env=mix(env,vec3(0.80,0.73,1.0),smoothstep(0.2,0.9,r.y));env=mix(env,vec3(0.75,0.86,1.0),smoothstep(0.0,0.8,r.x)*0.5);
+      vec3 l1=normalize(vec3(0.5,0.8,0.7)),l2=normalize(vec3(-0.7,0.25,0.5));
+      float sp=pow(max(dot(reflect(-l1,n),v),0.0),56.0)*0.9+pow(max(dot(reflect(-l2,n),v),0.0),28.0)*0.35;
+      float diff=0.78+0.22*max(dot(n,l1),0.0);vec3 col=mix(base*diff,env,0.38+fres*0.45)+sp;
+      float al=a*(0.82+fres*0.18);gl_FragColor=vec4(col*al,al);}`;
+  const sh=(t,s)=>{ const o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o); if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+  const prog=gl.createProgram(); gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS)); gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS)); gl.linkProgram(prog); gl.useProgram(prog);
+  const U={}; ['uMVP','uHalf','uZ','uA','uB','uMix','uFront','uDepth','uNrm','uTexel'].forEach(n=>U[n]=gl.getUniformLocation(prog,n));
+  const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW); const aPos=gl.getAttribLocation(prog,'aPos'); gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos,2,gl.FLOAT,false,0,0);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.DEPTH_TEST);
+  /* --- cartes de hauteur des chiffres 6..10 (canvas + flou séparable) --- */
+  const TW=512,TH=256, tc=document.createElement('canvas'), tctx=tc.getContext('2d'); tc.width=TW; tc.height=TH;
+  function heightMap(txt){ tctx.fillStyle='#000'; tctx.fillRect(0,0,TW,TH); tctx.fillStyle='#fff'; tctx.font='600 330px Cabin, sans-serif'; tctx.textAlign='center'; tctx.textBaseline='middle'; tctx.fillText(txt,TW/2,TH/2+6);
+    const img=tctx.getImageData(0,0,TW,TH).data, src=new Float32Array(TW*TH), tmp=new Float32Array(TW*TH); for(let i=0;i<TW*TH;i++) src[i]=img[i*4]/255;
+    const R=7; for(let pass=0;pass<3;pass++){ for(let y=0;y<TH;y++){ let s=0; const row=y*TW; for(let x=-R;x<=R;x++) s+=src[row+clamp(x,0,TW-1)]; for(let x=0;x<TW;x++){ tmp[row+x]=s/(2*R+1); s+=src[row+clamp(x+R+1,0,TW-1)]-src[row+clamp(x-R,0,TW-1)]; } }
+      for(let x=0;x<TW;x++){ let s=0; for(let y=-R;y<=R;y++) s+=tmp[clamp(y,0,TH-1)*TW+x]; for(let y=0;y<TH;y++){ src[y*TW+x]=s/(2*R+1); s+=tmp[clamp(y+R+1,0,TH-1)*TW+x]-tmp[clamp(y-R,0,TH-1)*TW+x]; } } }
+    const out=new Uint8Array(TW*TH*4); for(let i=0;i<TW*TH;i++){ const v=Math.round(clamp(src[i]*1.15,0,1)*255); out[i*4]=out[i*4+1]=out[i*4+2]=v; out[i*4+3]=255; } return out; }
+  const NUMS=['6','7','8','9','10'], texs=NUMS.map(()=>gl.createTexture());
+  function buildTextures(){ gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true); NUMS.forEach((n,i)=>{ gl.bindTexture(gl.TEXTURE_2D,texs[i]); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,TW,TH,0,gl.RGBA,gl.UNSIGNED_BYTE,heightMap(n)); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE); }); }
+  buildTextures();
+  /* --- maths 4x4 minimales --- */
+  const persp=(fov,a,n,f)=>{ const t=1/Math.tan(fov/2); return [t/a,0,0,0, 0,t,0,0, 0,0,(f+n)/(n-f),-1, 0,0,2*f*n/(n-f),0]; };
+  const mul=(A,B)=>{ const o=new Array(16).fill(0); for(let i=0;i<4;i++)for(let j=0;j<4;j++)for(let k=0;k<4;k++) o[j*4+i]+=A[k*4+i]*B[j*4+k]; return o; };
+  const rotY=a=>[Math.cos(a),0,-Math.sin(a),0, 0,1,0,0, Math.sin(a),0,Math.cos(a),0, 0,0,0,1];
+  const rotX=a=>[1,0,0,0, 0,Math.cos(a),Math.sin(a),0, 0,-Math.sin(a),Math.cos(a),0, 0,0,0,1];
+  const trs=(x,y,z,s)=>[s,0,0,0, 0,s,0,0, 0,0,s,0, x,y,z,1];
+  const SLICES=26, DEPTH=.6, HALF=[2.8,1.4];
+  const T={steps:[[.5,.95],[1.1,1.55],[1.7,2.15],[2.3,2.75]],lbl:2.9,end:4.4};
+  function fit(){ const b=stage.getBoundingClientRect(); const k=Math.min(2,devicePixelRatio||1); const W=Math.round(b.width*k),H=Math.round(b.height*k); if(c.width!==W||c.height!==H){ c.width=W; c.height=H; } gl.viewport(0,0,W,H); return W/H; }
+  function render(e){ const a=fit(); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+    let idx=0, mix=0, pulse=0; T.steps.forEach((s,i)=>{ const k=seg(e,s[0],s[1]); if(k>0){ idx=i; mix=ease(k); pulse=Math.max(pulse,Math.sin(k*Math.PI)); } }); if(e>=T.steps[3][1]){ idx=4; mix=0; }
+    const ry=Math.sin(e*.9)*.3-.1, rx=-.14, sc=1+pulse*.07;
+    const model=mul(trs(.45,.05,0,sc),mul(rotY(ry),rotX(rx))); const view=trs(0,0,-7,1); const P=persp(32*Math.PI/180,a,.1,50); const mvp=mul(P,mul(view,model));
+    const nrm=[model[0]/sc,model[1]/sc,model[2]/sc, model[4]/sc,model[5]/sc,model[6]/sc, model[8]/sc,model[9]/sc,model[10]/sc];
+    gl.uniformMatrix4fv(U.uMVP,false,new Float32Array(mvp)); gl.uniformMatrix3fv(U.uNrm,false,new Float32Array(nrm)); gl.uniform2f(U.uHalf,HALF[0],HALF[1]); gl.uniform2f(U.uTexel,1.5/TW,1.5/TH);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,texs[idx]); gl.uniform1i(U.uA,0); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,texs[Math.min(4,idx+1)]); gl.uniform1i(U.uB,1); gl.uniform1f(U.uMix,mix);
+    for(let k=SLICES-1;k>=0;k--){ gl.uniform1f(U.uZ,-k*DEPTH/SLICES); gl.uniform1f(U.uFront,k===0?1:0); gl.uniform1f(U.uDepth,k/SLICES); gl.drawArrays(gl.TRIANGLE_STRIP,0,4); }
+    lbl.classList.toggle('on',e>=T.lbl); }
+  let raf=null,last=0,e=0;
+  function loop(now){ e+=Math.min(.05,(now-last)/1000); last=now; render(Math.min(e,T.end)); if(e<T.end) raf=requestAnimationFrame(loop); else raf=null; }
+  const ready=(document.fonts&&document.fonts.load)?document.fonts.load('600 330px Cabin').catch(()=>{}):Promise.resolve();
+  render(0); ready.then(()=>{ buildTextures(); render(e); });
+  window.LAB2.ogl={ play(){ if(raf) cancelAnimationFrame(raf); raf=null; if(REDUCED){ e=T.end; render(e); return; } e=0; last=performance.now(); raf=requestAnimationFrame(loop); } };
+})();
+</script>

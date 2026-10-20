@@ -1,0 +1,86 @@
+<!-- lab2:curtains | lib: curtainsjs@8.1.6 | poids: 68 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="curtains"] .sky{position:absolute;inset:0;background:linear-gradient(118deg,#EEF4FF 0%,#F3EEFF 40%,#FFEFF6 72%,#FFF4EC 100%)}
+.lab2[data-tool="curtains"] .plane{position:absolute;inset:0}
+.lab2[data-tool="curtains"] .plane canvas{display:none}
+.lab2[data-tool="curtains"] .stage-area>canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:ew-resize}
+.lab2[data-tool="curtains"] .cap{position:absolute;z-index:2;top:12px;font-family:var(--body),sans-serif;font-size:.8rem;font-weight:500;color:var(--ink-3);pointer-events:none;transition:opacity .4s var(--ease)}
+.lab2[data-tool="curtains"] .cap.av{right:16px}
+.lab2[data-tool="curtains"] .cap.ap{left:16px;color:var(--good)}
+.lab2[data-tool="curtains"] .nolib{display:none;position:absolute;inset:0;place-items:center;margin:0;color:var(--ink-3);font:500 .85rem var(--body),sans-serif}
+.lab2[data-tool="curtains"].nolib .nolib{display:grid}
+.lab2[data-tool="curtains"].nolib .plane,.lab2[data-tool="curtains"].nolib .cap{display:none}
+</style>
+<figure class="lab2" data-tool="curtains">
+  <div class="lab-h"><h3>6 · curtains.js, déformation</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="sky"></div>
+    <div class="plane" aria-label="Un rapport illisible se transforme en rapport clair, curseur de comparaison qui suit la souris">
+      <canvas data-sampler="uA"></canvas><canvas data-sampler="uB"></canvas><canvas data-sampler="uD"></canvas>
+    </div>
+    <span class="cap av">avant</span><span class="cap ap">après</span>
+    <p class="nolib">curtains.js non chargé</p>
+  </div>
+  <div class="lab-meta"><span>Poids<b>68 Ko gzip</b></span><span>Lignes<b>≈ 100</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> le rapport illisible de 40 pages devient trois chiffres lisibles ; déplacez la souris pour comparer avant et après. <b>Ce que l'outil fait de spécial :</b> curtains.js colle un plan WebGL sur un élément HTML ordinaire (taille, position et textures issues de canvas ou d'images du DOM), et laisse écrire le fragment shader soi même : ici une déformation par carte de bruit concentrée sur la ligne de séparation. Ses helpers souris (mouseToPlaneCoords) et son rendu à la demande sont pensés pour les sites, pas pour les jeux. <b>Limite :</b> un seul plan, pas de 3D réelle, et les images restent des pixels (texte non sélectionnable).</p>
+  <div class="verdict">Verdict : le meilleur rapport poids / effet pour un bloc « avant / après » interactif sur la page d'accueil.</div>
+</figure>
+<script src="https://cdn.jsdelivr.net/npm/curtainsjs@8.1.6/dist/curtains.umd.js"></script>
+<script>
+(function(){
+  const fig=document.querySelector('.lab2[data-tool="curtains"]'); if(!fig) return;
+  window.LAB2=window.LAB2||{};
+  const stage=fig.querySelector('.stage-area'), planeEl=fig.querySelector('.plane'), [cA,cB,cD]=planeEl.querySelectorAll('canvas');
+  if(!window.Curtains||!window.Plane){ fig.classList.add('nolib'); window.LAB2.curtains={play(){}}; return; }
+  const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const bez=(x1,y1,x2,y2)=>{ const f=(a,b,t)=>3*a*(1-t)*(1-t)*t+3*b*(1-t)*t*t+t*t*t; return x=>{ if(x<=0) return 0; if(x>=1) return 1; let lo=0,hi=1,t=x; for(let i=0;i<14;i++){ t=(lo+hi)/2; if(f(x1,x2,t)<x) lo=t; else hi=t; } return f(y1,y2,t); }; };
+  const ease=bez(.22,1,.36,1), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), seg=(e,a,b)=>clamp((e-a)/(b-a),0,1);
+  const fmt=n=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  let seed=3; const rnd=()=>{ seed=(seed*1664525+1013904223)>>>0; return seed/4294967296; };
+  const dpr=Math.min(2,devicePixelRatio||1);
+  /* --- textures dessinées en canvas --- */
+  function paper(ctx,W,H){ ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,W,H); }
+  function drawA(){ const b=stage.getBoundingClientRect(); const W=Math.round(b.width*dpr), H=Math.round(b.height*dpr); cA.width=W; cA.height=H; const x=cA.getContext('2d'); paper(x,W,H); const k=dpr; seed=3;
+    if('filter' in x) x.filter='blur('+(1.4*k)+'px)';
+    x.fillStyle='#C9C7CF'; x.fillRect(18*k,16*k,120*k,12*k); x.fillStyle='#DDDBE2'; x.fillRect(150*k,18*k,60*k,8*k);
+    const cols=[18,0.52]; for(let col=0;col<2;col++){ const x0=(col===0?18:b.width*.52)*k; const cw=(b.width*.44)*k; for(let i=0;i<13;i++){ const y=(40+i*15)*k; const w=cw*(.55+rnd()*.45); x.fillStyle=i%5===0?'#CFCDD6':'#E3E1E8'; x.fillRect(x0,y,w,7*k); } }
+    for(let r=0;r<4;r++) for(let c2=0;c2<5;c2++){ x.fillStyle=(r+c2)%2?'#ECEBF0':'#E0DEE6'; x.fillRect((18+c2*44)*k,(b.height-62+r*12)*k,40*k,9*k); }
+    if('filter' in x) x.filter='none'; }
+  function drawB(){ const b=stage.getBoundingClientRect(); const W=Math.round(b.width*dpr), H=Math.round(b.height*dpr); cB.width=W; cB.height=H; const x=cB.getContext('2d'); paper(x,W,H); const k=dpr;
+    const items=[[fmt(12847)+' €','ventes'],['38','demandes de devis'],['4,2 ×','retour sur pub']]; const colW=b.width/3;
+    items.forEach((it,i)=>{ const cx=(colW*i+colW/2)*k; x.textAlign='center'; x.fillStyle=i===0?'#2E5BFF':'#0B0B0C'; x.font='600 '+Math.round(Math.min(46,colW*.19)*k)+'px Cabin, sans-serif'; x.fillText(it[0],cx,(b.height*.5+4)*k); x.fillStyle='#55555C'; x.font='500 '+Math.round(15*k)+'px Cabin, sans-serif'; x.fillText(it[1],cx,(b.height*.5+32)*k); }); }
+  function drawD(){ cD.width=256; cD.height=128; const x=cD.getContext('2d'); x.fillStyle='#808080'; x.fillRect(0,0,256,128); seed=9; for(let i=0;i<40;i++){ const px=rnd()*256, py=rnd()*128, r=12+rnd()*40, v=rnd()>.5?255:0; const g=x.createRadialGradient(px,py,0,px,py,r); g.addColorStop(0,'rgba('+v+','+v+','+v+',.55)'); g.addColorStop(1,'rgba('+v+','+v+','+v+',0)'); x.fillStyle=g; x.fillRect(0,0,256,128); } }
+  drawA(); drawB(); drawD();
+  /* --- curtains --- */
+  const curtains=new Curtains({container:stage,pixelRatio:dpr,autoRender:false,watchScroll:false,alpha:true,premultipliedAlpha:false});
+  const VS=`precision mediump float;attribute vec3 aVertexPosition;attribute vec2 aTextureCoord;uniform mat4 uMVMatrix;uniform mat4 uPMatrix;varying vec2 vUv;
+    void main(){vUv=aTextureCoord;gl_Position=uPMatrix*uMVMatrix*vec4(aVertexPosition,1.0);}`;
+  const FS=`precision mediump float;varying vec2 vUv;uniform sampler2D uA,uB,uD;uniform float uSplit,uPx;
+    void main(){vec2 uv=vUv;float d=texture2D(uD,uv).r-0.5;float x=uv.x-uSplit;float w=0.16;
+      float t=smoothstep(-w,w,x);float band=t*(1.0-t)*4.0;vec2 off=vec2(d*0.14,d*0.08)*band;
+      vec4 a=texture2D(uA,clamp(uv+off,0.0,1.0));vec4 b=texture2D(uB,clamp(uv-off,0.0,1.0));
+      vec4 col=mix(b,a,t);
+      float line=1.0-smoothstep(0.0,uPx*1.6,abs(x));float shade=(1.0-smoothstep(0.0,uPx*14.0,abs(x)))*0.10;
+      col.rgb=mix(col.rgb,vec3(0.80,0.73,1.0),shade);col.rgb=mix(col.rgb,vec3(0.18,0.36,1.0),line*0.9);
+      gl_FragColor=col;}`;
+  const plane=new Plane(curtains,planeEl,{vertexShader:VS,fragmentShader:FS,uniforms:{uSplit:{name:'uSplit',type:'1f',value:0},uPx:{name:'uPx',type:'1f',value:1/680}}});
+  if(!plane){ fig.classList.add('nolib'); window.LAB2.curtains={play(){}}; return; }
+  curtains.onError(()=>{ fig.classList.add('nolib'); });
+  plane.onReady(()=>{ plane.textures.forEach(t=>{ t.shouldUpdate=false; t.needUpdate(); }); plane.uniforms.uPx.value=1/Math.max(2,stage.getBoundingClientRect().width); });
+  function refreshTextures(){ drawA(); drawB(); plane.textures.forEach(t=>t.needUpdate()); plane.uniforms.uPx.value=1/Math.max(2,stage.getBoundingClientRect().width); }
+  const T={s0:.2,s1:2.6,end:3.0};
+  let raf=null,last=0,e=0,split=0,target=null,auto=true;
+  function loop(now){ e+=Math.min(.05,(now-last)/1000); last=now;
+    if(auto){ split=-.18+1.36*ease(seg(e,T.s0,T.s1)); if(e>=T.end) auto=false; }
+    else if(target!==null){ split+=(target-split)*.18; if(Math.abs(target-split)<.0015) split=target; }
+    plane.uniforms.uSplit.value=split; curtains.render();
+    const still=!auto&&(target===null||split===target); if(still) raf=null; else raf=requestAnimationFrame(loop); }
+  const start=()=>{ if(!raf){ last=performance.now(); raf=requestAnimationFrame(loop); } };
+  stage.addEventListener('pointermove',ev=>{ if(auto) return; const b=stage.getBoundingClientRect(); target=-.18+1.36*clamp((ev.clientX-b.left)/b.width,0,1); start(); },{passive:true});
+  const ready=(document.fonts&&document.fonts.load)?document.fonts.load('600 46px Cabin').catch(()=>{}):Promise.resolve();
+  ready.then(()=>{ refreshTextures(); curtains.render(); });
+  window.LAB2.curtains={ play(){ if(raf) cancelAnimationFrame(raf); raf=null; refreshTextures(); target=null;
+    if(REDUCED){ auto=false; split=1.18; plane.uniforms.uSplit.value=1.18; curtains.render(); return; }
+    e=0; split=-.18; auto=true; start(); } };
+})();
+</script>

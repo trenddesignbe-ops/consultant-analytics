@@ -1,0 +1,85 @@
+<!-- lab2:svg-morph | lib: flubber@0.4.2 (unpkg) + gsap@3.12.5 (cdnjs) | poids: 18 Ko + 28 Ko = 46 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="svg-morph"] .stage-area{background:#fff}
+.lab2[data-tool="svg-morph"] svg{position:absolute;inset:0;width:100%;height:100%}
+.lab2[data-tool="svg-morph"] text{font-family:var(--body),sans-serif;font-variant-numeric:tabular-nums}
+.lab2[data-tool="svg-morph"] .off-msg{position:absolute;inset:0;display:grid;place-items:center;padding:20px;text-align:center;color:var(--ink-3);font:500 .85rem var(--body)}
+</style>
+<figure class="lab2" data-tool="svg-morph">
+  <div class="lab-h"><h3>4 · Morphing SVG (flubber + GSAP)</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <svg viewBox="0 0 640 260" preserveAspectRatio="xMidYMid meet" aria-label="Un graphique cassé avec un point d'exclamation se transforme en courbe propre avec une coche">
+      <defs><clipPath id="lab2MorphClip"><rect x="24" y="20" width="302" height="184"/></clipPath></defs>
+      <g clip-path="url(#lab2MorphClip)">
+        <path class="area" fill="#E5484D" fill-opacity=".16" stroke="#E5484D" stroke-width="3" stroke-linejoin="round" d=""/>
+      </g>
+      <circle class="halo" cx="400" cy="110" r="52" fill="#E5484D" fill-opacity=".14"/>
+      <path class="pict" fill="#E5484D" d=""/>
+      <text class="cap cap-before" x="30" y="240" font-size="17" font-weight="500" fill="#55555C">Google Ads dit 12, Google Analytics dit 10</text>
+      <text class="cap cap-after" x="30" y="240" font-size="17" font-weight="500" fill="#16A34A" opacity="0">Un seul chiffre, le vrai : 10 ventes</text>
+      <text class="n n-before" x="470" y="118" font-size="30" font-weight="700" fill="#E5484D" text-anchor="start">12 ou 10 ?</text>
+      <text class="n n-after" x="470" y="118" font-size="30" font-weight="700" fill="#16A34A" text-anchor="start" opacity="0">10</text>
+    </svg>
+  </div>
+  <div class="lab-meta"><span>Poids<b>46 Ko gzip</b></span><span>Lignes<b>≈ 85</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> Google Ads dit 12, Google Analytics dit 10 ; le graphique cassé devient une courbe propre et le point d'exclamation une coche : un seul chiffre, le vrai. <b>Ce que l'outil fait de spécial :</b> flubber interpole des tracés de topologies différentes (une ligne brisée de 10 points vers une courbe lisse, et deux formes vers une seule avec combine), ce que ni CSS ni SMIL ne savent faire sans le même nombre de points ; GSAP cadence le tout dans une timeline rejouable avec le même easing. <b>Limite :</b> flubber travaille sur des formes fermées (il échantillonne les courbes en polygones), donc une ligne ouverte se simule avec une aire et un masque.</p>
+  <div class="verdict">Verdict : parfait pour un pictogramme « avant / après » qui se transforme sous les yeux du client ; inutile pour de simples apparitions, où CSS suffit.</div>
+</figure>
+<script src="https://unpkg.com/flubber@0.4.2/build/flubber.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  var fig=document.querySelector('.lab2[data-tool="svg-morph"]');
+  if(!fig)return;
+  var stage=fig.querySelector('.stage-area');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!window.flubber||!window.gsap){
+    stage.innerHTML='<div class="off-msg">flubber ou GSAP non chargé depuis le CDN : démo indisponible.</div>';
+    window.LAB2=window.LAB2||{}; window.LAB2["svg-morph"]={play:function(){}}; return;
+  }
+  var area=fig.querySelector('.area'), pict=fig.querySelector('.pict'), halo=fig.querySelector('.halo');
+  var capB=fig.querySelector('.cap-before'), capA=fig.querySelector('.cap-after');
+  var nB=fig.querySelector('.n-before'), nA=fig.querySelector('.n-after');
+
+  /* Aire « cassée » (10 points, ligne brisée) et aire « propre » (courbe lisse, 8 points) : nombres de points différents.
+     Les bords gauche, droit et bas dépassent le masque : seule l'arête du haut est visible, elle joue le rôle de la ligne. */
+  var broken='M10,230 L10,150 L60,120 L110,175 L160,95 L210,185 L260,70 L300,150 L340,110 L340,230 Z';
+  var clean='M10,230 L10,185 C60,182 110,170 150,160 C200,146 250,110 290,80 C310,66 328,58 340,55 L340,230 Z';
+  function circlePath(cx,cy,r){ var pts=[]; for(var i=0;i<16;i++){ var a=i/16*Math.PI*2; pts.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]); } return pts; }
+  var bar='M388,62 L412,62 L408,128 L392,128 Z';
+  var dot=circlePath(400,146,11);
+  var check='M372,110 L390,128 L432,82 L422,72 L390,108 L382,100 Z';
+
+  var areaInterp=flubber.interpolate(broken,clean,{maxSegmentLength:3});
+  var pictInterp=flubber.combine([bar,dot],check,{maxSegmentLength:3,single:true});
+
+  var state={a:0,p:0};
+  function renderArea(){ area.setAttribute('d',areaInterp(state.a)); }
+  function renderPict(){ pict.setAttribute('d',pictInterp(state.p)); }
+  renderArea(); renderPict();
+
+  var WARN='#E5484D', GOOD='#16A34A';
+  var tl=gsap.timeline({paused:true,defaults:{ease:'power3.out'}});
+  tl.set(state,{a:0,p:0})
+    .set([area],{attr:{fill:WARN,stroke:WARN}})
+    .set([pict,halo],{attr:{fill:WARN}})
+    .set([capB,nB],{attr:{opacity:1}})
+    .set([capA,nA],{attr:{opacity:0}})
+    .to(state,{a:1,duration:1.3,onUpdate:renderArea},0.3)
+    .to(area,{attr:{fill:GOOD,stroke:GOOD},duration:1.0},0.5)
+    .to(state,{p:1,duration:0.8,onUpdate:renderPict},1.6)
+    .to([pict,halo],{attr:{fill:GOOD},duration:0.6},1.7)
+    .to(nB,{attr:{opacity:0},duration:0.3},1.6)
+    .to(nA,{attr:{opacity:1},duration:0.4},1.9)
+    .to(capB,{attr:{opacity:0},duration:0.3},2.4)
+    .to(capA,{attr:{opacity:1},duration:0.4},2.6);
+
+  function play(){
+    if(reduce){ tl.pause(); tl.progress(1); return; }
+    tl.restart();
+  }
+  fig.querySelector('.replay').addEventListener('click',play);
+  window.LAB2=window.LAB2||{};
+  window.LAB2["svg-morph"]={play:play};
+})();
+</script>

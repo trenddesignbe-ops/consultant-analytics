@@ -1,0 +1,110 @@
+/* ---------- LEARN A · attribution windows ---------- */
+(function(){
+  const svg=document.getElementById('attrSvg'); if(!svg) return;
+  const axis=document.getElementById('attrAxis'), rows=document.getElementById('attrRows'), out=document.getElementById('attrOut');
+  const X0=60, X1=600, DAYS=90; const dx=d=>X0+(d/DAYS)*(X1-X0);
+  const CONV=[1,2,3,5,8,12,19,27,34,41,58,77];
+  const win={ga4:90, ads:30};
+  // axis
+  let a='<line x1="'+X0+'" y1="200" x2="'+X1+'" y2="200" stroke="#8A8A93" stroke-width="1.5" marker-end="url(#arr)"/>';
+  [0,30,60,90].forEach(d=>{ a+='<line x1="'+dx(d)+'" y1="196" x2="'+dx(d)+'" y2="204" stroke="#8A8A93"/><text x="'+dx(d)+'" y="222" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#8A8A93">J+'+d+'</text>'; });
+  a+='<g transform="translate('+X0+',200)"><circle r="7" fill="#0B0B0C"/><text x="0" y="-14" text-anchor="middle" font-family="Cabin,sans-serif" font-size="11" fill="#0B0B0C" font-weight="600">clic sur l\'annonce</text></g>';
+  axis.innerHTML=a;
+  const ROWS=[{k:'ga4',y:60,label:'GA4',sub:'compte au jour de l\'achat'},{k:'ads',y:140,label:'Google Ads',sub:'compte au jour du clic'}];
+  let r='';
+  ROWS.forEach(row=>{
+    r+='<text x="8" y="'+(row.y-18)+'" font-family="Cabin,sans-serif" font-size="13" font-weight="600" fill="#0B0B0C">'+row.label+'</text><text x="8" y="'+(row.y-4)+'" font-family="Cabin,sans-serif" font-size="10" fill="#8A8A93">'+row.sub+'</text>';
+    r+='<rect class="win" data-k="'+row.k+'" x="'+X0+'" y="'+(row.y+6)+'" width="'+(dx(win[row.k])-X0)+'" height="22" rx="11" fill="rgba(46,91,255,.12)" stroke="rgba(46,91,255,.4)"/>';
+    r+='<text class="wlab" data-k="'+row.k+'" x="'+(dx(win[row.k])-6)+'" y="'+(row.y+21)+'" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#2E5BFF">fenêtre '+win[row.k]+' j</text>';
+    CONV.forEach((d,i)=>{ r+='<circle class="conv" data-k="'+row.k+'" data-d="'+d+'" cx="'+dx(d)+'" cy="'+(row.y+17)+'" r="6" fill="#2E5BFF" stroke="#fff" stroke-width="2"/>'; });
+    r+='<text class="cnt" data-k="'+row.k+'" x="'+(X1+8)+'" y="'+(row.y+22)+'" font-family="JetBrains Mono,monospace" font-size="18" font-weight="600" fill="#0B0B0C">0</text>';
+  });
+  rows.innerHTML=r;
+  const shown={ga4:0,ads:0};
+  function render(){
+    ROWS.forEach(row=>{ const w=win[row.k]; const rect=svg.querySelector('.win[data-k='+row.k+']'), lab=svg.querySelector('.wlab[data-k='+row.k+']');
+      if(hasGsap&&!REDUCED){ gsap.to(rect,{attr:{width:dx(w)-X0},duration:.5,ease:'power4.out'}); gsap.to(lab,{attr:{x:dx(w)-6},duration:.5,ease:'power4.out'}); } else { rect.setAttribute('width',dx(w)-X0); lab.setAttribute('x',dx(w)-6); }
+      lab.textContent='fenêtre '+w+' j';
+      let n=0; svg.querySelectorAll('.conv[data-k='+row.k+']').forEach(c=>{ const inside=+c.dataset.d<=w; if(inside) n++; c.setAttribute('fill', inside?'#2E5BFF':'#fff'); c.setAttribute('stroke', inside?'#fff':'#B5B5BD'); });
+      const cnt=svg.querySelector('.cnt[data-k='+row.k+']'); const from=shown[row.k]; shown[row.k]=n; tween(500,0,e=>{ cnt.textContent=Math.round(from+(n-from)*e); });
+    });
+    const g=CONV.filter(d=>d<=win.ga4).length, ad=CONV.filter(d=>d<=win.ads).length;
+    out.innerHTML='Sur <b>12</b> achats, GA4 en attribue <b>'+g+'</b> à votre annonce et Google Ads <b>'+ad+'</b>. '+(g===ad?'Les deux sont d\'accord, ce qui n\'arrive presque jamais avec les réglages par défaut.':'Écart de <b>'+Math.abs(g-ad)+'</b>, sans aucune erreur de tracking : juste deux fenêtres différentes. Et Google Ads inscrit ces achats au jour du clic, GA4 au jour de l\'achat, donc vos rapports mensuels divergent encore.');
+  }
+  document.querySelectorAll('#learnAttr .seg').forEach(seg=>{ seg.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed', x===b)); win[seg.dataset.seg]=+b.dataset.v; render(); }); });
+  onceInView(document.getElementById('learnAttr'), render, 0.2);
+})();
+
+/* ---------- LEARN B · consent mode ---------- */
+(function(){
+  const svg=document.getElementById('consSvg'); if(!svg) return;
+  const dots=document.getElementById('consDots'), bars=document.getElementById('consBars'), out=document.getElementById('consOut'), range=document.getElementById('refuse'), rv=document.getElementById('refuseVal');
+  let d=''; for(let i=0;i<100;i++){ const x=24+(i%10)*20, y=24+Math.floor(i/10)*20; d+='<circle class="dot" data-i="'+i+'" cx="'+x+'" cy="'+y+'" r="6" fill="#2E5BFF" style="transition-delay:'+(i*4)+'ms"/>'; }
+  d+='<text x="24" y="232" font-family="Cabin,sans-serif" font-size="11" fill="#8A8A93">100 visiteurs qui achètent</text>';
+  dots.innerHTML=d;
+  const BX=260, BW=360;
+  bars.innerHTML=
+    '<text x="'+BX+'" y="40" font-family="Cabin,sans-serif" font-size="13" font-weight="600" fill="#0B0B0C">Sans Consent Mode</text><text x="'+BX+'" y="56" font-family="Cabin,sans-serif" font-size="10" fill="#8A8A93">conversions visibles dans GA4</text>'+
+    '<rect x="'+BX+'" y="64" width="'+BW+'" height="26" rx="13" fill="#EDEAE6"/><rect id="bNo" x="'+BX+'" y="64" width="'+BW+'" height="26" rx="13" fill="#2E5BFF"/><text id="tNo" x="'+(BX+BW+8)+'" y="83" font-family="JetBrains Mono,monospace" font-size="16" font-weight="600" fill="#0B0B0C">100</text>'+
+    '<text x="'+BX+'" y="140" font-family="Cabin,sans-serif" font-size="13" font-weight="600" fill="#0B0B0C">Avec Consent Mode v2</text><text x="'+BX+'" y="156" font-family="Cabin,sans-serif" font-size="10" fill="#8A8A93">observées + modélisées par Google</text>'+
+    '<rect x="'+BX+'" y="164" width="'+BW+'" height="26" rx="13" fill="#EDEAE6"/><rect id="bMod" x="'+BX+'" y="164" width="'+BW+'" height="26" rx="13" fill="url(#hatch)"/><rect id="bYes" x="'+BX+'" y="164" width="'+BW+'" height="26" rx="13" fill="#2E5BFF"/><text id="tYes" x="'+(BX+BW+8)+'" y="183" font-family="JetBrains Mono,monospace" font-size="16" font-weight="600" fill="#0B0B0C">100</text>'+
+    '<g transform="translate('+BX+',214)"><rect width="12" height="12" rx="3" fill="#2E5BFF"/><text x="18" y="10" font-family="Cabin,sans-serif" font-size="10" fill="#8A8A93">observées</text><rect x="90" width="12" height="12" rx="3" fill="url(#hatch)"/><text x="108" y="10" font-family="Cabin,sans-serif" font-size="10" fill="#8A8A93">modélisées (estimation)</text></g>';
+  const bNo=document.getElementById('bNo'), bYes=document.getElementById('bYes'), bMod=document.getElementById('bMod'), tNo=document.getElementById('tNo'), tYes=document.getElementById('tYes');
+  const shown={no:100,yes:100};
+  function render(){
+    const r=+range.value; rv.textContent=r+' %';
+    const refusing=r; const seen=100-refusing; const modelled=Math.round(refusing*0.7); const withCM=seen+modelled;
+    svg.querySelectorAll('.dot').forEach(c=>{ c.setAttribute('fill', +c.dataset.i < refusing ? '#C9C9CF' : '#2E5BFF'); });
+    const wNo=BW*seen/100, wYes=BW*seen/100, wMod=BW*withCM/100;
+    if(hasGsap&&!REDUCED){ gsap.to(bNo,{attr:{width:wNo},duration:.5,ease:'power4.out'}); gsap.to(bYes,{attr:{width:wYes},duration:.5,ease:'power4.out'}); gsap.to(bMod,{attr:{width:wMod},duration:.5,ease:'power4.out'}); } else { bNo.setAttribute('width',wNo); bYes.setAttribute('width',wYes); bMod.setAttribute('width',wMod); }
+    const fNo=shown.no, fYes=shown.yes; shown.no=seen; shown.yes=withCM; tween(500,0,e=>{ tNo.textContent=Math.round(fNo+(seen-fNo)*e); tYes.textContent=Math.round(fYes+(withCM-fYes)*e); });
+    out.innerHTML = r===0 ? 'Personne ne refuse : les deux lectures sont identiques. En France, le taux de refus réel se situe entre <b>30</b> et <b>50 %</b>.' : 'Avec <b>'+r+' %</b> de refus, sans Consent Mode vous voyez <b>'+seen+'</b> conversions sur 100. Avec, vous en lisez <b>'+withCM+'</b>, dont <b>'+modelled+'</b> modélisées. La part modélisée est une estimation de Google, pas une mesure : elle n\'est fiable qu\'à partir d\'un certain volume.';
+  }
+  range.addEventListener('input', render);
+  onceInView(document.getElementById('learnConsent'), render, 0.2);
+})();
+
+/* ---------- LEARN C · GTM container ---------- */
+(function(){
+  const svg=document.getElementById('gtmSvg'); if(!svg) return;
+  const links=document.getElementById('gtmLinks'), nodes=document.getElementById('gtmNodes'), pulses=document.getElementById('gtmPulses');
+  const real=document.getElementById('gtmReal'), seen=document.getElementById('gtmSeen'), gap=document.getElementById('gtmGap'), out=document.getElementById('gtmOut');
+  const dup=document.getElementById('gtmDup'), wide=document.getElementById('gtmWide');
+  const N={ev:{x:80,y:130},tr:{x:300,y:130},t1:{x:530,y:90},t2:{x:530,y:190}};
+  function node(id,x,y,title,sub,w){ return '<g id="n_'+id+'" transform="translate('+(x-w/2)+','+(y-26)+')"><rect width="'+w+'" height="52" rx="14" fill="#fff" stroke="rgba(11,11,12,.12)"/><text x="'+(w/2)+'" y="22" text-anchor="middle" font-family="Cabin,sans-serif" font-size="12" font-weight="600" fill="#0B0B0C">'+title+'</text><text class="sub" x="'+(w/2)+'" y="38" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8A8A93">'+sub+'</text></g>'; }
+  function draw(){
+    links.innerHTML='<path d="M'+(N.ev.x+56)+' '+N.ev.y+' L'+(N.tr.x-70)+' '+N.tr.y+'" stroke="#B5B5BD" stroke-width="2" fill="none"/>'+
+      '<path d="M'+(N.tr.x+70)+' '+N.tr.y+' C '+(N.tr.x+130)+' '+N.tr.y+', '+(N.t1.x-130)+' '+N.t1.y+', '+(N.t1.x-60)+' '+N.t1.y+'" stroke="#B5B5BD" stroke-width="2" fill="none"/>'+
+      (dup.checked?'<path d="M'+(N.tr.x+70)+' '+N.tr.y+' C '+(N.tr.x+130)+' '+N.tr.y+', '+(N.t2.x-130)+' '+N.t2.y+', '+(N.t2.x-60)+' '+N.t2.y+'" stroke="#E5484D" stroke-width="2" fill="none"/>':'');
+    nodes.innerHTML=node('ev',N.ev.x,N.ev.y,'Événement','page_view · purchase',112)+node('tr',N.tr.x,N.tr.y,'Déclencheur', wide.checked?'toutes les pages':'event = purchase',140)+node('t1',N.t1.x,N.t1.y,'Balise GA4','envoie purchase',120)+(dup.checked?node('t2',N.t2.x,N.t2.y,'Balise GA4 (copie)','envoie purchase',120):'')+
+      '<text x="'+(N.tr.x)+'" y="'+(N.tr.y+46)+'" text-anchor="middle" font-family="Cabin,sans-serif" font-size="10" fill="'+(wide.checked?'#E5484D':'#8A8A93')+'">'+(wide.checked?'laisse tout passer':'ne laisse passer que les achats')+'</text>';
+    if(dup.checked){ const t2=svg.querySelector('#n_t2 rect'); t2.setAttribute('stroke','#E5484D'); }
+  }
+  let nReal=0,nSeen=0;
+  function flash(id){ const r=svg.querySelector('#n_'+id+' rect'); if(!r) return; if(hasGsap&&!REDUCED) gsap.fromTo(r,{attr:{stroke:'#2E5BFF','stroke-width':3}},{attr:{stroke:'rgba(11,11,12,.12)','stroke-width':1},duration:.6,ease:'power2.out'}); }
+  function pulse(from,to,color,done){ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('r','7'); c.setAttribute('fill',color); c.setAttribute('cx',from.x); c.setAttribute('cy',from.y); pulses.appendChild(c);
+    if(hasGsap&&!REDUCED) gsap.to(c,{attr:{cx:to.x,cy:to.y},duration:.45,ease:'power2.inOut',onComplete:()=>{ c.remove(); done&&done(); }}); else { c.remove(); done&&done(); } }
+  function fire(type){
+    bump(); const color = type==='purchase' ? '#2E5BFF' : '#8A8A93';
+    if(type==='purchase'){ nReal++; real.textContent=nReal; }
+    pulse({x:N.ev.x+56,y:N.ev.y},{x:N.tr.x-70,y:N.tr.y},color,()=>{
+      flash('tr');
+      const pass = type==='purchase' || wide.checked;
+      if(!pass){ update(type,false); return; }
+      const targets=[N.t1].concat(dup.checked?[N.t2]:[]);
+      let left=targets.length;
+      targets.forEach((t,i)=>{ pulse({x:N.tr.x+70,y:N.tr.y},{x:t.x-60,y:t.y},color,()=>{ flash(i?'t2':'t1'); nSeen++; seen.textContent=nSeen; if(--left===0) update(type,true); }); });
+    });
+  }
+  function update(type,passed){
+    const g=nSeen-nReal; gap.textContent=(g>0?'+':'')+g; gap.classList.toggle('bad', g!==0); seen.classList.toggle('bad', g!==0);
+    if(type==='purchase'&&dup.checked) out.innerHTML='Un seul achat, <b>deux</b> envois : la balise en double compte chaque vente deux fois. Votre coût par conversion paraît moitié moins cher qu\'il n\'est.';
+    else if(type==='page_view'&&passed) out.innerHTML='Une simple page vue a déclenché la balise d\'achat. Avec un déclencheur trop large, <b>chaque visite devient une vente</b> dans GA4.';
+    else if(type==='page_view'&&!passed) out.innerHTML='Page vue bloquée par le déclencheur : rien n\'est envoyé. C\'est le comportement attendu.';
+    else out.innerHTML='Un achat, un envoi. Conteneur propre.';
+  }
+  dup.addEventListener('change',()=>{ draw(); bump(); }); wide.addEventListener('change',()=>{ draw(); bump(); });
+  document.getElementById('gtmPage').addEventListener('click',()=>fire('page_view'));
+  document.getElementById('gtmBuy').addEventListener('click',()=>fire('purchase'));
+  draw();
+})();

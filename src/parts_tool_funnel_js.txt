@@ -1,0 +1,69 @@
+/* ---------- 2 · tool (mock) ---------- */
+(function(){
+  const form = document.getElementById('scanForm'), url = document.getElementById('scanUrl'), bar = document.getElementById('scanBar'), msg = document.getElementById('scanMsg');
+  const report = document.getElementById('report'), score = document.getElementById('score'), scoreVal = document.getElementById('scoreVal'), checks = document.getElementById('checks'), gate = document.getElementById('gate');
+  const steps = ['Récupération de la page…','Recherche des balises gtag et GTM…','Lecture du Consent Mode…','Vérification des doublons…'];
+  function hash(s){ let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+  form.addEventListener('submit', e=>{
+    e.preventDefault(); bump();
+    const v = url.value.trim(); if(!/^https?:\/\/.+\..+/.test(v)){ url.focus(); url.style.borderColor='var(--warn)'; return; } url.style.borderColor='';
+    report.classList.remove('on'); gate.classList.remove('on'); checks.innerHTML=''; bar.classList.add('on');
+    let i=0; msg.textContent=steps[0]; const iv=setInterval(()=>{ i++; if(i<steps.length) msg.textContent=steps[i]; else clearInterval(iv); }, 350);
+    setTimeout(()=>{
+      bar.classList.remove('on');
+      const h = hash(v);
+      const items = [
+        {ok: true,            t:'GA4 détecté', s:'Balise gtag G-XXXXXXX trouvée dans le <head>.'},
+        {ok: (h%3)!==0,       t:'Google Tag Manager', s:(h%3)!==0?'Conteneur GTM-XXXXXX présent, chargé une fois.':'Aucun conteneur GTM. Toutes les balises sont codées en dur.'},
+        {ok: (h%2)===0,       t:'Consent Mode v2', s:(h%2)===0?'Signaux ad_storage et analytics_storage présents.':'Absent. Un refus de cookies coupe toute mesure.'},
+        {ok: (h%5)!==1,       t:'Balises en double', s:(h%5)!==1?'Aucun doublon de gtag.':'La balise gtag est chargée deux fois : événements comptés en double.'},
+        {ok: (h%4)!==2,       t:'Événements de conversion', s:(h%4)!==2?'Au moins un événement marqué conversion.':'Aucun événement de conversion configuré.'}
+      ];
+      const okCount = items.filter(x=>x.ok).length; const sc = Math.round(okCount/items.length*100);
+      report.classList.add('on'); score.className='score '+(sc>=80?'good':'mid');
+      items.forEach((it,k)=>{ const d=document.createElement('div'); d.className='check '+(it.ok?'ok':'ko'); d.innerHTML='<i>'+(it.ok?'✓':'!')+'</i><div>'+it.t+'<small>'+it.s+'</small></div>'; checks.appendChild(d); setTimeout(()=>d.classList.add('on'), 80*k+60); });
+      countTo(scoreVal, sc, 600, 100);
+      setTimeout(()=>gate.classList.add('on'), 80*items.length+200);
+    }, 1500);
+  });
+  gate.addEventListener('submit', e=>{ e.preventDefault(); bump(); const m=document.getElementById('gateMail'); if(!/.+@.+\..+/.test(m.value)){ m.focus(); return; } document.getElementById('gateSent').classList.add('on'); });
+})();
+
+/* ---------- 4 · funnel ---------- */
+(function(){
+  const stagesEl = document.getElementById('stages'), total = document.getElementById('fTotal'), state = document.getElementById('fState');
+  const IN = 1000;
+  const model = [
+    {name:'Visiteurs', rate:1},
+    {leak:{id:'utm', label:'redirection qui efface l\'UTM', loss:.18}},
+    {name:'Fiches produit', rate:.62},
+    {leak:{id:'consent', label:'refus cookies sans Consent Mode', loss:.22}},
+    {name:'Panier', rate:.21},
+    {leak:{id:'event', label:'événement achat non déclenché', loss:.30}},
+    {name:'Achats mesurés', rate:.072}
+  ];
+  const sealed = {};
+  let html='';
+  model.forEach(m=>{
+    if(m.leak) html+='<div class="leak"><button type="button" data-leak="'+m.leak.id+'"><b>fuite</b> '+m.leak.label+' · <span>−'+Math.round(m.leak.loss*100)+' %</span></button><span class="hint">cliquer pour colmater</span></div>';
+    else html+='<div class="stage"><span class="name">'+m.name+'</span><div class="bar"><i data-bar></i></div><span class="val num" data-val>0</span></div>';
+  });
+  stagesEl.innerHTML = html;
+  const bars = stagesEl.querySelectorAll('[data-bar]'), vals = stagesEl.querySelectorAll('[data-val]');
+  const shown = {};
+  function compute(){
+    const out=[]; let mult=1, k=0;
+    model.forEach(m=>{ if(m.leak){ if(!sealed[m.leak.id]) mult *= (1-m.leak.loss); } else { out.push(Math.round(IN*m.rate*mult)); k++; } });
+    return out;
+  }
+  function render(animate){
+    const v = compute(); const max = v[0];
+    v.forEach((n,i)=>{ bars[i].style.transform='scaleX('+(n/max).toFixed(3)+')'; const el=vals[i]; const from = shown[i]||0; shown[i]=n; if(animate&&!REDUCED) tween(600,0,e=>{ el.textContent=fmt(from+(n-from)*e); }); else el.textContent=fmt(n); });
+    const last=v[v.length-1]; const fromT = shown.t||0; shown.t=last; if(animate&&!REDUCED) tween(600,0,e=>{ total.textContent=fmt(fromT+(last-fromT)*e); }); else total.textContent=fmt(last);
+    const open = model.filter(m=>m.leak&&!sealed[m.leak.id]).length; state.textContent = open? open+' fuite'+(open>1?'s':'')+' ouverte'+(open>1?'s':'') : 'tout est mesuré'; state.className='tag '+(open?'':'tag-ok');
+  }
+  stagesEl.addEventListener('click', e=>{ const b=e.target.closest('[data-leak]'); if(!b) return; const id=b.dataset.leak; sealed[id]=!sealed[id]; b.classList.toggle('sealed', !!sealed[id]); b.querySelector('b').textContent = sealed[id]?'colmatée':'fuite'; render(true); });
+  bars.forEach(b=>b.style.transform='scaleX(0)');
+  onceInView(document.getElementById('funnel'), ()=>render(true), 0.2);
+})();
+

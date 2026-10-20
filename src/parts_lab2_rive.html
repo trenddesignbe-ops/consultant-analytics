@@ -1,0 +1,103 @@
+<!-- lab2:rive | lib: @rive-app/canvas@2.21.6 (unpkg) | poids: 53 Ko gzip + 445 Ko gzip de WASM chargé à la demande | autonome: non, besoin d'Alexandre : exporter assets/consent.riv depuis l'éditeur Rive -->
+<style>
+.lab2[data-tool="rive"] .stage-area{background:linear-gradient(135deg,#BFDBFF,#CDB9FF 45%,#FFB9E3 80%,#FFD7C4)}
+.lab2[data-tool="rive"] .rv-canvas{position:absolute;inset:0;width:100%;height:100%;display:none}
+.lab2[data-tool="rive"].has-riv .rv-canvas{display:block}
+.lab2[data-tool="rive"].has-riv .mock{display:none}
+.lab2[data-tool="rive"] .mock{position:absolute;inset:0;font-family:var(--body)}
+.lab2[data-tool="rive"] .banner{position:absolute;left:4%;top:42px;width:46%;max-width:270px;background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 14px 40px rgba(60,40,90,.16)}
+.lab2[data-tool="rive"] .banner h4{margin:0 0 4px;font:600 1rem var(--body);color:var(--ink)}
+.lab2[data-tool="rive"] .banner p{margin:0 0 12px;font:400 .82rem/1.4 var(--body);color:var(--ink-2)}
+.lab2[data-tool="rive"] .toggle{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:8px 14px;font:600 .84rem var(--body);color:#fff;background:var(--warn);cursor:pointer;transition:background .5s var(--ease)}
+.lab2[data-tool="rive"] .toggle i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.7);transition:transform .5s var(--ease)}
+.lab2[data-tool="rive"] .toggle[aria-pressed="true"]{background:var(--good)}
+.lab2[data-tool="rive"] .gauge{position:absolute;right:5%;top:30px;width:min(200px,36%);aspect-ratio:1}
+.lab2[data-tool="rive"] .gauge svg{width:100%;height:100%;display:block}
+.lab2[data-tool="rive"] .gauge .track{fill:none;stroke:rgba(255,255,255,.75);stroke-width:14}
+.lab2[data-tool="rive"] .gauge .arc{fill:none;stroke:var(--warn);stroke-width:14;stroke-linecap:round;stroke-dasharray:502;stroke-dashoffset:201;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1.2s var(--ease),stroke .6s var(--ease)}
+.lab2[data-tool="rive"] .mock.ok .gauge .arc{stroke-dashoffset:0;stroke:var(--good)}
+.lab2[data-tool="rive"] .gauge .num{position:absolute;inset:0;display:grid;place-content:center;text-align:center;color:var(--ink);font:700 2.3rem/1 var(--body);font-variant-numeric:tabular-nums}
+.lab2[data-tool="rive"] .gauge .num small{display:block;margin-top:6px;font:500 .78rem var(--body);color:var(--ink-2)}
+.lab2[data-tool="rive"] .state{position:absolute;left:22px;bottom:12px;font:500 .72rem var(--body);color:var(--ink-2)}
+.lab2[data-tool="rive"] .howto{font-size:.84rem;color:var(--ink-2);margin:0}
+.lab2[data-tool="rive"] .howto b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){
+  .lab2[data-tool="rive"] .gauge .arc,.lab2[data-tool="rive"] .toggle,.lab2[data-tool="rive"] .toggle i{transition-duration:.01s}
+}
+</style>
+<figure class="lab2" data-tool="rive">
+  <div class="lab-h"><h3>2 · Rive</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <canvas class="rv-canvas" width="640" height="260" aria-label="Animation Rive : bandeau cookies et jauge des ventes visibles"></canvas>
+    <div class="mock">
+      <div class="banner">
+        <h4>Bandeau cookies</h4>
+        <p>Tant que le visiteur refuse, ses achats ne sont pas comptés.</p>
+        <button class="toggle" type="button" aria-pressed="false"><i></i><span>Cookies refusés</span></button>
+      </div>
+      <div class="gauge">
+        <svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="80"/><circle class="arc" cx="100" cy="100" r="80"/></svg>
+        <div class="num"><output>6 sur 10</output><small>ventes visibles</small></div>
+      </div>
+      <div class="state">Maquette : le fichier .riv est à exporter depuis l'éditeur Rive</div>
+    </div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>53 Ko gzip + 445 Ko wasm</b></span><span>Lignes<b>≈ 105</b></span><span>Autonome<b>besoin d'Alexandre : exporter consent.riv</b></span></div>
+  <p><b>Ce que montre la démo :</b> cookies refusés, 6 ventes visibles sur 10 ; cookies acceptés, 10 sur 10 : le bandeau décide de ce que vous voyez. <b>Ce que l'outil fait de spécial :</b> une machine à états dessinée dans l'éditeur Rive (états, transitions, entrée booléenne « cookiesOK ») que le site pilote en une ligne, sans réécrire l'animation ; le même fichier .riv sert sur le web, iOS et Android. <b>Limite :</b> impossible de fabriquer un .riv sans l'éditeur, et le runtime télécharge 445 Ko de WASM depuis unpkg en plus du script.</p>
+  <p class="howto"><b>À faire dans Rive :</b> nouveau fichier, artboard 640 × 260 nommé « Consent » ; dessiner la jauge et le bouton, créer deux timelines « refuse » (jauge à 60 %) et « accepte » (jauge à 100 %) ; onglet State Machine : créer la machine « etat », ajouter une entrée booléenne « cookiesOK », deux états reliés par deux transitions conditionnées (cookiesOK = true, cookiesOK = false) ; Export → Download → For runtime (.riv), nommer le fichier consent.riv et le déposer dans assets/. La carte le détecte et branche l'entrée sur le bouton.</p>
+  <div class="verdict">Verdict : à réserver aux éléments interactifs à états (bandeau, jauge, mascotte) quand Alexandre accepte de passer par l'éditeur ; sinon une transition CSS fait la même maquette sans 500 Ko.</div>
+</figure>
+<script src="https://unpkg.com/@rive-app/canvas@2.21.6/rive.js"></script>
+<script>
+(function(){
+  var fig=document.querySelector('.lab2[data-tool="rive"]');
+  if(!fig)return;
+  var mock=fig.querySelector('.mock'), toggle=fig.querySelector('.toggle'), out=fig.querySelector('.num output');
+  var label=toggle.querySelector('span'), stateEl=fig.querySelector('.state'), canvas=fig.querySelector('.rv-canvas');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cookiesOK=false, timer=null, riveInstance=null, riveInput=null;
+
+  function render(){
+    toggle.setAttribute('aria-pressed',cookiesOK?'true':'false');
+    label.textContent=cookiesOK?'Cookies acceptés':'Cookies refusés';
+    mock.classList.toggle('ok',cookiesOK);
+    out.textContent=(cookiesOK?10:6)+' sur 10';
+    if(riveInput) riveInput.value=cookiesOK;
+  }
+  toggle.addEventListener('click',function(){ cookiesOK=!cookiesOK; render(); });
+
+  /* Pipeline Rive : si assets/consent.riv existe (fetch relatif), on instancie le runtime et on branche l'entrée « cookiesOK »
+     de la machine à états « etat ». Sinon, la maquette CSS ci dessus joue le rôle de la machine à états. */
+  function tryLoadRiv(){
+    if(!window.rive||!window.rive.Rive){ stateEl.textContent='Runtime Rive non chargé depuis le CDN : maquette seule'; return; }
+    var url='assets/consent.riv';
+    if(location.protocol==='file:'){ stateEl.textContent='Maquette : le fichier .riv est à exporter depuis l\'éditeur Rive (runtime chargé)'; return; }
+    var p; try{ p=fetch(url,{method:'HEAD'}); }catch(e){ return; }
+    p.then(function(r){
+      if(!r.ok) throw new Error('absent');
+      riveInstance=new rive.Rive({src:url,canvas:canvas,autoplay:true,stateMachines:'etat',
+        onLoad:function(){
+          riveInstance.resizeDrawingSurfaceToCanvas();
+          var inputs=riveInstance.stateMachineInputs('etat')||[];
+          for(var i=0;i<inputs.length;i++) if(inputs[i].name==='cookiesOK') riveInput=inputs[i];
+          fig.classList.add('has-riv');
+          stateEl.textContent='Fichier consent.riv chargé, machine à états « etat » branchée';
+          render();
+        },
+        onLoadError:function(){ stateEl.textContent='consent.riv trouvé mais illisible : maquette seule'; }
+      });
+    }).catch(function(){ stateEl.textContent='Maquette : le fichier .riv est à exporter depuis l\'éditeur Rive (runtime chargé, '+(window.rive.RuntimeLoader?'prêt':'')+')'; });
+  }
+  tryLoadRiv();
+
+  function play(){
+    clearTimeout(timer);
+    cookiesOK=false; render();
+    if(reduce){ cookiesOK=true; render(); return; }
+    timer=setTimeout(function(){ cookiesOK=true; render(); },900);
+  }
+  fig.querySelector('.replay').addEventListener('click',play);
+  window.LAB2=window.LAB2||{};
+  window.LAB2["rive"]={play:play};
+})();
+</script>

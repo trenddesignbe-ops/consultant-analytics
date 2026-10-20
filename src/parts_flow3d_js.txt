@@ -1,0 +1,68 @@
+/* ---------- the leaking funnel, 3D glass version ---------- */
+(function(){
+  const box=document.getElementById('flow3d'); if(!box||!window.THREE) return;
+  const c=document.getElementById('flow3dCanvas'), labels=document.getElementById('flow3dLabels');
+  const total=document.getElementById('f3Total'), state=document.getElementById('f3State');
+  const CP=[
+    {x:-5.4, kind:'gate', name:'Visiteurs', f:1},
+    {x:-3.6, kind:'leak', id:'utm',     name:'Origine de la visite perdue', loss:.18},
+    {x:-1.8, kind:'gate', name:'Fiches produit', f:.62},
+    {x:0,    kind:'leak', id:'consent', name:'Cookies refusés', loss:.22},
+    {x:1.8,  kind:'gate', name:'Panier', f:.21/.62},
+    {x:3.6,  kind:'leak', id:'event',   name:'Achat non signalé', loss:.30},
+    {x:5.4,  kind:'gate', name:'Achats comptés', f:.072/.21}
+  ];
+  const X0=-6.2, X1=6.2, RMIN=.16, RMAX=1.25;
+  const sealed={};
+  function kAt(x){ let k=1; for(const cp of CP){ if(x<cp.x) break; if(cp.kind==='gate') k*=cp.f; else if(!sealed[cp.id]) k*=(1-cp.loss); } return k; }
+  function keepAt(i){ let k=1; for(let j=0;j<=i;j++){ const cp=CP[j]; if(cp.kind==='gate') k*=cp.f; else if(!sealed[cp.id]) k*=(1-cp.loss); } return k; }
+  function rad(x){ const R=.5; let k=kAt(x); for(const cp of CP){ if(x>cp.x-R && x<cp.x+R){ const a=kAt(cp.x-R-.01), b=kAt(cp.x+R+.01); const t=(x-(cp.x-R))/(2*R); const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; k=a+(b-a)*e; } } return RMIN+RMAX*Math.sqrt(k); }
+  function counts(){ const out=[]; let k=1; CP.forEach(cp=>{ if(cp.kind==='gate'){ k*=cp.f; out.push({x:cp.x,n:Math.round(1000*k),name:cp.name}); } else if(!sealed[cp.id]) k*=(1-cp.loss); }); return out; }
+  // renderer, scene, camera
+  const r=makeRenderer(c); r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFSoftShadowMap;
+  const scene=new THREE.Scene(); scene.environment=pastelEnv(r);
+  const cam=new THREE.PerspectiveCamera(28,2,.1,100); cam.position.set(0,2.6,12.4); cam.lookAt(0,-.25,0);
+  const key=pastelLights(scene); key.intensity=1.1; key.castShadow=true; key.shadow.mapSize.set(1024,1024); key.shadow.camera.left=-8; key.shadow.camera.right=8; key.shadow.camera.top=6; key.shadow.camera.bottom=-6; key.shadow.radius=5;
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(40,20), new THREE.ShadowMaterial({opacity:.045})); ground.rotation.x=-Math.PI/2; ground.position.y=-2.4; ground.receiveShadow=true; scene.add(ground);
+  const group=new THREE.Group(); scene.add(group);
+  // glass tube with varying radius (bottom edge drops as it narrows, like the 2D one)
+  const L=180, S=40; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(L*S*3); const idx=[];
+  for(let i=0;i<L-1;i++){ for(let k=0;k<S;k++){ const a=i*S+k, b=i*S+(k+1)%S, cc=(i+1)*S+k, d=(i+1)*S+(k+1)%S; idx.push(a,cc,b,b,cc,d); } }
+  geo.setIndex(idx); geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  function buildTube(){ const TOP=RMAX+RMIN; for(let i=0;i<L;i++){ const x=X0+(X1-X0)*i/(L-1); const rr=rad(x); const cy=TOP-rr; for(let k=0;k<S;k++){ const a=(k/S)*Math.PI*2; const o=(i*S+k)*3; pos[o]=x; pos[o+1]=cy+Math.cos(a)*rr; pos[o+2]=Math.sin(a)*rr; } } geo.attributes.position.needsUpdate=true; geo.computeVertexNormals(); geo.computeBoundingSphere(); }
+  buildTube();
+  const glass=new THREE.MeshPhysicalMaterial({color:0xdfe8ff, roughness:.15, metalness:0, transmission:.25, ior:1.3, clearcoat:1, clearcoatRoughness:.1, transparent:true, opacity:.42, side:THREE.DoubleSide, envMapIntensity:1.3, depthWrite:false});
+  const tube=new THREE.Mesh(geo,glass); tube.castShadow=true; tube.renderOrder=2; group.add(tube);
+  // gates as thin rings, leak marks as small discs under the tube
+  const gateMat=new THREE.MeshBasicMaterial({color:0x0B0B0C,transparent:true,opacity:.12});
+  const marks={};
+  function rebuildMarks(){ Object.values(marks).forEach(m=>group.remove(m)); CP.forEach(cp=>{ const rr=rad(cp.x), cy=RMAX+RMIN-rr; if(cp.kind==='gate'){ const ring=new THREE.Mesh(new THREE.TorusGeometry(rr+.02,.012,8,64), gateMat); ring.position.set(cp.x,cy,0); ring.rotation.y=Math.PI/2; marks['g'+cp.x]=ring; group.add(ring); } else { const m=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.05,24), new THREE.MeshStandardMaterial({color: sealed[cp.id]?0x16A34A:0xE5484D, roughness:.5})); m.position.set(cp.x,cy-rr+.01,0); marks['l'+cp.id]=m; group.add(m); } }); }
+  rebuildMarks();
+  // particles
+  const N=520; const inst=new THREE.InstancedMesh(new THREE.SphereGeometry(.055,8,8), new THREE.MeshStandardMaterial({roughness:.4,metalness:0,emissive:0x1b3bff,emissiveIntensity:.18}), N); inst.castShadow=false; inst.renderOrder=1; group.add(inst);
+  const accent=new THREE.Color(cssVar('--accent')), warn=new THREE.Color(cssVar('--warn')), grey=new THREE.Color(cssVar('--ink-3'));
+  const M=new THREE.Matrix4(); const Q=new THREE.Quaternion(); const SC=new THREE.Vector3(1,1,1); const V=new THREE.Vector3();
+  function reset(p,initial){ p.x= initial ? X0-2+Math.random()*(X1-X0+2) : X0-.5-Math.random()*2; p.ang=Math.random()*Math.PI*2; p.fr=Math.sqrt(Math.random())*.9; p.v=.075+Math.random()*.035; p.st='flow'; p.col=accent; p.s=1; p.ci=0; while(p.ci<CP.length && p.x>=CP[p.ci].x) p.ci++; const kNow=p.ci?keepAt(p.ci-1):1; p.u=Math.random()*kNow; }
+  const P=[]; for(let i=0;i<N;i++){ const p={x:0,u:0,ang:0,fr:0,v:0,st:'flow',ci:0,vy:0,vz:0,y:0,z:0,col:accent,s:1}; reset(p,true); P.push(p); }
+  function step(){ for(const p of P){
+    if(p.st==='flow'){ p.x+=p.v; const rr=rad(p.x), cy=RMAX+RMIN-rr; p.y=cy+Math.cos(p.ang)*rr*p.fr; p.z=Math.sin(p.ang)*rr*p.fr;
+      while(p.ci<CP.length && p.x>=CP[p.ci].x){ const cp=CP[p.ci]; const kB=p.ci?keepAt(p.ci-1):1, kA=keepAt(p.ci); if(p.u>=kA && p.u<kB){ p.st='drop'; p.col= cp.kind==='leak'?warn:grey; p.y=cy-rr+.02; p.vy=-.01-Math.random()*.02; p.vz=(Math.random()-.5)*.02; break; } p.ci++; }
+      if(p.x>X1+.4) reset(p);
+    } else { p.y+=p.vy; p.vy-=.004; p.z+=p.vz; p.s*=.985; if(p.y<-2.6||p.s<.2) reset(p); }
+    inst.setColorAt(P.indexOf(p), p.col); } }
+  function write(){ for(let i=0;i<N;i++){ const p=P[i]; V.set(p.x,p.y,p.z); SC.setScalar(p.s); M.compose(V,Q,SC); inst.setMatrixAt(i,M); } inst.instanceMatrix.needsUpdate=true; if(inst.instanceColor) inst.instanceColor.needsUpdate=true; }
+  for(let i=0;i<N;i++) inst.setColorAt(i,accent);
+  // labels (projected)
+  let labelEls=[];
+  function layout(){ let h=''; const cs=counts(); cs.forEach(g=>{ h+='<span class="lab" data-x="'+g.x+'">'+g.name+' <b>'+fmt(g.n)+'</b></span>'; });
+    CP.filter(cp=>cp.kind==='leak').forEach((cp,i)=>{ h+='<button type="button" class="leak'+(sealed[cp.id]?' sealed':'')+'" data-leak="'+cp.id+'" style="left:'+(17+i*33)+'%">'+(sealed[cp.id]?cp.name+' <b>réparé</b>':cp.name+' <b>−'+Math.round(cp.loss*100)+' %</b>')+'</button>'; });
+    labels.innerHTML=h; labelEls=[...labels.querySelectorAll('.lab')]; }
+  function placeLabels(){ const b=c.getBoundingClientRect(); labelEls.forEach(el=>{ const x=+el.dataset.x; V.set(x, RMAX+RMIN+.35, 0).applyMatrix4(group.matrixWorld).project(cam); el.style.left=((V.x*.5+.5)*100)+'%'; el.style.top=((-V.y*.5+.5)*100-6)+'%'; }); }
+  let shown=0;
+  function updateHead(){ const cs=counts(); const n=cs[cs.length-1].n; const from=shown; shown=n; tween(600,0,e=>{ total.textContent=fmt(from+(n-from)*e); }); const open=CP.filter(cp=>cp.kind==='leak'&&!sealed[cp.id]).length; state.textContent= open? open+' fuite'+(open>1?'s':'')+' ouverte'+(open>1?'s':'') : 'Tout est compté'; state.className='tag '+(open?'':'tag-ok'); }
+  labels.addEventListener('click',e=>{ const b=e.target.closest('[data-leak]'); if(!b) return; sealed[b.dataset.leak]=!sealed[b.dataset.leak]; bump(); buildTube(); rebuildMarks(); layout(); updateHead(); });
+  let mx=0; box.addEventListener('pointermove',e=>{ const b=box.getBoundingClientRect(); mx=((e.clientX-b.left)/b.width-.5)*2; },{passive:true}); box.addEventListener('pointerleave',()=>{ mx=0; });
+  const ctl=loopCtl(box,t=>{ fitRenderer(r,c,cam,false); group.rotation.y+=((mx*.18)-group.rotation.y)*.05; group.rotation.x=-.06; group.updateMatrixWorld(); step(); write(); r.render(scene,cam); placeLabels(); });
+  layout(); if(REDUCED){ for(let k=0;k<600;k++) step(); write(); ctl.once(); } else ctl.start();
+  onceInView(box, updateHead, 0.2);
+})();

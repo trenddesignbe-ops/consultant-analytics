@@ -1,0 +1,73 @@
+<!-- lab2:lenis | lib: lenis@1.1.18 + gsap@3.12.5 + ScrollTrigger@3.12.5 | poids: 47 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="lenis"] .stage-area{background:var(--card)}
+.lab2[data-tool="lenis"] .scroller{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
+.lab2[data-tool="lenis"] .scroller::-webkit-scrollbar{display:none}
+.lab2[data-tool="lenis"] .content{position:relative;padding:0 0 0 0}
+.lab2[data-tool="lenis"] .pin{position:sticky;top:0;height:260px;float:left;width:46%;padding:22px 0 0 22px;display:flex;flex-direction:column;justify-content:flex-start;gap:4px;z-index:2;background:linear-gradient(90deg,var(--card) 82%,rgba(255,255,255,0))}
+.lab2[data-tool="lenis"] .pin .big{font:400 3.4rem/1 var(--display);color:var(--ink);letter-spacing:-.02em}
+.lab2[data-tool="lenis"] .pin .big output{font:600 3.4rem/1 var(--body);font-variant-numeric:tabular-nums;color:var(--accent);min-width:3ch;display:inline-block;text-align:right}
+.lab2[data-tool="lenis"] .pin .sub{font:400 1rem/1.25 var(--body);color:var(--ink-2);max-width:12em}
+.lab2[data-tool="lenis"] .pin .bar{margin-top:14px;height:6px;width:78%;border-radius:3px;background:var(--bg-2);overflow:hidden}
+.lab2[data-tool="lenis"] .pin .bar i{display:block;height:100%;width:100%;border-radius:3px;background:var(--accent);transform:scaleX(0);transform-origin:left center}
+.lab2[data-tool="lenis"] .pin .hint{margin-top:auto;padding-bottom:14px;font:400 .74rem var(--body);color:var(--ink-3)}
+.lab2[data-tool="lenis"] .rows{margin-left:46%;padding:200px 18px 40px 0;display:grid;gap:10px}
+.lab2[data-tool="lenis"] .row{display:flex;align-items:center;justify-content:space-between;gap:10px;height:54px;padding:0 14px;border-radius:12px;background:var(--bg-2);font:500 .9rem var(--body);color:var(--ink-2);transform:translateX(26px);opacity:.45;transition:transform .6s var(--ease),opacity .6s var(--ease),background .6s var(--ease),color .6s var(--ease)}
+.lab2[data-tool="lenis"] .row b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.lab2[data-tool="lenis"] .row em{font-style:normal;font-variant-numeric:tabular-nums}
+.lab2[data-tool="lenis"] .row .ok{width:22px;height:22px;border-radius:50%;background:var(--card);display:grid;place-items:center;flex:none;transition:background .4s var(--ease)}
+.lab2[data-tool="lenis"] .row .ok svg{position:static;inset:auto;display:block;width:12px;height:12px;stroke:#fff;stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lab2[data-tool="lenis"] .row .ok svg path{stroke-dasharray:16;stroke-dashoffset:16;transition:stroke-dashoffset .35s var(--ease) .1s}
+.lab2[data-tool="lenis"] .row.seen{transform:none;opacity:1;background:#EAF7EE;color:var(--ink)}
+.lab2[data-tool="lenis"] .row.seen .ok{background:var(--good)}
+.lab2[data-tool="lenis"] .row.seen .ok svg path{stroke-dashoffset:0}
+@media (prefers-reduced-motion:reduce){.lab2[data-tool="lenis"] .row,.lab2[data-tool="lenis"] .row .ok,.lab2[data-tool="lenis"] .row .ok svg path{transition-duration:.01s}}
+</style>
+<figure class="lab2" data-tool="lenis">
+  <div class="lab-h"><h3>2 · Lenis, défilement lissé façon Awwwards</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="scroller">
+      <div class="content">
+        <div class="pin">
+          <div class="big"><output>0</output> %</div>
+          <div class="sub">de vos ventes visibles</div>
+          <div class="bar"><i></i></div>
+          <div class="hint">Faites défiler ici avec la molette</div>
+        </div>
+        <div class="rows"></div>
+      </div>
+    </div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>47 Ko gzip</b></span><span>Lignes<b>≈ 55</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> la liste des commandes glisse avec l'inertie des sites primés et, commande après commande, le pourcentage monte jusqu'à 100 % de ventes visibles. <b>Ce que l'outil fait de spécial :</b> Lenis remplace le défilement natif par une interpolation douce (lerp) tout en gardant le défilement réel, donc la position sticky et les ancres continuent de marcher. ScrollTrigger lit cette position pour piloter le chiffre et chaque ligne. <b>Limite :</b> il faut brancher Lenis sur le ticker de GSAP, sinon les deux se battent, et sur mobile le toucher reste natif.</p>
+  <div class="verdict">Verdict : à activer sur toute la page du site, une seule fois, et à utiliser pour la section « ce que vous verrez » qui se remplit au défilement.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function(){
+  window.LAB2 = window.LAB2 || {};
+  var fig = document.querySelector('.lab2[data-tool="lenis"]'); if(!fig) return;
+  var scroller = fig.querySelector('.scroller'), content = fig.querySelector('.content'), rows = fig.querySelector('.rows'), out = fig.querySelector('output'), bar = fig.querySelector('.bar i');
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ORDERS = [[1041,129],[1042,89],[1043,214],[1044,59],[1045,340],[1046,129],[1047,76],[1048,188],[1049,95],[1050,262]];
+  var fmt = function(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+  rows.innerHTML = ORDERS.map(function(o){ return '<div class="row"><span>Commande <b>n° ' + fmt(o[0]) + '</b></span><span><em>' + fmt(o[1]) + ' €</em></span><span class="ok"><svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5"/></svg></span></div>'; }).join('');
+  var rowEls = Array.prototype.slice.call(rows.children);
+  if(!window.gsap || !window.ScrollTrigger || !window.Lenis){ out.textContent = '100'; bar.style.transform = 'scaleX(1)'; rowEls.forEach(function(r){ r.classList.add('seen'); }); window.LAB2.lenis = { play: function(){} }; return; }
+  gsap.registerPlugin(ScrollTrigger);
+  var lenis = new Lenis({ wrapper: scroller, content: content, lerp: .085, wheelMultiplier: .9, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(function(t){ lenis.raf(t * 1000); }); gsap.ticker.lagSmoothing(0);
+  ScrollTrigger.create({ scroller: scroller, trigger: content, start: 'top top', end: 'bottom bottom', scrub: true, onUpdate: function(self){ var p = self.progress; out.textContent = Math.round(p * 100); bar.style.transform = 'scaleX(' + p + ')'; } });
+  rowEls.forEach(function(r){ ScrollTrigger.create({ scroller: scroller, trigger: r, start: 'top 75%', toggleClass: 'seen' }); });
+  var easeOut = function(t){ return 1 - Math.pow(1 - t, 4); };
+  var api = { play: function(){
+    lenis.scrollTo(0, { immediate: true, force: true }); ScrollTrigger.refresh();
+    if(REDUCED){ lenis.scrollTo('end', { immediate: true, force: true }); out.textContent = '100'; bar.style.transform = 'scaleX(1)'; rowEls.forEach(function(r){ r.classList.add('seen'); }); return; }
+    setTimeout(function(){ lenis.scrollTo(lenis.limit, { duration: 3.2, easing: easeOut, force: true }); }, 350);
+  } };
+  window.LAB2.lenis = api;
+})();
+</script>

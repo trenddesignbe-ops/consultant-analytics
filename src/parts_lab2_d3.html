@@ -1,0 +1,132 @@
+<!-- lab2:d3 | lib: d3@7.9.0 | poids: 90 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="d3"] .stage-area{background:linear-gradient(135deg,#F2F6FF 0%,#F6F1FF 45%,#FFF3FA 100%)}
+.lab2[data-tool="d3"] .scene{font-family:var(--body),sans-serif}
+.lab2[data-tool="d3"] .scene .ttl{font-family:var(--display),serif;font-size:22px;fill:var(--ink)}
+.lab2[data-tool="d3"] .scene .sub{font-size:13px;fill:var(--ink-2)}
+.lab2[data-tool="d3"] .scene .grp{font-size:13px;font-weight:600;fill:var(--ink)}
+.lab2[data-tool="d3"] .scene .grp.lost{fill:var(--warn)}
+.lab2[data-tool="d3"] .scene .big{font-family:var(--display),serif;font-size:30px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.lab2[data-tool="d3"] .scene .axis text{font-family:var(--body),sans-serif;font-size:11px;fill:var(--ink-3);font-variant-numeric:tabular-nums}
+.lab2[data-tool="d3"] .scene .axis line,.lab2[data-tool="d3"] .scene .axis path{stroke:#D9D6E6}
+.lab2[data-tool="d3"] .scene .coin{stroke:#fff;stroke-width:1.2}
+.lab2[data-tool="d3"] .scene .bag{fill:#fff;stroke:#D9D6E6}
+</style>
+<figure class="lab2" data-tool="d3">
+  <div class="lab-h"><h3>1 · D3.js</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area"><svg class="scene" aria-label="Où partent vos 100 euros de pub : 4 ventes comptées, 2 perdues en route, puis 6 ventes à l'euro près"></svg></div>
+  <div class="lab-meta"><span>Poids<b>90 Ko gzip</b></span><span>Lignes<b>≈ 150</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> 100 pièces sortent du sac « 100 € de pub » et se rangent par vente ; deux ventes tombent sous la ligne, perdues, puis remontent une fois les chiffres corrigés : 100 € = 6 ventes, à l'euro près. <b>Ce que l'outil fait de spécial :</b> les échelles et l'axe en euros sont calculés par D3, les 100 pièces sont placées par une simulation de forces (collision, attraction vers chaque vente), et chaque pièce enchaîne ses propres transitions avec un délai décalé. Rien de tout cela n'existe dans GSAP ou Anime. <b>Limite :</b> 90 Ko et une courbe d'apprentissage réelle, D3 ne « fait » pas un graphique, il donne les briques.</p>
+  <div class="verdict">Verdict : l'outil des scènes où des centaines d'éléments doivent se ranger selon une donnée, pas pour une icône.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+(function(){
+  var root = document.querySelector('.lab2[data-tool="d3"]');
+  if (!root || !window.d3) return;
+  var svg = d3.select(root).select('svg.scene');
+  var stage = root.querySelector('.stage-area');
+  var timers = [];
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var N = 100, SALES = 6, LOST = [4, 5], R = 4.8;
+  var fmtEuro = function(d){ return d + ' €'; };
+
+  function layout(w, h){
+    var bag = { cx: 74, cy: h / 2 + 18, r: 52 };
+    var x = d3.scaleLinear().domain([0, 100]).range([150, w - 24]);
+    var baseline = h - 62;
+    var nodes = d3.range(N).map(function(i){
+      var sale = Math.floor(i / (N / SALES));
+      return { i: i, sale: sale, lost: LOST.indexOf(sale) >= 0, r: R };
+    });
+    // Pièces dans le sac : empilement circulaire
+    var packed = d3.packSiblings(nodes.map(function(n){ return { r: n.r + 0.6, n: n }; }));
+    packed.forEach(function(p){ p.n.x0 = bag.cx + p.x; p.n.y0 = bag.cy + p.y; });
+    // Positions par vente : simulation de forces, résolue à l'avance
+    var share = 100 / SALES;
+    function solve(lostBelow){
+      var sim = d3.forceSimulation(nodes)
+        .force('x', d3.forceX(function(d){ return x((d.sale + 0.5) * share); }).strength(0.18))
+        .force('y', d3.forceY(function(d){ return (lostBelow && d.lost) ? baseline + 30 : baseline - 24; }).strength(0.14))
+        .force('c', d3.forceCollide(function(d){ return d.r + 0.9; }).iterations(3))
+        .stop();
+      nodes.forEach(function(d){ d.x = x((d.sale + 0.5) * share) + (Math.random() - 0.5) * 20; d.y = baseline - 20 + (Math.random() - 0.5) * 20; });
+      for (var k = 0; k < 160; k++) sim.tick();
+      return nodes.map(function(d){ return [d.x, d.y]; });
+    }
+    var posLost = solve(true), posFixed = solve(false);
+    nodes.forEach(function(d, i){ d.x1 = posLost[i][0]; d.y1 = posLost[i][1]; d.x2 = posFixed[i][0]; d.y2 = posFixed[i][1]; });
+    return { bag: bag, x: x, baseline: baseline, nodes: nodes, share: share };
+  }
+
+  function stop(){ timers.forEach(function(t){ t.stop(); }); timers = []; svg.selectAll('*').interrupt().remove(); }
+  function later(fn, ms){ if (RM) { fn(); return; } timers.push(d3.timeout(fn, ms)); }
+
+  function play(){
+    stop();
+    var w = Math.max(360, stage.clientWidth), h = stage.clientHeight || 260;
+    svg.attr('viewBox', '0 0 ' + w + ' ' + h);
+    var L = layout(w, h), x = L.x, nodes = L.nodes, bag = L.bag, base = L.baseline;
+    var dur = RM ? 0 : 1;
+    var E = d3.easeCubicOut;
+
+    svg.append('text').attr('class', 'ttl').attr('x', 20).attr('y', 36).text('Où partent vos 100 € de pub ?');
+    var sub = svg.append('text').attr('class', 'sub').attr('x', 20).attr('y', 58).text('Aujourd’hui, deux ventes se perdent en route.').attr('opacity', 0);
+
+    // Axe en euros
+    var axis = svg.append('g').attr('class', 'axis').attr('transform', 'translate(0,' + base + ')')
+      .call(d3.axisBottom(x).tickValues([0, 50, 100]).tickSize(5).tickPadding(6).tickFormat(fmtEuro));
+    axis.select('.domain').attr('stroke-width', 1.2);
+    axis.attr('opacity', 0).transition().duration(600 * dur).attr('opacity', 1);
+
+    // Sac
+    var g = svg.append('g');
+    g.append('circle').attr('class', 'bag').attr('cx', bag.cx).attr('cy', bag.cy).attr('r', bag.r).attr('stroke-width', 1.5);
+    g.append('text').attr('class', 'sub').attr('x', bag.cx).attr('y', bag.cy + bag.r + 20).attr('text-anchor', 'middle').style('font-weight', 600).style('fill', 'var(--ink)').text('100 € de pub');
+
+    // Libellés de groupes
+    var lblOk = svg.append('text').attr('class', 'grp').attr('x', x(L.share * 2)).attr('y', base - 64).attr('text-anchor', 'middle').attr('opacity', 0).text('4 ventes comptées');
+    var lblLost = svg.append('text').attr('class', 'grp lost').attr('x', x(L.share * 4) - 34).attr('y', base + 38).attr('text-anchor', 'end').attr('opacity', 0).text('2 ventes perdues en route');
+    var big = svg.append('text').attr('class', 'big').attr('x', x(50)).attr('y', base - 98).attr('text-anchor', 'middle').attr('opacity', 0).text('100 € = 6 ventes');
+    var bigSub = svg.append('text').attr('class', 'sub').attr('x', x(50)).attr('y', base - 76).attr('text-anchor', 'middle').attr('opacity', 0).text('à l’euro près');
+
+    // 100 pièces : apparition dans le sac, puis transitions enchaînées
+    var coins = svg.append('g').selectAll('circle').data(nodes).join('circle')
+      .attr('class', 'coin').attr('r', 0).attr('cx', function(d){ return d.x0; }).attr('cy', function(d){ return d.y0; })
+      .attr('fill', 'var(--accent)');
+
+    if (RM) {
+      coins.attr('r', R).attr('cx', function(d){ return d.x2; }).attr('cy', function(d){ return d.y2; });
+      big.attr('opacity', 1); bigSub.attr('opacity', 1); axis.attr('opacity', 1);
+      sub.text('Corrigé : chaque euro est relié à sa vente.').attr('opacity', 1);
+      return;
+    }
+
+    coins.transition().delay(function(d){ return 60 + d.i * 3; }).duration(300).ease(d3.easeBackOut.overshoot(1.4)).attr('r', R)
+      // 2e maillon : voyage vers sa vente (les perdues passent sous la ligne)
+      .transition().delay(function(d){ return 250 + d.i * 6; }).duration(800).ease(E)
+        .attr('cx', function(d){ return d.x1; }).attr('cy', function(d){ return d.y1; })
+        .attr('fill', function(d){ return d.lost ? 'var(--p3)' : 'var(--accent)'; })
+        .attr('stroke', function(d){ return d.lost ? 'var(--warn)' : '#fff'; });
+
+    later(function(){ sub.transition().duration(500).attr('opacity', 1); }, 400);
+    later(function(){ lblOk.transition().duration(500).attr('opacity', 1); }, 1300);
+    later(function(){ lblLost.transition().duration(500).attr('opacity', 1); }, 1700);
+
+    // 3e maillon : correction, les pièces perdues remontent et redeviennent des ventes
+    later(function(){
+      lblLost.transition().duration(350).attr('opacity', 0);
+      lblOk.transition().duration(350).attr('opacity', 0);
+      sub.transition().duration(300).attr('opacity', 0).transition().duration(300).attr('opacity', 1).text('Corrigé : chaque euro est relié à sa vente.');
+      coins.transition().delay(function(d){ return d.lost ? (d.i - 66) * 14 : 0; }).duration(800).ease(E)
+        .attr('cx', function(d){ return d.x2; }).attr('cy', function(d){ return d.y2; })
+        .attr('fill', 'var(--accent)').attr('stroke', '#fff');
+      big.attr('transform', 'translate(0,10)').transition().delay(500).duration(600).ease(E).attr('opacity', 1).attr('transform', 'translate(0,0)');
+      bigSub.transition().delay(700).duration(500).attr('opacity', 1);
+    }, 2900);
+  }
+
+  window.LAB2 = window.LAB2 || {};
+  window.LAB2.d3 = { play: play };
+})();
+</script>

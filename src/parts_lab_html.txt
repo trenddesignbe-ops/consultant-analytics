@@ -1,0 +1,141 @@
+<!-- ============ LABO ============ -->
+<section id="labo">
+  <div class="wrap">
+    <div class="lab-intro">
+      <div class="eyebrow">Labo · section de test, à retirer avant mise en ligne</div>
+      <h2>La même animation, outil par outil</h2>
+      <p class="lede">Un seul concept, implémenté avec chaque outil disponible, pour voir ce que chacun coûte et ce qu'il apporte. Le prompt ci-dessous est celui que j'ai validé. Tu peux le coller tel quel dans Antigravity, Fable ou n'importe quel autre agent.</p>
+      <div class="prompt"><b>PROMPT VALIDÉ · « Le signal »</b>
+
+Données : 7 valeurs hebdomadaires [18, 24, 21, 30, 38, 35, 47], échelle 0 à 50, boîte de 320 × 140, marge 12.
+Fond clair #F5F7F6, accent vert signal #15A34A (en sombre : fond #0B0D10, accent #4ADE80), grille papier millimétré à 9 % d'opacité, chiffres en JetBrains Mono.
+
+1. La courbe se trace de gauche à droite en <b>800 ms</b>, easing <b>cubic-bezier(.22, 1, .36, 1)</b>, trait 2 px, bouts arrondis.
+2. Pendant le tracé, l'aire sous la courbe apparaît en fondu, de 0 à 0,15 d'opacité, même durée.
+3. À 800 ms, le point final pulse une fois : scale 0 → 1,25 → 1 en <b>300 ms</b>.
+4. Un chiffre KPI compte de 0 à <b>12 847</b> entre 400 ms et 1 000 ms, même easing, séparateur de milliers français.
+5. Déclenchement à <b>20 % de visibilité</b>, <b>une seule fois</b>. Un bouton Rejouer relance.
+6. <b>prefers-reduced-motion</b> : tout devient un fondu de 200 ms, courbe déjà tracée.
+7. Uniquement transform et opacity, sauf le tracé (stroke-dashoffset). 60 images par seconde.
+8. Une seule chose bouge à la fois : le chiffre est la seconde voix du même geste, pas une animation séparée.</div>
+    </div>
+
+    <div class="labs">
+      <figure class="lab" data-tool="css">
+        <div class="lab-h"><h3>A · CSS pur</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area">
+          <svg viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"><g class="grid"></g><path class="area" fill="var(--accent-dim)"></path><path class="line" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle class="end" r="4.5" fill="var(--accent)" stroke="var(--bg-2)" stroke-width="2"></circle></svg>
+          <div class="kpi"><small>Conversions</small><output></output></div>
+        </div>
+        <div class="lab-meta"><span>Poids<b>0 Ko</b></span><span>Lignes<b>≈ 30</b></span><span>Easing custom<b>oui</b></span></div>
+        <p><b>Le plus léger, et déjà presque tout.</b> Le tracé passe par <code class="mono">stroke-dashoffset</code>, le chiffre par la propriété CSS <code class="mono">@property</code> et un compteur. Limite réelle : le compteur CSS ne sait pas mettre d'espace de milliers, il affiche 12847. Sans JavaScript, impossible de déclencher à 20 % de visibilité, il faut une ligne de JS pour poser la classe.</p>
+        <span class="verdict">Verdict : la base de tout le site. On ne charge une bibliothèque que quand CSS ne suffit plus.</span>
+      </figure>
+
+      <figure class="lab" data-tool="smil">
+        <div class="lab-h"><h3>B · SVG natif (SMIL)</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area">
+          <svg viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"><g class="grid"></g><path class="area" fill="var(--accent-dim)" opacity="0"><animate class="aFade" attributeName="opacity" from="0" to="1" dur="0.8s" fill="freeze" begin="indefinite" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1"/></path><path class="line" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><animate class="aDraw" attributeName="stroke-dashoffset" dur="0.8s" fill="freeze" begin="indefinite" calcMode="spline" keySplines="0.22 1 0.36 1" keyTimes="0;1"/></path><circle class="end" r="4.5" fill="var(--accent)" stroke="var(--bg-2)" stroke-width="2" opacity="0"><animate class="aDot" attributeName="opacity" from="0" to="1" dur="0.3s" fill="freeze" begin="indefinite"/><animate class="aDotR" attributeName="r" values="0;5.6;4.5" dur="0.3s" fill="freeze" begin="indefinite" calcMode="spline" keySplines="0.22 1 0.36 1;0.22 1 0.36 1" keyTimes="0;0.6;1"/></circle></svg>
+          <div class="kpi"><small>Conversions</small><output>12 847</output></div>
+        </div>
+        <div class="lab-meta"><span>Poids<b>0 Ko</b></span><span>Lignes<b>≈ 20</b></span><span>Easing custom<b>oui</b></span></div>
+        <p><b>L'animation vit dans le fichier SVG lui même.</b> Pratique pour un pictogramme exporté d'Illustrator ou de Figma. Mais SMIL ne sait pas faire compter un nombre, le chiffre ici est statique, et les contrôles de lecture sont rudimentaires. Technologie ancienne, toujours supportée, rarement le bon choix pour une page entière.</p>
+        <span class="verdict">Verdict : utile pour une icône animée autonome, pas pour orchestrer une page.</span>
+      </figure>
+
+      <figure class="lab" data-tool="canvas">
+        <div class="lab-h"><h3>C · Canvas 2D, JavaScript nu</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><canvas></canvas><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>0 Ko</b></span><span>Lignes<b>≈ 60</b></span><span>Easing custom<b>oui, à la main</b></span></div>
+        <p><b>Contrôle total, pixel par pixel, à soixante images par seconde.</b> C'est la technique du hero de « bruit vers signal » dont je t'ai parlé : un canvas, une boucle, aucune dépendance. Le prix : rien n'est accessible ni sélectionnable, pas de CSS, et chaque chose doit être dessinée à la main.</p>
+        <span class="verdict">Verdict : pour les effets génératifs et les centaines de points. Pas pour un graphique qu'on veut lisible par un lecteur d'écran.</span>
+      </figure>
+
+      <figure class="lab" data-tool="gsap">
+        <div class="lab-h"><h3>D · GSAP</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area">
+          <svg viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"><g class="grid"></g><path class="area" fill="var(--accent-dim)" opacity="0"></path><path class="line" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle class="end" r="4.5" fill="var(--accent)" stroke="var(--bg-2)" stroke-width="2"></circle></svg>
+          <div class="kpi"><small>Conversions</small><output>0</output></div>
+        </div>
+        <div class="lab-meta"><span>Poids<b>27 Ko gzip</b></span><span>Lignes<b>≈ 15</b></span><span>Easing custom<b>oui</b></span></div>
+        <p><b>La référence des sites Awwwards, et gratuite en totalité depuis 2025.</b> Une timeline, des easings nommés, ScrollTrigger pour lier le mouvement au défilement, et une fiabilité que rien d'autre n'égale sur les vieux navigateurs. Quinze lignes pour exactement le résultat demandé.</p>
+        <span class="verdict">Verdict : l'outil du site final pour le tunnel et toute orchestration liée au scroll.</span>
+      </figure>
+
+      <figure class="lab" data-tool="anime">
+        <div class="lab-h"><h3>E · Anime.js</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area">
+          <svg viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"><g class="grid"></g><path class="area" fill="var(--accent-dim)" opacity="0"></path><path class="line" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle class="end" r="4.5" fill="var(--accent)" stroke="var(--bg-2)" stroke-width="2"></circle></svg>
+          <div class="kpi"><small>Conversions</small><output>0</output></div>
+        </div>
+        <div class="lab-meta"><span>Poids<b>6 Ko gzip</b></span><span>Lignes<b>≈ 15</b></span><span>Easing custom<b>oui</b></span></div>
+        <p><b>Quatre fois plus léger que GSAP pour le même résultat ici.</b> Syntaxe limpide, accepte directement notre cubic-bezier. Il lui manque l'écosystème de GSAP, notamment un équivalent sérieux de ScrollTrigger, et il est moins robuste sur les cas tordus.</p>
+        <span class="verdict">Verdict : excellent pour des micro-interactions isolées quand on veut rester léger.</span>
+      </figure>
+
+      <figure class="lab" data-tool="motion">
+        <div class="lab-h"><h3>F · Motion (motion.dev)</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area">
+          <svg viewBox="0 0 320 140" preserveAspectRatio="none" aria-hidden="true"><g class="grid"></g><path class="area" fill="var(--accent-dim)" opacity="0"></path><path class="line" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle class="end" r="4.5" fill="var(--accent)" stroke="var(--bg-2)" stroke-width="2"></circle></svg>
+          <div class="kpi"><small>Conversions</small><output>0</output></div>
+        </div>
+        <div class="lab-meta"><span>Poids<b>21 Ko gzip</b></span><span>Lignes<b>≈ 15</b></span><span>Easing custom<b>oui</b></span></div>
+        <p><b>Le moteur de Framer Motion, utilisable sans React.</b> Il s'appuie sur l'API Web Animations native du navigateur, donc le travail est fait par le moteur de rendu plutôt que par JavaScript, ce qui tient mieux les 60 images par seconde sur mobile. C'est l'outil qui monte le plus vite dans l'écosystème.</p>
+        <span class="verdict">Verdict : l'alternative moderne à GSAP, surtout si le site est un jour en React.</span>
+      </figure>
+
+      <figure class="lab" data-tool="lottie">
+        <div class="lab-h"><h3>G · Lottie</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><div class="lottie-box" style="position:absolute;inset:0"></div><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>74 Ko gzip + 28 Ko</b></span><span>Lignes<b>≈ 8</b></span><span>Easing custom<b>non, fixé dans le fichier</b></span></div>
+        <p><b>Une animation dessinée dans After Effects, jouée dans le navigateur.</b> Celle ci vient de la bibliothèque LottieFiles, trouvée et récupérée par le connecteur. Je l'ai recolorée en vert en modifiant le JSON. Elle ne suit pas notre prompt : ni notre courbe, ni notre easing, ni notre chiffre, parce qu'un Lottie se modifie dans After Effects, pas dans le code. Le lecteur pèse à lui seul plus que GSAP, Anime et Motion réunis.</p>
+        <span class="verdict">Verdict : parfait pour les quatre icônes des prestations. Mauvais pour un graphique de données.</span>
+      </figure>
+
+      <figure class="lab" data-tool="three">
+        <div class="lab-h"><h3>H · Three.js, WebGL 3D</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><canvas></canvas><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>145 Ko gzip</b></span><span>Lignes<b>≈ 70</b></span><span>Easing custom<b>oui, à la main</b></span></div>
+        <p><b>La même courbe, en volume, avec une caméra qui tourne.</b> C'est joli, et c'est précisément le problème : la perspective déforme les hauteurs, on ne sait plus si la cinquième barre est plus haute que la septième. Six fois le poids de GSAP pour un graphique moins lisible. Sur un site qui vend la mesure, la 3D ne sert que comme décor, jamais comme donnée.</p>
+        <span class="verdict">Verdict : à réserver à un seul objet d'ambiance, si vraiment. Jamais pour un chiffre.</span>
+      </figure>
+
+
+      <figure class="lab" data-tool="bg">
+        <div class="lab-h"><h3>M · Fond animé « façon MotionSites »</h3><button class="replay" type="button">Rejouer</button></div>
+        <div class="stage-area"><canvas></canvas><div class="kpi"><small>Conversions</small><output>0</output></div></div>
+        <div class="lab-meta"><span>Poids<b>0 Ko</b></span><span>Lignes<b>≈ 50</b></span><span>Easing custom<b>sans objet</b></span></div>
+        <p><b>Le genre d'effet que vendent les packs de prompts : des particules reliées, des halos qui dérivent, en boucle.</b> C'est du canvas 2D, zéro bibliothèque, et il tourne en permanence. Ici je l'ai mis sous notre courbe pour que tu voies la cohabitation : l'ambiance bouge, la donnée reste nette. Note le coût caché : une boucle infinie consomme la batterie d'un téléphone, et c'est l'esthétique « site généré par IA » que tout le monde reconnaît désormais.</p>
+        <span class="verdict">Verdict : faisable en dix minutes, à n'utiliser qu'avec parcimonie, et jamais derrière du texte long.</span>
+      </figure>
+      <figure class="lab off" data-tool="spline">
+        <div class="lab-h"><h3>I · Spline</h3><span class="tag">connecté, éditeur fermé</span></div>
+        <div class="stage-area">Les outils Spline sont branchés sur ta machine, mais l'éditeur n'est pas ouvert avec le pont IA activé. Ouvre un document Spline, active le pont, et je peux y créer une scène 2D ou 3D exportable en HTML.</div>
+        <p><b>Un éditeur 3D visuel, sans code, pensé pour le web.</b> Ce qu'il produit se place sur une page par un simple embed. Même verdict que Three.js pour les données, avec en plus un runtime lourd. Son vrai intérêt serait un objet d'ambiance unique sur la page contact.</p>
+        <span class="verdict">Verdict : à tester quand ton éditeur est ouvert, pour voir si l'ambiance vaut le poids.</span>
+      </figure>
+
+      <figure class="lab off" data-tool="figma">
+        <div class="lab-h"><h3>J · Figma</h3><span class="tag">connecté, lecture seule utile</span></div>
+        <div class="stage-area">Figma sait lire une animation faite dans ses prototypes et en exporter les keyframes en CSS ou en code Motion. On dessine le mouvement dans Figma, on récupère le code, et on retombe sur la case A ou F.</div>
+        <p><b>Figma n'est pas un moteur d'animation, c'est une table à dessin.</b> Utile pour maquetter le mouvement avec toi avant de coder, et pour produire les quatre icônes des prestations qu'on exportera ensuite en Lottie ou en SVG.</p>
+        <span class="verdict">Verdict : l'endroit où l'on décide, pas celui où ça tourne.</span>
+      </figure>
+
+      <figure class="lab off" data-tool="rive">
+        <div class="lab-h"><h3>K · Rive</h3><span class="tag">pas de connecteur</span></div>
+        <div class="stage-area">Aucun connecteur Rive dans le registre. Le runtime se charge très bien, mais il faut l'éditeur Rive pour fabriquer un fichier .riv, et ça se fait à la main.</div>
+        <p><b>Le successeur de Lottie.</b> Fichiers dix fois plus petits, un runtime de 60 Ko contre 300, et surtout des machines à états : une icône qui réagit au survol, au clic, à une valeur. Pour les quatre icônes des prestations, c'est ce que je choisirais à la place de Lottie si tu es prêt à apprendre l'éditeur, gratuit.</p>
+        <span class="verdict">Verdict : l'outil à apprendre cette année si tu veux des icônes interactives sans code.</span>
+      </figure>
+
+      <figure class="lab off" data-tool="jitter">
+        <div class="lab-h"><h3>L · Jitter</h3><span class="tag">pas de connecteur</span></div>
+        <div class="stage-area">Pas de connecteur non plus. Jitter est un éditeur de motion design en ligne, très simple, qui exporte en Lottie, en vidéo ou en GIF.</div>
+        <p><b>Le Canva du motion design.</b> Beaucoup plus accessible qu'After Effects pour fabriquer un Lottie propre en une heure. Son export Lottie se branche ensuite directement sur la case G.</p>
+        <span class="verdict">Verdict : si tu veux fabriquer toi même les Lottie des icônes sans apprendre After Effects.</span>
+      </figure>
+    </div>
+  </div>
+</section>
+

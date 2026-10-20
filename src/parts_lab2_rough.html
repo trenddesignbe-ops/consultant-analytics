@@ -1,0 +1,139 @@
+<!-- lab2:rough | lib: roughjs@4.6.6 | poids: 9 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="rough"] .stage-area{background:#fff}
+.lab2[data-tool="rough"] .scene{font-family:var(--body),sans-serif}
+.lab2[data-tool="rough"] .scene .ttl{font-family:var(--display),serif;font-size:21px;fill:var(--ink)}
+.lab2[data-tool="rough"] .scene .ttl.messy{fill:var(--ink)}
+.lab2[data-tool="rough"] .scene .lbl{font-size:12px;fill:var(--ink-2)}
+.lab2[data-tool="rough"] .scene .num{font-size:17px;font-weight:600;fill:var(--ink);font-variant-numeric:tabular-nums}
+.lab2[data-tool="rough"] .scene .num.bad{fill:var(--warn)}
+.lab2[data-tool="rough"] .scene .num.ok{fill:var(--accent)}
+.lab2[data-tool="rough"] .scene .cap{font-size:13px;fill:var(--ink-3)}
+.lab2[data-tool="rough"] .scene .cap.good{fill:var(--good);font-weight:600}
+.lab2[data-tool="rough"] .scene .cap.bad{fill:var(--warn);font-weight:600}
+</style>
+<figure class="lab2" data-tool="rough">
+  <div class="lab-h"><h3>3 · Rough.js</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area"><svg class="scene" aria-label="Avant : un rapport tremblant où 12 est plus petit que 10. Après : le même rapport redessiné proprement, 12 partout."></svg></div>
+  <div class="lab-meta"><span>Poids<b>9 Ko gzip</b></span><span>Lignes<b>≈ 120</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> à gauche, vos chiffres d'aujourd'hui, un rapport griffonné où la barre « 12 » est plus petite que la barre « 10 » ; à droite, le même rapport se redessine au trait net, un seul chiffre partout. <b>Ce que l'outil fait de spécial :</b> Rough.js transforme n'importe quel rectangle, ligne ou courbe en trait de crayon, avec un réglage de tremblement (roughness), de courbure (bowing) et des remplissages hachurés ou zigzag, le tout en SVG donc animable trait par trait. C'est le style « croquis » de townhouse.dev en 9 Ko. <b>Limite :</b> chaque tracé est regénéré au hasard, il faut fixer une graine (seed) pour obtenir deux fois le même dessin, et le style ne convient qu'à des illustrations, jamais à un vrai graphique.</p>
+  <div class="verdict">Verdict : idéal pour le bloc « avant / après » de la page et les schémas explicatifs, à condition de garder le trait net pour tout ce qui est un chiffre réel.</div>
+</figure>
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+<script>
+(function(){
+  var root = document.querySelector('.lab2[data-tool="rough"]');
+  if (!root || !window.rough) return;
+  var svg = root.querySelector('svg.scene');
+  var stage = root.querySelector('.stage-area');
+  var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var anims = [], timers = [];
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function text(x, y, cls, str, rot){
+    var t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('class', cls); t.textContent = str;
+    if (cls.indexOf('num') === 0 || cls.indexOf('lbl') === 0) t.setAttribute('text-anchor', 'middle');
+    if (rot) t.setAttribute('transform', 'rotate(' + rot + ' ' + x + ' ' + y + ')');
+    svg.appendChild(t); return t;
+  }
+
+  function add(node){ svg.appendChild(node); return node; }
+
+  // Dessine un panneau « rapport » : feuille + 3 barres + libellés
+  function panel(rc, x0, y0, pw, messy){
+    var items = [];
+    var sheetOpts = messy
+      ? { roughness: 2.6, bowing: 2.4, stroke: '#0B0B0C', strokeWidth: 1.5, fill: '#FFF8F3', fillStyle: 'solid', seed: 11 }
+      : { roughness: 0.6, bowing: 0.4, stroke: '#0B0B0C', strokeWidth: 1.3, fill: '#F7FAFF', fillStyle: 'solid', seed: 12 };
+    items.push(add(rc.rectangle(x0, y0, pw, 150, sheetOpts)));
+    var labels = ['Google Ads', 'Google Analytics', 'Boutique'];
+    var nums = messy ? ['12', '10', '8'] : ['12', '12', '12'];
+    var heights = messy ? [58, 92, 40] : [76, 76, 76];
+    var bw = Math.min(54, (pw - 40) / 3 - 14), gap = (pw - 3 * bw) / 4;
+    var base = y0 + 118;
+    for (var i = 0; i < 3; i++) {
+      var bx = x0 + gap + i * (bw + gap), bh = heights[i];
+      var opts = messy
+        ? { roughness: 2.4, bowing: 2, stroke: '#0B0B0C', strokeWidth: 1.4, fill: '#E5484D', fillStyle: i === 1 ? 'zigzag' : 'cross-hatch', hachureGap: 7, hachureAngle: 25 + i * 40, fillWeight: 1, seed: 20 + i }
+        : { roughness: 0.5, bowing: 0.3, stroke: '#2E5BFF', strokeWidth: 1.4, fill: '#2E5BFF', fillStyle: 'hachure', hachureGap: 4.5, hachureAngle: -41, fillWeight: 0.9, seed: 30 + i };
+      items.push(add(rc.rectangle(bx, base - bh, bw, bh, opts)));
+      var rot = messy ? [-4, 5, -3][i] : 0;
+      items.push(text(bx + bw / 2, base - bh - 8, 'num ' + (messy ? 'bad' : 'ok'), nums[i], rot));
+      items.push(text(bx + bw / 2, base + 16, 'lbl', labels[i], messy ? [3, -4, 2][i] : 0));
+    }
+    // Axe de base
+    items.push(add(rc.line(x0 + 10, base, x0 + pw - 10, base, messy ? { roughness: 2.2, bowing: 2.5, strokeWidth: 1.3, seed: 41 } : { roughness: 0.4, bowing: 0.2, strokeWidth: 1.2, seed: 42 })));
+    if (messy) {
+      // Un grand point d'interrogation griffonné par dessus
+      var qx = x0 + pw - 36, qy = y0 + 30;
+      var d = 'M' + (qx - 13) + ' ' + (qy - 4) + ' C' + (qx - 13) + ' ' + (qy - 24) + ',' + (qx + 15) + ' ' + (qy - 24) + ',' + (qx + 15) + ' ' + (qy - 4) + ' C' + (qx + 15) + ' ' + (qy + 6) + ',' + qx + ' ' + (qy + 8) + ',' + qx + ' ' + (qy + 20);
+      items.push(add(rc.path(d, { roughness: 2.6, bowing: 2.5, stroke: '#E5484D', strokeWidth: 2.4, seed: 51 })));
+      items.push(add(rc.circle(qx, qy + 32, 6, { roughness: 1.8, stroke: '#E5484D', strokeWidth: 2, fill: '#E5484D', fillStyle: 'solid', seed: 52 })));
+    } else {
+      // Une coche nette
+      var cx = x0 + pw - 26, cy = y0 + 17;
+      items.push(add(rc.linearPath([[cx - 12, cy], [cx - 3, cy + 9], [cx + 14, cy - 10]], { roughness: 0.5, bowing: 0.2, stroke: '#16A34A', strokeWidth: 2.6, seed: 61 })));
+    }
+    return items;
+  }
+
+  function stop(){
+    anims.forEach(function(a){ a.cancel(); }); anims = [];
+    timers.forEach(clearTimeout); timers = [];
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+  }
+
+  // Animation de tracé : chaque chemin se dessine, les textes apparaissent en fondu
+  function drawIn(items, t0, span){
+    var paths = [];
+    items.forEach(function(it){
+      if (it.tagName === 'text') { paths.push({ el: it, len: 0 }); return; }
+      Array.prototype.forEach.call(it.querySelectorAll('path'), function(p){
+        var filled = p.getAttribute('fill') && p.getAttribute('fill') !== 'none';
+        paths.push({ el: p, len: filled ? 0 : p.getTotalLength() });
+      });
+    });
+    var total = paths.reduce(function(s, p){ return s + Math.max(p.len, 120); }, 0);
+    var acc = 0;
+    paths.forEach(function(p){
+      var share = Math.max(p.len, 120) / total * span;
+      var start = t0 + (acc / total) * span;
+      acc += Math.max(p.len, 120);
+      if (RM) return;
+      if (p.len === 0) {
+        p.el.style.opacity = 0;
+        anims.push(p.el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: start, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' }));
+      } else {
+        p.el.style.strokeDasharray = p.len;
+        p.el.style.strokeDashoffset = p.len;
+        anims.push(p.el.animate([{ strokeDashoffset: p.len }, { strokeDashoffset: 0 }], { duration: Math.max(80, share * 1.6), delay: start, easing: 'linear', fill: 'forwards' }));
+      }
+    });
+  }
+
+  function play(){
+    stop();
+    var w = Math.max(360, stage.clientWidth), h = stage.clientHeight || 260;
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    var rc = rough.svg(svg);
+    var pw = Math.min(290, w / 2 - 36), xl = (w / 2 - pw) / 2, xr = w / 2 + (w / 2 - pw) / 2, y0 = 56;
+
+    var left = [text(xl, 34, 'ttl', 'Vos chiffres aujourd’hui', -1.5)].concat(panel(rc, xl, y0, pw, true));
+    left.push(text(xl, h - 18, 'cap bad', '12 est plus petit que 10 ?', -1));
+    var right = [text(xr, 34, 'ttl', 'Vos chiffres corrigés')].concat(panel(rc, xr, y0, pw, false));
+    right.push(text(xr, h - 18, 'cap good', 'Un seul chiffre, partout.'));
+
+    // Séparateur central au crayon
+    var sep = rc.line(w / 2, 24, w / 2, h - 24, { roughness: 1.2, bowing: 1, stroke: '#D9D6E6', strokeWidth: 1.2, seed: 70 });
+    svg.insertBefore(sep, svg.firstChild);
+
+    if (RM) return;
+    drawIn(left, 0, 1300);
+    drawIn(right, 1750, 1500);
+  }
+
+  window.LAB2 = window.LAB2 || {};
+  window.LAB2.rough = { play: play };
+})();
+</script>

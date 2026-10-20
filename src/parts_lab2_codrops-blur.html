@@ -1,0 +1,51 @@
+<!-- lab2:codrops-blur | lib: gsap@3.12.5 (effet Codrops ScrollBlurTypography, MIT) | poids: 27 Ko gzip | autonome: oui -->
+<style>
+.lab2[data-tool="codrops-blur"] .stage-area{background:linear-gradient(160deg,#FFFFFF 0%,#F7F4FF 55%,#FFF0F6 100%)}
+.lab2[data-tool="codrops-blur"] .txt{position:absolute;inset:0;padding:26px 26px 22px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.lab2[data-tool="codrops-blur"] .line{font:400 2.75rem/1.05 var(--display);color:var(--ink);letter-spacing:-.01em;margin:0}
+.lab2[data-tool="codrops-blur"] .line.l2{font-size:2.05rem;color:var(--ink-2)}
+.lab2[data-tool="codrops-blur"] .line.l3{font:400 .95rem/1.4 var(--body);color:var(--ink-3);margin-top:10px}
+.lab2[data-tool="codrops-blur"] .line .n{font:600 1em/1 var(--body);font-variant-numeric:tabular-nums;color:var(--warn)}
+.lab2[data-tool="codrops-blur"] .w{display:inline-block;white-space:nowrap}
+.lab2[data-tool="codrops-blur"] .ch{display:inline-block;will-change:filter,transform}
+.lab2[data-tool="codrops-blur"] .credit{position:absolute;right:14px;bottom:10px;font:400 .68rem var(--body);color:var(--ink-3)}
+</style>
+<figure class="lab2" data-tool="codrops-blur">
+  <div class="lab-h"><h3>3 · Démo Codrops « Scroll Blur Typography », adaptée</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area">
+    <div class="txt">
+      <p class="line l1" data-split><span class="n">4</span> ventes sur <span class="n">10</span></p>
+      <p class="line l2" data-split>n’apparaissent nulle part.</p>
+      <p class="line l3" data-split>Ni dans Google Ads, ni dans Google Analytics. Elles ont pourtant bien eu lieu.</p>
+    </div>
+    <div class="credit">effet Codrops, licence MIT</div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>27 Ko gzip</b></span><span>Lignes<b>≈ 45</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> la phrase sort du flou lettre par lettre, et les deux chiffres qui font mal arrivent en rouge. <b>Ce que l'outil fait de spécial :</b> l'effet Codrops anime le filtre CSS (blur et luminosité) et l'écrasement de chaque lettre avec un décalage de 50 ms, ce que GSAP sait faire sur des chaînes de filtres alors que CSS seul ne peut pas enchaîner cent lettres proprement. Repris tel quel du dépôt, sans SplitType ni Lenis, en 45 lignes. <b>Limite :</b> le filtre blur sur cent lettres coûte cher sur un vieux téléphone, à réserver à une phrase, pas à un paragraphe.</p>
+  <div class="verdict">Verdict : pour LA phrase d'accroche du hero ou le titre de la section « douleur », une fois par page.</div>
+</figure>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  window.LAB2 = window.LAB2 || {};
+  var fig = document.querySelector('.lab2[data-tool="codrops-blur"]'); if(!fig) return;
+  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lines = Array.prototype.slice.call(fig.querySelectorAll('[data-split]'));
+  // split into words then characters (same idea as Codrops' TextSplitter, without the dependency)
+  function split(el){ var frag = document.createDocumentFragment(); Array.prototype.slice.call(el.childNodes).forEach(function(node){ if(node.nodeType === 3){ node.textContent.split(/(\s+)/).forEach(function(part){ if(!part) return; if(/^\s+$/.test(part)){ frag.appendChild(document.createTextNode(' ')); return; } var w = document.createElement('span'); w.className = 'w'; part.split('').forEach(function(ch){ var c = document.createElement('span'); c.className = 'ch'; c.textContent = ch; w.appendChild(c); }); frag.appendChild(w); }); } else { var w2 = document.createElement('span'); w2.className = 'w'; var inner = node.cloneNode(false); node.textContent.split('').forEach(function(ch){ var c = document.createElement('span'); c.className = 'ch'; c.textContent = ch; inner.appendChild(c); }); w2.appendChild(inner); frag.appendChild(w2); } }); el.innerHTML = ''; el.appendChild(frag); return Array.prototype.slice.call(el.querySelectorAll('.ch')); }
+  var chars = lines.map(split);
+  if(!window.gsap){ window.LAB2['codrops-blur'] = { play: function(){} }; return; }
+  var tl = null;
+  function reset(){ if(tl) tl.kill(); chars.forEach(function(cs){ gsap.set(cs, { filter: 'blur(10px) brightness(50%)', scaleY: .1, scaleX: 1.8, opacity: 0 }); }); }
+  var api = { play: function(){
+    if(REDUCED){ if(tl) tl.kill(); chars.forEach(function(cs){ gsap.set(cs, { clearProps: 'all' }); }); return; }
+    reset();
+    tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+    tl.to(chars[0], { filter: 'blur(0px) brightness(100%)', scaleY: 1, scaleX: 1, opacity: 1, duration: .9, stagger: .05 }, .2)
+      .to(chars[1], { filter: 'blur(0px) brightness(100%)', scaleY: 1, scaleX: 1, opacity: 1, duration: .9, stagger: .035 }, 1.0)
+      .to(chars[2], { filter: 'blur(0px) brightness(100%)', scaleY: 1, scaleX: 1, opacity: 1, duration: .6, stagger: .008 }, 2.0);
+  } };
+  reset();
+  window.LAB2['codrops-blur'] = api;
+})();
+</script>

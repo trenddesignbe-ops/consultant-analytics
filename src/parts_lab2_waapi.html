@@ -1,0 +1,158 @@
+<!-- lab2:waapi | lib: aucune (Web Animations API native, element.animate) | poids: 0 Ko | autonome: oui -->
+<style>
+.lab2[data-tool="waapi"] .stage-area{background:#fff;cursor:pointer}
+.lab2[data-tool="waapi"] .dash{position:absolute;inset:0;padding:14px 16px;display:grid;grid-template-rows:auto 1fr auto;gap:8px;font-family:var(--body)}
+.lab2[data-tool="waapi"] .figs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lab2[data-tool="waapi"] .num{opacity:0;transform:translateY(10px)}
+.lab2[data-tool="waapi"] .num small{display:block;font:500 .72rem var(--body);color:var(--ink-3);margin-bottom:2px}
+.lab2[data-tool="waapi"] .num b{display:block;font:700 1.55rem/1.1 var(--body);color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.lab2[data-tool="waapi"] .mid{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;min-height:0}
+.lab2[data-tool="waapi"] .chart{position:relative}
+.lab2[data-tool="waapi"] .chart small{position:absolute;left:0;top:0;font:500 .72rem var(--body);color:var(--ink-3)}
+.lab2[data-tool="waapi"] .chart svg{position:absolute;left:0;top:16px;width:100%;height:calc(100% - 16px)}
+.lab2[data-tool="waapi"] .chart .line{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.lab2[data-tool="waapi"] .chart .fill{fill:var(--accent);opacity:0}
+.lab2[data-tool="waapi"] .rank{position:relative}
+.lab2[data-tool="waapi"] .rank small{display:block;font:500 .72rem var(--body);color:var(--ink-3);margin-bottom:4px}
+.lab2[data-tool="waapi"] .row{position:relative;display:grid;grid-template-columns:96px 1fr 30px;align-items:center;gap:8px;height:24px;font:500 .78rem var(--body);color:var(--ink-2)}
+.lab2[data-tool="waapi"] .row i{display:block;height:10px;border-radius:5px;background:var(--p1);transform-origin:left;transform:scaleX(0)}
+.lab2[data-tool="waapi"] .row b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}
+.lab2[data-tool="waapi"] .row.top i{background:var(--accent)}
+.lab2[data-tool="waapi"] .foot{display:flex;justify-content:space-between;gap:10px;font:500 .74rem var(--body);color:var(--ink-3)}
+.lab2[data-tool="waapi"] .foot .msg{color:var(--ink);font-weight:600}
+</style>
+<figure class="lab2" data-tool="waapi">
+  <div class="lab-h"><h3>6 · Web Animations API</h3><button class="replay" type="button">Rejouer</button></div>
+  <div class="stage-area" role="button" tabindex="0" aria-label="Tableau de bord qui se construit ; cliquer pour mettre en pause, puis lire à l'envers">
+    <div class="dash">
+      <div class="figs">
+        <div class="num" data-to="128"><small>Ventes cette semaine</small><b>0</b></div>
+        <div class="num" data-to="41"><small>Demandes de devis</small><b>0</b></div>
+        <div class="num" data-to="3200" data-unit=" €"><small>Pub dépensée</small><b>0 €</b></div>
+      </div>
+      <div class="mid">
+        <div class="chart"><small>Ventes par jour</small>
+          <svg viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
+            <path class="fill" d="M4,70 L31,62 L58,66 L85,50 L112,54 L139,40 L166,44 L193,30 L220,34 L247,22 L274,26 L296,14 L296,88 L4,88 Z"/>
+            <path class="line" d="M4,70 L31,62 L58,66 L85,50 L112,54 L139,40 L166,44 L193,30 L220,34 L247,22 L274,26 L296,14"/>
+          </svg>
+        </div>
+        <div class="rank"><small>D'où viennent les ventes</small>
+          <div class="rows">
+            <div class="row" data-v="31"><span>Bouche à oreille</span><i></i><b>31</b></div>
+            <div class="row" data-v="54"><span>Google</span><i></i><b>54</b></div>
+            <div class="row" data-v="27"><span>Instagram</span><i></i><b>27</b></div>
+            <div class="row" data-v="16"><span>Newsletter</span><i></i><b>16</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="msg">Lundi 9 h : tout lu en 30 secondes</span><span class="st">Cliquer sur la scène : pause, puis lecture à l'envers</span></div>
+    </div>
+  </div>
+  <div class="lab-meta"><span>Poids<b>0 Ko</b></span><span>Lignes<b>≈ 160</b></span><span>Autonome<b>oui</b></span></div>
+  <p><b>Ce que montre la démo :</b> lundi 9 h, le tableau de bord se construit en 2 secondes : ventes, demandes de devis, pub dépensée, courbe, et d'où viennent les ventes, classées. <b>Ce que l'outil fait de spécial :</b> chaque animation est un objet JavaScript natif (element.animate) qu'on met en pause, inverse ou accélère en cours de route, qu'on compose avec composite « add » (l'impulsion s'ajoute au déplacement du classement sans l'écraser) et dont on fige l'état final avec commitStyles avant de libérer la mémoire ; CSS ne sait faire aucun de ces quatre gestes. <b>Limite :</b> pas de timeline globale ni de morphing de tracé, il faut cadencer les délais à la main.</p>
+  <div class="verdict">Verdict : l'outil par défaut pour toute animation pilotée par une interaction (pause, retour, vitesse) sans charger de bibliothèque ; GSAP seulement si une timeline complexe ou du morphing s'impose.</div>
+</figure>
+<script>
+(function(){
+  var fig=document.querySelector('.lab2[data-tool="waapi"]');
+  if(!fig)return;
+  var stage=fig.querySelector('.stage-area'), st=fig.querySelector('.st');
+  var kpis=Array.prototype.slice.call(fig.querySelectorAll('.num'));
+  var line=fig.querySelector('.line'), fill=fig.querySelector('.fill');
+  var rows=Array.prototype.slice.call(fig.querySelectorAll('.row'));
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var EASE='cubic-bezier(.22,1,.36,1)';
+  var anims=[], pacers=[], raf=null, dir=1, finished=false, rowH=0;
+  var supported=!!(stage.animate&&Element.prototype.getAnimations);
+
+  /* Toutes les animations partagent la même fin (endDelay) : mises en pause ou inversées, elles restent synchronisées. */
+  var TOTAL=3100;
+  function T(o){ o.endDelay=TOTAL-((o.delay||0)+o.duration); return o; }
+  function fmt(n,unit){ var s=String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' '); return s+(unit||''); }
+  function setKpi(k,p){ var to=+k.getAttribute('data-to'); k.querySelector('b').textContent=fmt(to*p,k.getAttribute('data-unit')); }
+
+  function tick(){
+    pacers.forEach(function(pr){
+      var t=pr.anim.effect.getComputedTiming();
+      var p=t.progress; if(p===null) p=(pr.anim.currentTime||0)>=t.delay?1:0;
+      setKpi(pr.el,p);
+    });
+    if(anims.some(function(a){return a.playState==='running';})) raf=requestAnimationFrame(tick); else raf=null;
+  }
+
+  function clear(){
+    if(raf)cancelAnimationFrame(raf); raf=null;
+    anims.forEach(function(a){ try{a.cancel();}catch(e){} });
+    anims=[]; pacers=[]; finished=false; dir=1;
+    kpis.forEach(function(k){ k.style.cssText=''; setKpi(k,0); });
+    line.style.cssText=''; fill.style.cssText='';
+    rows.forEach(function(r){ r.style.cssText=''; r.querySelector('i').style.cssText=''; r.classList.remove('top'); });
+  }
+
+  function build(){
+    clear();
+    var len=line.getTotalLength(); rowH=rows[0].offsetHeight||24;
+    /* 1. Les trois chiffres : apparition (opacity + transform) et un « pacer » dont on lit la progression pour compter. */
+    kpis.forEach(function(k,i){
+      anims.push(k.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0)'}],T({duration:500,delay:i*110,easing:EASE,fill:'forwards'})));
+      var pr=k.animate([{opacity:1},{opacity:1}],T({duration:650,delay:120+i*110,easing:EASE,fill:'forwards'}));
+      anims.push(pr); pacers.push({el:k,anim:pr});
+    });
+    /* 2. La courbe se trace : strokeDashoffset animé en natif sur un élément SVG. */
+    line.style.strokeDasharray=len; line.style.strokeDashoffset=len;
+    anims.push(line.animate([{strokeDashoffset:len},{strokeDashoffset:0}],T({duration:700,delay:750,easing:EASE,fill:'forwards'})));
+    anims.push(fill.animate([{opacity:0},{opacity:.12}],T({duration:700,delay:750,easing:EASE,fill:'forwards'})));
+    /* 3. Le classement : les barres poussent, puis les lignes se réordonnent (FLIP : translateY), puis la première reçoit une impulsion composée. */
+    var max=Math.max.apply(null,rows.map(function(r){return +r.getAttribute('data-v');}));
+    var sorted=rows.slice().sort(function(a,b){return b.getAttribute('data-v')-a.getAttribute('data-v');});
+    rows.forEach(function(r,i){
+      var v=+r.getAttribute('data-v');
+      anims.push(r.querySelector('i').animate([{transform:'scaleX(0)'},{transform:'scaleX('+(v/max)+')'}],T({duration:500,delay:1450+i*70,easing:EASE,fill:'forwards'})));
+      var target=sorted.indexOf(r), dy=(target-i)*rowH;
+      anims.push(r.animate([{transform:'translateY(0)'},{transform:'translateY('+dy+'px)'}],T({duration:550,delay:2050,easing:EASE,fill:'forwards'})));
+    });
+    var top=sorted[0]; top.classList.add('top');
+    anims.push(top.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],T({duration:450,delay:2600,easing:EASE,composite:'add'})));
+
+    var last=anims[anims.length-1];
+    last.onfinish=function(){
+      if(dir!==1)return;
+      finished=true;
+      /* 4. commitStyles : l'état final passe en style inline, puis on libère toutes les animations. */
+      setTimeout(function(){
+        if(!finished)return;
+        anims.forEach(function(a){ try{ if(a.effect&&a.effect.getComputedTiming().fill==='forwards'){a.commitStyles();} a.cancel(); }catch(e){} });
+        kpis.forEach(function(k){ setKpi(k,1); });
+        anims=[]; pacers=[];
+        st.textContent='Terminé : état figé par commitStyles, animations libérées. Rejouer pour relancer';
+      },400);
+    };
+    raf=requestAnimationFrame(tick);
+    st.textContent='Cliquer sur la scène : pause, puis lecture à l\'envers';
+  }
+
+  function play(){
+    if(!supported){ st.textContent='Web Animations API indisponible dans ce navigateur'; return; }
+    build();
+    if(reduce){ anims.forEach(function(a){ try{a.finish();}catch(e){} }); kpis.forEach(function(k){ setKpi(k,1); }); }
+  }
+
+  /* Contrôle de la timeline : un clic met tout en pause, le suivant inverse le sens, le suivant met en pause, etc. */
+  function control(){
+    if(!anims.length){ st.textContent=finished?'Terminé : Rejouer pour relancer':'Rien à piloter : Rejouer'; return; }
+    var running=anims.some(function(a){return a.playState==='running';});
+    if(running){ anims.forEach(function(a){a.pause();}); st.textContent='En pause (Animation.pause). Cliquer : lecture '+(dir===1?'à l\'envers':'en avant'); return; }
+    dir=-dir; finished=false;
+    anims.forEach(function(a){ try{ a.updatePlaybackRate(dir); if(a.playState==='finished'&&dir===-1){ a.reverse(); } else { a.play(); } }catch(e){} });
+    st.textContent=dir===-1?'Lecture à l\'envers (playbackRate -1). Cliquer : pause':'Lecture en avant. Cliquer : pause';
+    raf=requestAnimationFrame(tick);
+  }
+  stage.addEventListener('click',control);
+  stage.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();control();} });
+  fig.querySelector('.replay').addEventListener('click',play);
+  kpis.forEach(function(k){ setKpi(k,0); });
+  window.LAB2=window.LAB2||{};
+  window.LAB2["waapi"]={play:play};
+})();
+</script>
