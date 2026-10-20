@@ -69,7 +69,7 @@ export default async function handler(request){
    if(i===3)throw Error('Trop de redirections pour ce contrôle rapide.');current=normalizeTarget(new URL(result.redirect,current).href);
   }
   return reply({url:current.href,checks:inspectHtml(result.html),scope:(result.truncated?'Page volumineuse : seul le premier mégaoctet de HTML a été lu. ':'')+'Lecture du HTML public uniquement. Les scripts ne sont pas exécutés, aucun achat n’est simulé et aucun compte privé n’est consulté.'});
- }catch(error){const message=controller.signal.aborted?'Le site n’a pas répondu assez vite. Réessayez ou demandez une analyse ci-dessous.':(/^(Indiquez|Adresse|Cette adresse|Ce site|Le site|Cette|La page|Le format|Trop de)/.test(error.message)?error.message:'Le contrôle automatique n’a pas pu lire cette page. Vérifiez l’adresse ou demandez une analyse ci-dessous.');return reply({error:message},422);}
+ }catch(error){const message=controller.signal.aborted?'Le site n’a pas répondu assez vite. Réessayez ou utilisez le contact en bas de page.':(/^(Indiquez|Adresse|Cette adresse|Ce site|Le site|Cette|La page|Le format|Trop de)/.test(error.message)?error.message:'Le contrôle automatique n’a pas pu lire cette page. Vérifiez l’adresse ou utilisez le contact en bas de page.');return reply({error:message},422);}
  finally{clearTimeout(timer);}
 }
 export const config={path:'/api/tracking-check',rateLimit:{action:'rate_limit',aggregateBy:['ip','domain'],windowSize:60,windowLimit:6}};
