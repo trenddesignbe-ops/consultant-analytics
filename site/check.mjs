@@ -17,6 +17,10 @@ assert(home.includes('<h1>Consultant web analytics freelance</h1>'),'homepage ta
 assert(!home.includes('hero-scene')&&!home.includes('portrait-caption'),'no oversized hero portrait');
 assert(home.includes('https://wa.me/33767463870'),'owner WhatsApp number from reference site');
 assert(home.includes('https://www.consultant-analytics.fr/'),'primary domain canonical');
+assert(home.includes('id="contact-name"')&&home.includes('id="contact-budget"'),'name and optional mission budget');
+assert(!home.includes('Votre messagerie s’ouvre avec le message prérempli.'),'removed contact helper copy');
+assert(home.includes('data-cookie-choice="refused"')&&home.includes('data-cookie-choice="accepted"'),'equal-level audience choices');
+assert(home.includes('/mentions-legales/')&&home.includes('/cookies/'),'legal and cookie pages linked');
 console.log(JSON.stringify({pages:htmlFiles.length,localLinksAndAssetsChecked:links,uniqueTitles:titles.size,homeBytes:Buffer.byteLength(home),cssBytes:fs.statSync(path.join(root,'assets/site.css')).size,jsBytes:fs.statSync(path.join(root,'assets/site.js')).size,thirdPartyScripts:externalScripts.length,status:'PASS'},null,2));
 
 for(const slug of ['consultant-google-analytics','consultant-google-tag-manager','consultant-looker-studio','suivi-conversions-google-ads']){const html=fs.readFileSync(path.join(root,slug,'index.html'),'utf8');assert(home.includes('/'+slug+'/'),'service reachable from home: '+slug);assert(!html.includes('undefined'),'complete service data: '+slug);}assert(home.includes('consultant analytics freelance'),'homepage exact supporting phrase');assert(fs.readFileSync(path.join(root,'_redirects'),'utf8').includes('/expert-looker-studio/ /consultant-looker-studio/ 301'),'legacy Looker redirect');

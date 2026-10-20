@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node site/build.mjs",
     "preview": "node site/server.mjs",
-    "test": "node site/check.mjs && node --test site/tracking-check.test.mjs"
+    "test": "node site/check.mjs && node --test site/tracking-check.test.mjs site/consent.test.mjs"
   },
   "engines": { "node": ">=20" }
 }
