@@ -17,3 +17,10 @@
   NODE_VERSION = "22"
   # Enable only when the final domain, identity and launch settings are validated.
   SITE_INDEXABLE = "false"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[context.production.environment]
+  SITE_INDEXABLE = "true"

@@ -1,7 +1,7 @@
 export default {
   name: 'Consultant Analytics',
   person: 'Alexandre Cottret',
-  domain: 'https://consultant-analytics.fr',
+  domain: 'https://www.consultant-analytics.fr',
   email: 'cottret.alexandre@hotmail.fr',
   calendar: 'https://calendly.com/alexandre-cottret/votre-projet-web',
   linkedin: 'https://www.linkedin.com/in/alexandre-cottret-designer-web/',

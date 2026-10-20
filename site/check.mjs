@@ -11,4 +11,8 @@ for(const m of s.matchAll(/(?:href|src)="(\/[^\"]*)"/g)){const [pathname,fragmen
 const home=fs.readFileSync(path.join(root,'index.html'),'utf8');assert(home.includes('data-demo="sales"')&&home.includes('data-demo="leads"'),'both dashboard states');assert(home.includes('https://calendly.com/alexandre-cottret/votre-projet-web'),'confirmed calendar');assert.match(home,/data-contact data-email=/,'explicit email composer');
 const font=fs.readFileSync(path.join(root,'assets/switzer-regular.woff2'));assert.equal(font.subarray(0,4).toString(),'wOF2','real font, not an error response');assert(fs.statSync(path.join(root,'assets/alexandre.webp')).size<150000,'optimized portrait');
 const externalScripts=home.match(/<script[^>]+src="https?:/g)||[];assert.equal(externalScripts.length,0,'no third-party runtime');
+assert(home.includes('data-tool-tab="ga4"')&&home.includes('data-tool-tab="gtm"')&&home.includes('data-tool-tab="ads"')&&home.includes('data-tool-tab="looker"'),'four expertise tabs');
+assert(home.includes('name="analyse-tracking"')&&home.includes('data-netlify="true"'),'real registered lead form');
+assert(home.includes('<h1>Consultant web analytics freelance</h1>'),'homepage target in H1');
+assert(home.includes('https://www.consultant-analytics.fr/'),'primary domain canonical');
 console.log(JSON.stringify({pages:htmlFiles.length,localLinksAndAssetsChecked:links,uniqueTitles:titles.size,homeBytes:Buffer.byteLength(home),cssBytes:fs.statSync(path.join(root,'assets/site.css')).size,jsBytes:fs.statSync(path.join(root,'assets/site.js')).size,thirdPartyScripts:externalScripts.length,status:'PASS'},null,2));
