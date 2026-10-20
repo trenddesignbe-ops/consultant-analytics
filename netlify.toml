@@ -1,15 +1,19 @@
 [build]
-  publish = "."
-  command = ""
+  publish = "dist"
+  command = "npm run build && npm test"
 
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Robots-Tag = "noindex, nofollow"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[headers]]
   for = "/assets/*"
   [headers.values]
-    Cache-Control = "public, max-age=604800"
+    Cache-Control = "public, max-age=3600"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Enable only when the final domain, identity and launch settings are validated.
+  SITE_INDEXABLE = "false"

@@ -1,36 +1,44 @@
-# consultant-analytics.fr
+# Consultant Analytics · refonte v2
 
-Page d'accueil du site satellite **consultant-analytics.fr** (Alexandre Cottret, Trend Design).
-Consultant web analytics freelance : Google Analytics, Google Tag Manager, Google Ads, Looker Studio.
+Site statique multipage pour Alexandre Cottret. Direction visuelle inspirée de PipelinePro à la demande du propriétaire : Switzer, grands espacements, boutons noirs, fonds sobres et blocs visuels colorés. Aucune dépendance JavaScript de production.
 
-## Ce que contient le dépôt
+## Construire et prévisualiser
 
-| Chemin | Rôle |
-|---|---|
-| `index.html` | La page d'accueil complète, autonome (un seul fichier) |
-| `assets/signal.json` | Modèle 3D « le signal » au format glTF JSON, chargé par Three.js |
-| `assets/signal.glb` | Même modèle au format binaire (source) |
-| `src/` | Sources du build : `v5.src.html`, les `parts_*.txt`, les cartes `parts_lab2_*.html` et les scripts `build.py` / `build_lab2.py` |
-| `netlify.toml` | Déploiement Netlify (site statique, en-têtes noindex tant que le site n'est pas lancé) |
-| `robots.txt` | Interdit l'exploration pour l'instant (pas d'indexation avant la mise en ligne réelle) |
+Node.js 22 recommandé. Aucune installation de dépendance requise.
 
-## Reconstruire la page
-
-```bash
-cd src
-python3 -I build.py        # écrit ../index.html et check.js
-node --check check.js      # contrôle de syntaxe du JavaScript
+```sh
+npm run build
+npm test
+npm run preview
 ```
 
-`build.py` assemble `v5.src.html` avec les parties (labo, tunnel 3D, simulateurs) et `build_lab2.py`
-ajoute les 26 cartes du Labo 2 plus le tableau comparatif des outils d'animation.
+L’aperçu s’ouvre sur http://127.0.0.1:4173. `dist/` est généré et ignoré par Git. Netlify publie exclusivement ce dossier après construction et contrôle.
 
-## À savoir
+## Contenu
 
-- La section **Labo 2** en bas de page est une section de test destinée à comparer les outils
-  d'animation. Elle charge une quinzaine de bibliothèques et doit être retirée avant la mise en
-  ligne définitive (la page tombe alors sous les 200 Ko).
-- Deux cartes du labo attendent un fichier pour s'animer réellement : `assets/consent.riv`
-  (export depuis l'éditeur Rive) et `assets/scene.splinecode` (export depuis Spline).
-- Contenus encore à fournir avant le lancement : photo, tarifs définitifs, deux cas clients
-  chiffrés, lien Calendly.
+- Accueil : problèmes clients, quatre expertises, exemple de dashboard interactif, méthode, trois personas, prestations, présentation et contact.
+- Quatre pages de services : GA4, GTM, Google Ads et Looker Studio. Pas de page Wix, conformément au choix du propriétaire.
+- Trois guides détaillés et leur index, page confidentialité et vraie page 404.
+- Métadonnées uniques, canonical, sitemap, données structurées et ressources locales.
+
+`site/build.mjs` contient les gabarits et la home ; `site/services.mjs` et `site/articles.mjs` contiennent les pages éditoriales. `site/assets/` contient le CSS, le JavaScript et les médias. Les fichiers historiques de la racine et de `src/` restent conservés mais ne sont pas publiés.
+
+## Réglages métier
+
+Modifier `site/config.mjs` pour les coordonnées, le domaine final et les prix. Calendly confirmé par le propriétaire : https://calendly.com/alexandre-cottret/votre-projet-web.
+
+Les tarifs restent **sur devis** tant que montants, périmètres et HT/TTC ne sont pas confirmés. L’adresse email vient de la page publique Trend Design ; elle doit être confirmée avant lancement définitif. Le formulaire est un composeur email explicite : il ouvre la messagerie du visiteur, sans annoncer qu’un envoi serveur aurait eu lieu. Le site ne stocke pas les saisies. Une future collecte serveur nécessitera un raccordement réel, une gestion des erreurs et une mise à jour des informations de confidentialité.
+
+Les visuels de reporting sont des exemples fictifs, pas des cas clients. Aucun témoignage ou résultat commercial n’est inventé. Sources des médias dans `site/ASSETS.md`.
+
+## Avant lancement public du domaine
+
+L’indexation est désactivée par défaut dans le HTML et les en-têtes générés. `robots.txt` autorise l’exploration pour que `noindex` puisse être lu. Ne pas demander d’indexation de cette préversion.
+
+Après validation du domaine, des coordonnées, des mentions de l’éditeur et de la politique de conservation réelle, passer `SITE_INDEXABLE` à `true` dans la configuration de production Netlify et reconstruire. Le domaine canonique doit correspondre au domaine servi, avec HTTPS et les redirections appropriées. Conserver les deploy previews hors index.
+
+Cette version ne charge pas GA4, GTM ni de pixel publicitaire. Aucune CMP fictive n’est ajoutée. Un futur plan de mesure doit distinguer clic Calendly et réservation confirmée, respecter les choix de consentement et ne pas envoyer d’informations personnelles à GA4.
+
+## Vérifications
+
+`npm test` vérifie toutes les pages générées, les liens et ancres internes, les assets, les titres/descriptions uniques, un H1 par page, le JSON-LD et le retrait de la page Wix. Recette navigateur : desktop, mobile, menu, FAQ et bascule ventes/demandes du dashboard. Le calendrier n’est pas réservé et aucun message n’est envoyé durant les tests.

@@ -1,0 +1,12 @@
+{
+  "name": "consultant-analytics",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node site/build.mjs",
+    "preview": "node site/server.mjs",
+    "test": "node site/check.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
