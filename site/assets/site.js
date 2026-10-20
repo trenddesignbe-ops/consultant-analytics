@@ -41,10 +41,20 @@ measure?.addEventListener('click',()=>{
 
 const scan=document.querySelector('[data-scan]');
 const requestForm=document.querySelector('[data-analysis-form]');
+function normalizeWebsiteInput(value){
+ let input=value.trim();if(!input||/\s/.test(input))throw Error('Indiquez une adresse de site sans espace, par exemple votre-site.fr.');
+ if(input.startsWith('//'))input='https:'+input;else if(!/^[a-z][a-z0-9+.-]*:/i.test(input))input='https://'+input;
+ let url;try{url=new URL(input);}catch{throw Error('Vérifiez l’adresse du site, par exemple votre-site.fr.');}
+ if(url.protocol==='http:')url.protocol='https:';
+ if(url.protocol!=='https:'||url.username||url.password||url.port||!url.hostname.includes('.')||url.hostname.startsWith('['))throw Error('Indiquez un site public, par exemple votre-site.fr.');
+ url.search='';url.hash='';return url.href;
+}
 scan?.addEventListener('submit',async event=>{
- event.preventDefault();if(!scan.reportValidity())return;
+ event.preventDefault();const input=scan.elements.url;input.setCustomValidity('');let normalized;
+ try{normalized=normalizeWebsiteInput(input.value);}catch(error){input.setCustomValidity(error.message);input.reportValidity();return;}
+ if(!scan.reportValidity())return;input.value=normalized;
  const button=scan.querySelector('button'),status=document.querySelector('[data-scan-status]'),results=document.querySelector('[data-scan-results]');
- button.disabled=true;status.textContent='Lecture de votre page publique en cours…';results.hidden=true;results.replaceChildren();
+ button.disabled=true;status.textContent='Lecture de votre page publique en cours…';results.hidden=true;results.replaceChildren();document.querySelector('[data-analysis-request]').hidden=true;requestForm.querySelector('[data-analysis-status]').textContent='';
  // Never keep findings from an earlier website in a new enquiry.
  requestForm.elements.constats.value='Contrôle en cours ou non effectué';requestForm.elements.website.value=scan.elements.url.value;
  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),11000);
@@ -53,21 +63,22 @@ scan?.addEventListener('submit',async event=>{
   if(response.status===429)throw Error('Vous avez lancé plusieurs contrôles. Patientez une minute avant de réessayer.');
   if(!response.headers.get('content-type')?.includes('application/json'))throw Error('Le contrôle est momentanément indisponible. Vous pouvez demander une analyse ci-dessous.');
   const data=await response.json();if(!response.ok)throw Error(data.error||'Le contrôle n’a pas abouti. Réessayez.');
-  status.textContent='Premiers constats disponibles. Une balise repérée n’est pas une preuve de bon fonctionnement.';
+  status.textContent='Voici les premiers éléments repérés sur votre page.';
   const scope=document.createElement('p');scope.className='scan-scope';scope.textContent='Page consultée : '+data.url;results.append(scope);
   const list=document.createElement('ul');list.className='scan-findings';
-  data.checks.forEach(check=>{const li=document.createElement('li'),heading=document.createElement('b'),text=document.createElement('p');heading.textContent=check.name+' · '+(check.observed?'Référence repérée':'À vérifier');text.textContent=check.detail;li.append(heading,text);list.append(li);});results.append(list);
+  data.checks.slice(0,2).forEach(check=>{const li=document.createElement('li'),heading=document.createElement('b'),text=document.createElement('p');heading.textContent=check.name+' · '+(check.observed?'Référence repérée':'À vérifier');text.textContent=check.detail;li.append(heading,text);list.append(li);});results.append(list);
   const limit=document.createElement('p');limit.className='small';limit.textContent=data.scope;results.append(limit);results.hidden=false;
   requestForm.elements.website.value=data.url;requestForm.elements.constats.value=data.checks.map(c=>c.name+': '+(c.observed?'référence repérée':'à vérifier')).join('\n')+'\n'+data.scope;
-  const details=document.querySelector('[data-analysis-request]');details.open=true;details.querySelector('summary').textContent='Faire vérifier mon suivi en détail avec Alexandre';
+  document.querySelector('[data-analysis-request]').hidden=false;
  }catch(error){status.textContent=error.name==='AbortError'?'Le contrôle prend trop de temps. Réessayez ou demandez une analyse ci-dessous.':error.message;requestForm.elements.constats.value='Contrôle non abouti : '+status.textContent;}
  finally{clearTimeout(timer);button.disabled=false;}
 });
+scan?.elements.url.addEventListener('input',()=>scan.elements.url.setCustomValidity(''));
 requestForm?.addEventListener('submit',async event=>{
  event.preventDefault();if(!requestForm.reportValidity())return;
  const button=requestForm.querySelector('button'),status=requestForm.querySelector('[data-analysis-status]');button.disabled=true;status.textContent='Envoi de votre demande…';
  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
- try{const response=await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(requestForm)).toString(),signal:controller.signal});if(!response.ok)throw Error('Envoi impossible pour le moment. Réessayez ou utilisez le contact en bas de page.');status.textContent='Votre demande est enregistrée. Alexandre vous répondra par email pour préciser les vérifications utiles.';requestForm.reset();}
+ try{const response=await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(requestForm)).toString(),signal:controller.signal});if(!response.ok)throw Error('Envoi impossible pour le moment. Réessayez ou utilisez le contact en bas de page.');status.textContent='Votre demande est enregistrée. Alexandre vous enverra le bilan du prédiagnostic par email.';requestForm.reset();}
  catch(error){status.textContent=error.name==='AbortError'?'L’envoi n’a pas pu être confirmé. Réessayez ou contactez Alexandre en bas de page.':error.message;}
  finally{clearTimeout(timer);button.disabled=false;}
 });

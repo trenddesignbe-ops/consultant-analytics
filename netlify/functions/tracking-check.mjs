@@ -11,7 +11,11 @@ export function isPublicV4(address){
 }
 export function normalizeTarget(value){
  if(typeof value!=='string'||value.length>500)throw Error('Adresse de site invalide.');
+ value=value.trim();if(!value||/\s/.test(value))throw Error('Indiquez une adresse de site sans espace, par exemple votre-site.fr.');
+ if(value.startsWith('//'))value='https:'+value;
+ else if(!/^[a-z][a-z0-9+.-]*:/i.test(value))value='https://'+value;
  let u;try{u=new URL(value);}catch{throw Error('Indiquez une adresse complète, par exemple https://votre-site.fr.');}
+ if(u.protocol==='http:')u.protocol='https:';
  if(u.protocol!=='https:'||u.username||u.password||u.port||isIP(u.hostname)||!u.hostname.includes('.')||u.hostname.endsWith('.')||! /^[a-z0-9.-]+$/i.test(u.hostname)||/\.(?:localhost|local|internal|test|invalid)$/i.test(u.hostname))throw Error('Indiquez un site public en HTTPS, sans identifiant ni port particulier.');
  // A first public-page check does not need query tokens or fragment identifiers.
  u.search='';u.hash='';return u;
