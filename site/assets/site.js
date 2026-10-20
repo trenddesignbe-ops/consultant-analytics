@@ -35,7 +35,7 @@ measure?.addEventListener('click',()=>{
  const oldWidth=bar.getAttribute('width');bar.setAttribute('width',corrected?'368':'288');missing.setAttribute('width',corrected?'0':'80');
  if(!reducedMotion.matches&&bar.animate){bar.animate([{width:oldWidth+'px'},{width:(corrected?368:288)+'px'}],{duration:650,easing:'cubic-bezier(.16,1,.3,1)'});missing.animate([{opacity:corrected?1:0},{opacity:corrected?0:1}],{duration:400});}
  document.querySelector('.measurement-flow').setAttribute('aria-label',corrected?'Exemple après correction : 92 achats mesurés et 8 non observés.':'Exemple avant correction : 72 achats mesurés, 20 absents à cause d’une erreur technique, 8 non observés.');
- document.querySelector('[data-measure-note]').textContent=corrected?'8 restent non observés dans cet exemple. Corriger un événement ne contourne pas un refus de cookies.':'Simulation uniquement. Les proportions ne décrivent pas votre site.';
+
  measure.firstChild.textContent=corrected?'Revenir à l’exemple initial ':'Simuler la correction de l’événement ';
 });
 
