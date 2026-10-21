@@ -1,0 +1,9 @@
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import trackingCheck from '../netlify/functions/tracking-check.mjs';
+const root=path.resolve(import.meta.dirname,'../dist');
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png','.woff2':'font/woff2','.xml':'application/xml','.txt':'text/plain'};
+http.createServer(async(req,res)=>{
+if(req.url==='/api/tracking-check'){const parts=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>2048){res.writeHead(413).end();return;}parts.push(chunk);}const request=new Request('http://127.0.0.1:4173/api/tracking-check',{method:req.method,headers:req.headers,...(req.method!=='GET'?{body:Buffer.concat(parts)}:{})});const reply=await trackingCheck(request);res.writeHead(reply.status,Object.fromEntries(reply.headers));res.end(await reply.text());return;}
+if(req.method==='POST'){res.writeHead(503,{'Content-Type':'text/plain'}).end('Forms are available on the deployed site only.');return;}let file;try{const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);file=path.resolve(root,'.'+pathname);if(file!==root&&!file.startsWith(root+path.sep)){res.writeHead(403).end();return;}if(fs.existsSync(file)&&fs.statSync(file).isDirectory())file=path.join(file,'index.html');}catch{res.writeHead(400).end();return;}let status=200;if(!fs.existsSync(file)){status=404;file=path.join(root,'404.html');}res.writeHead(status,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store','X-Robots-Tag':'noindex, follow'});fs.createReadStream(file).pipe(res);}).listen(4173,'127.0.0.1',()=>console.log('Local: http://127.0.0.1:4173'));
