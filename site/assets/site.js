@@ -113,3 +113,6 @@ expertiseNav?.addEventListener('focusout',event=>{if(!expertiseNav.contains(even
 menu?.addEventListener('click',()=>{if(menu.getAttribute('aria-expanded')==='false')closeExpertise();});
 expertiseNav?.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>closeExpertise()));
 document.querySelectorAll('a[href="#diagnostic"]').forEach(link=>link.addEventListener('click',()=>{document.querySelector('#scan-url')?.focus({preventScroll:true});}));
+
+const signalHero=document.querySelector('[data-hero-network]');
+signalHero?.querySelectorAll('[data-signal-mode]').forEach(button=>button.addEventListener('click',()=>{const leads=button.dataset.signalMode==='leads';signalHero.querySelectorAll('[data-signal-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));signalHero.querySelector('[data-signal-label]').textContent=leads?'Demande envoyée':'Achat confirmé';signalHero.classList.toggle('signal-leads',leads);}));

@@ -1,3 +1,4 @@
+import {renderSignalHero} from './hero-signal.mjs';
 const symbol={
  ga4:'<rect x="3" y="13" width="5" height="9" rx="2.5" fill="#f9ab00"/><rect x="10" y="7" width="5" height="15" rx="2.5" fill="#e37400"/><rect x="17" y="1" width="5" height="21" rx="2.5" fill="#e37400"/>',
  gtm:'<path d="m12 1 11 11-11 11L1 12Z" fill="#8ab4f8"/><path d="m12 1 11 11-4 4-11-11Z" fill="#4285f4"/><path d="m12 23-7-7 4-4 7 7Z" fill="#246fdb"/><circle cx="8" cy="16" r="3" fill="#246fdb"/>',
@@ -15,7 +16,7 @@ export const motionControl=()=>`<button type="button" class="motion-control" dat
 const route=(path,delay=0)=>`<path d="${path}" fill="none" stroke="#dfdfdc" stroke-width="2"/><path class="moving-signal" d="${path}" pathLength="100" fill="none" stroke="currentColor" stroke-width="3" style="animation-delay:${delay}s"/>`;
 const caption='<span class="illustration-caption">Illustration · données fictives</span>';
 
-export function heroVisual(scanner){return `<div class="hero-checker-scene"><svg class="hero-architecture" viewBox="0 0 640 660" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="blue-plane" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#76c9ff"/><stop offset=".48" stop-color="#377dff"/><stop offset="1" stop-color="#1246de"/></linearGradient><linearGradient id="blue-edge" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#d8f3ff"/><stop offset="1" stop-color="#438aff"/></linearGradient></defs><path d="M-100 118 398-156 764 44 265 322Z" fill="url(#blue-plane)"/><path d="M-100 118 265 322V365L-100 161Z" fill="#1540bd"/><path d="M265 322 764 44V87L265 365Z" fill="#6bb4ff"/><path d="M-100 330 398 56 764 256 265 534Z" fill="url(#blue-plane)"/><path d="M-100 330 265 534V577L-100 373Z" fill="#163bc2"/><path d="M265 534 764 256V299L265 577Z" fill="#73baff"/><path d="M-100 542 398 268 764 468 265 746Z" fill="url(#blue-plane)"/><path d="M-100 118 265 322 764 44M-100 330 265 534 764 256M-100 542 265 746 764 468" fill="none" stroke="url(#blue-edge)" stroke-width="2"/></svg><div class="hero-checker-frame">${scanner}</div></div>`;}
+export function heroVisual(){return renderSignalHero(toolLogo,motionControl);}
 
 export function analyticsVisual(kind){
  let body='';
