@@ -25,19 +25,7 @@ toolTabs.forEach((tab,index)=>{
 });
 
 const measure=document.querySelector('[data-measure-toggle]');
-measure?.addEventListener('click',()=>{
- const corrected=measure.getAttribute('aria-pressed')!=='true';measure.setAttribute('aria-pressed',String(corrected));
- document.querySelector('.key.missing').style.background=corrected?'#5489ff':'#f48468';
- document.querySelector('[data-measured-count]').textContent=corrected?'92':'72';
- document.querySelector('[data-measured-label]').textContent=corrected?'92 mesurés après correction':'72 mesurés';
- document.querySelector('[data-missing-label]').textContent=corrected?'20 achats à nouveau mesurés dans cet exemple':'20 à vérifier : événement d’achat absent';
- const bar=document.querySelector('[data-measured-bar]'),missing=document.querySelector('[data-missing-bar]');
- const oldWidth=bar.getAttribute('width');bar.setAttribute('width',corrected?'368':'288');missing.setAttribute('width',corrected?'0':'80');
- if(!reducedMotion.matches&&bar.animate){bar.animate([{width:oldWidth+'px'},{width:(corrected?368:288)+'px'}],{duration:650,easing:'cubic-bezier(.16,1,.3,1)'});missing.animate([{opacity:corrected?1:0},{opacity:corrected?0:1}],{duration:400});}
- document.querySelector('.measurement-flow').setAttribute('aria-label',corrected?'Exemple après correction : 92 achats mesurés et 8 non observés.':'Exemple avant correction : 72 achats mesurés, 20 absents à cause d’une erreur technique, 8 non observés.');
-
- measure.firstChild.textContent=corrected?'Revenir à l’exemple initial ':'Simuler la correction de l’événement ';
-});
+measure?.addEventListener('click',()=>{const demo=document.querySelector('[data-measure-demo]');const corrected=measure.getAttribute('aria-pressed')!=='true';measure.setAttribute('aria-pressed',String(corrected));demo.classList.toggle('is-corrected',corrected);demo.querySelector('[data-measured-count]').textContent=corrected?'1':'0';demo.querySelector('[data-measure-heading]').textContent=corrected?'Achat enregistré':'Achat non enregistré';demo.querySelector('[data-measure-transfer]').textContent=corrected?'L’achat est transmis':'L’achat n’est pas transmis';demo.querySelector('[data-measure-result]').textContent=corrected?'La même commande est maintenant mesurée dans GA4.':'La commande existe. GA4 ne la reçoit pas.';measure.querySelector('span').textContent=corrected?'Revoir avant correction':'Voir après correction';});
 
 const scan=document.querySelector('[data-scan]');
 const requestForm=document.querySelector('[data-analysis-form]');
@@ -114,5 +102,3 @@ menu?.addEventListener('click',()=>{if(menu.getAttribute('aria-expanded')==='fal
 expertiseNav?.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>closeExpertise()));
 document.querySelectorAll('a[href="#diagnostic"]').forEach(link=>link.addEventListener('click',()=>{document.querySelector('#scan-url')?.focus({preventScroll:true});}));
 
-const signalHero=document.querySelector('[data-hero-network]');
-signalHero?.querySelectorAll('[data-signal-mode]').forEach(button=>button.addEventListener('click',()=>{const leads=button.dataset.signalMode==='leads';signalHero.querySelectorAll('[data-signal-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));signalHero.querySelector('[data-signal-label]').textContent=leads?'Demande envoyée':'Achat confirmé';signalHero.classList.toggle('signal-leads',leads);}));
