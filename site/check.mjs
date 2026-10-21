@@ -21,6 +21,11 @@ assert(home.includes('id="contact-name"')&&home.includes('id="contact-budget"'),
 assert(!home.includes('Votre messagerie s’ouvre avec le message prérempli.'),'removed contact helper copy');
 assert(home.includes('data-cookie-choice="refused"')&&home.includes('data-cookie-choice="accepted"'),'equal-level audience choices');
 assert(home.includes('/mentions-legales/')&&home.includes('/cookies/'),'legal and cookie pages linked');
+assert.equal((home.match(/<form data-scan>/g)||[]).length,1,'one real scanner, no duplicated form IDs');
+assert(home.indexOf('id="diagnostic"')<home.indexOf('id="expertises"'),'real check available in the hero');
+assert(!home.includes('De la vente au rapport.'),'illustrative hero dashboard removed');
+assert(home.includes('expertise-nav')&&home.includes('expertise-dropdown'),'expertise disclosure in header');
+assert(home.includes('marquee-control visually-hidden'),'logo pause control visually hidden, keyboard accessible');
 console.log(JSON.stringify({pages:htmlFiles.length,localLinksAndAssetsChecked:links,uniqueTitles:titles.size,homeBytes:Buffer.byteLength(home),cssBytes:fs.statSync(path.join(root,'assets/site.css')).size,jsBytes:fs.statSync(path.join(root,'assets/site.js')).size,thirdPartyScripts:externalScripts.length,status:'PASS'},null,2));
 
 for(const slug of ['consultant-google-analytics','consultant-google-tag-manager','consultant-looker-studio','suivi-conversions-google-ads']){const html=fs.readFileSync(path.join(root,slug,'index.html'),'utf8');assert(home.includes('/'+slug+'/'),'service reachable from home: '+slug);assert(!html.includes('undefined'),'complete service data: '+slug);}assert(home.includes('consultant analytics freelance'),'homepage exact supporting phrase');assert(fs.readFileSync(path.join(root,'_redirects'),'utf8').includes('/expert-looker-studio/ /consultant-looker-studio/ 301'),'legacy Looker redirect');

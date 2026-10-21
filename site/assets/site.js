@@ -104,3 +104,12 @@ quickContact?.addEventListener('pointerenter',()=>{if(matchMedia('(hover:hover)'
 quickContact?.addEventListener('pointerleave',()=>{if(matchMedia('(hover:hover)').matches&&!quickContactPinned&&!quickContact.contains(document.activeElement))setQuickContact(false);});
 
 contact?.elements.website.addEventListener('input',()=>contact.elements.website.setCustomValidity(''));
+
+const expertiseNav=document.querySelector('.expertise-nav');
+function closeExpertise(restore=false){if(!expertiseNav?.open)return;expertiseNav.open=false;if(restore)expertiseNav.querySelector('summary').focus();}
+expertiseNav?.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeExpertise(true);}});
+document.addEventListener('click',event=>{if(expertiseNav&&!expertiseNav.contains(event.target))closeExpertise();});
+expertiseNav?.addEventListener('focusout',event=>{if(!expertiseNav.contains(event.relatedTarget))closeExpertise();});
+menu?.addEventListener('click',()=>{if(menu.getAttribute('aria-expanded')==='false')closeExpertise();});
+expertiseNav?.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>closeExpertise()));
+document.querySelectorAll('a[href="#diagnostic"]').forEach(link=>link.addEventListener('click',()=>{document.querySelector('#scan-url')?.focus({preventScroll:true});}));
