@@ -37,7 +37,7 @@ L’indexation est désactivée par défaut dans le HTML et les en-têtes géné
 
 Après validation du domaine, des coordonnées, des mentions de l’éditeur et de la politique de conservation réelle, passer `SITE_INDEXABLE` à `true` dans la configuration de production Netlify et reconstruire. Le domaine canonique doit correspondre au domaine servi, avec HTTPS et les redirections appropriées. Conserver les deploy previews hors index.
 
-Cette version ne charge pas GA4, GTM ni de pixel publicitaire. Aucune CMP fictive n’est ajoutée. Un futur plan de mesure doit distinguer clic Calendly et réservation confirmée, respecter les choix de consentement et ne pas envoyer d’informations personnelles à GA4.
+GA4 (propriété « Consultant analytics », ID de mesure G-EMHNVQB9NN, réglé dans `site/config.mjs` ou par la variable GA4_MEASUREMENT_ID) ne se charge qu’après un clic sur « Accepter » dans le bandeau (`site/assets/consent.js`, mode consentement Google, signaux Google et personnalisation publicitaire désactivés). Événements : `page_view` (adresse sans paramètres), `generate_lead` (form_name analyse-tracking, à l’envoi réussi du formulaire de bilan ou sur /demande-recue/) et `contact_click` (contact_method calendly, whatsapp, phone ou email). Aucun GTM ni pixel publicitaire. Les pages légales sont en noindex et hors du sitemap.
 
 ## Vérifications
 

@@ -15,8 +15,14 @@
   const cleanRef=(()=>{try{const u=new URL(document.referrer);return u.origin+u.pathname;}catch{return '';}})();
   window.gtag('config',id,{send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false,cookie_expires:33696000,cookie_update:false,page_location:location.origin+location.pathname,page_referrer:cleanRef});
   window.gtag('event','page_view',{page_location:location.origin+location.pathname,page_referrer:cleanRef,page_title:document.title});
+  if(location.pathname==='/demande-recue/')window.gtag('event','generate_lead',{form_name:'analyse-tracking'});
   const script=document.createElement('script');script.async=true;script.src='https://www.googletagmanager.com/gtag/js?id='+id;script.dataset.consentAnalytics='true';document.head.append(script);
  }
+ // Prises de contact, envoyées seulement si la mesure est acceptée et chargée.
+ function track(name,params){if(loaded&&!window['ga-disable-'+id]&&window.gtag)window.gtag('event',name,params);}
+ document.addEventListener('click',event=>{const a=event.target?.closest?.('a[href]');if(!a)return;const href=a.getAttribute('href')||'';const method=href.includes('calendly.com')?'calendly':href.includes('wa.me')?'whatsapp':href.startsWith('tel:')?'phone':href.startsWith('mailto:')?'email':'';if(method)track('contact_click',{contact_method:method});});
+ document.addEventListener('submit',event=>{if(event.target?.matches?.('[data-contact]'))track('contact_click',{contact_method:'email'});});
+ document.addEventListener('ca:lead',event=>track('generate_lead',{form_name:event.detail?.form_name||'analyse-tracking'}));
  function stop(){if(enabled)window['ga-disable-'+id]=true;clearCookies();document.querySelectorAll('script[data-consent-analytics]').forEach(s=>s.remove());}
  function open(){returnFocus=document.activeElement;banner.hidden=false;document.body.classList.add('cookie-banner-open');banner.querySelector('button')?.focus();}
  function close(){banner.hidden=true;document.body.classList.remove('cookie-banner-open');if(returnFocus?.isConnected)returnFocus.focus();}

@@ -66,7 +66,7 @@ requestForm?.addEventListener('submit',async event=>{
  event.preventDefault();if(!requestForm.reportValidity())return;
  const button=requestForm.querySelector('button'),status=requestForm.querySelector('[data-analysis-status]');button.disabled=true;status.textContent='Envoi de votre demande…';
  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
- try{const response=await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(requestForm)).toString(),signal:controller.signal});if(!response.ok)throw Error('Envoi impossible pour le moment. Réessayez ou utilisez le contact en bas de page.');status.textContent='Votre demande est enregistrée. Alexandre vous enverra le bilan du prédiagnostic par email.';requestForm.dataset.submitted='true';}
+ try{const response=await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(requestForm)).toString(),signal:controller.signal});if(!response.ok)throw Error('Envoi impossible pour le moment. Réessayez ou utilisez le contact en bas de page.');status.textContent='Votre demande est enregistrée. Alexandre vous enverra le bilan du prédiagnostic par email.';requestForm.dataset.submitted='true';document.dispatchEvent(new CustomEvent('ca:lead',{detail:{form_name:'analyse-tracking'}}));}
  catch(error){status.textContent=error.name==='AbortError'?'L’envoi n’a pas pu être confirmé. Réessayez ou contactez Alexandre en bas de page.':error.message;}
  finally{clearTimeout(timer);button.disabled=requestForm.dataset.submitted==='true';}
 });
