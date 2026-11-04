@@ -25,7 +25,7 @@ L’aperçu s’ouvre sur http://127.0.0.1:4173. `dist/` est généré et ignor�
 
 ## Réglages métier
 
-Modifier `site/config.mjs` pour les coordonnées, le domaine final et les prix. Calendly confirmé par le propriétaire : https://calendly.com/alexandre-cottret/votre-projet-web.
+Modifier `site/config.mjs` pour les coordonnées, le domaine final et les prix. Calendly (événement « Diagnostic tracking · 30 min », décision du 04/11/2026) : https://calendly.com/alexandre-cottret/diagnostic-tracking-30-min.
 
 Les tarifs restent **sur devis** tant que montants, périmètres et HT/TTC ne sont pas confirmés. L’adresse email de contact vient de la page publique Trend Design. Le formulaire de contact du pied de page ouvre explicitement la messagerie du visiteur.
 
